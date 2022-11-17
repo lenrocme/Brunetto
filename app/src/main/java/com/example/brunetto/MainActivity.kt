@@ -7,15 +7,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Surface
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.brunetto.helpers.CalcTax
 import com.example.brunetto.ui.theme.BrunettoTheme
-import com.example.brunetto.viewModels.CalcTaxViewModel
+import com.example.brunetto.viewModels.TaxViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +50,8 @@ fun DefaultPreview() {
 
 @Composable
 fun Main() {
-    val calcTaxViewModel = CalcTaxViewModel()
+    val calcTaxViewModel = TaxViewModel()
+    val mainCalcTax = CalcTax()
     val focusManager = LocalFocusManager.current
     var userInput by remember { mutableStateOf("") }
     Box(
@@ -68,9 +70,20 @@ fun Main() {
         ) {
             OutlinedTextField(
                 value = userInput,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 onValueChange = {
                     userInput = it
             })
+            Text(
+                text = userInput
+            )
+            Button(
+                onClick = {
+                    mainCalcTax.setCalculatedTaxes(userInput.toDouble(), calcTaxViewModel)
+                    globLogs(calcTaxViewModel)
+                }) {
+
+            }
         }
     }
 }
