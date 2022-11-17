@@ -5,8 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
-class CalcTaxViewModel : ViewModel() {
-
+class TaxViewModel : ViewModel() {
     // Social versicherung part of the tax
     var totalSocialVers : Double by mutableStateOf(0.0)
     var rentenVers : Double by mutableStateOf(0.0)
