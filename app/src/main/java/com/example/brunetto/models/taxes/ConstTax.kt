@@ -1,9 +1,10 @@
 package com.example.brunetto.models.taxes
 
 data class ConstTax(
-    val rentenVers : Float = .093f,
-    val arbeitslosenVers : Float = .012f,
-    val krankVers : Float = .073f,
-    val kvZusatzBetr : Float = .0065f,
-    val plfegVers : Float = .01525f,
+    // Values are used as percent
+    val rentenVers : Double = 9.3,
+    val arbeitslosenVers : Double = 1.2,
+    val krankVers : Double = 7.3,
+    val kvZusatzBetr : Double = 0.65,
+    val plfegVers : Double = 1.525,
 )
