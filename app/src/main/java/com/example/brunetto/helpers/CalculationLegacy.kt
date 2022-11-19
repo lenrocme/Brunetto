@@ -8,8 +8,8 @@ class CalculationLegacy {
     val vmLegacTax = LegacyTaxModelView()
 
 
-    var e_kvz = 1.3     // 1.3% Zusatzbeitrag
-    var e_re4 = 40000
+    //var e_kvz = 1.3     // 1.3% Zusatzbeitrag
+   // var e_re4 = 90000
     var e_sonstb = 0
     var e_jsonstb = 0
     var e_vmt = 0
@@ -155,7 +155,6 @@ class CalculationLegacy {
     var sonstb = 0.0;
     var sonstent = 0.0;
     var sterbe = 0.0;
-    var stkl = 1.0;
     var vbez = 0.0;
     var vbezm = 0.0;
     var vbezs = 0.0;
@@ -210,9 +209,16 @@ class CalculationLegacy {
 
     var aloswert = 0.0
     var aloswertag = 0.0
-    var agsozabgabe = 0.0
     var sozabgabe = 0.0
 
+    // also display, ag => tag for arbeitgeber teil
+    var rentewert = 0.0
+    var rentewertag = 0.0
+    var pflegewert = 0.0
+    var pflegewertag = 0.0
+    var kvwert = 0.0
+    var kvwertag = 0.0
+    var agsozabgabe = 0.0           // total of arbeitgeber soz abgaben
 
     // clear
     fun werte() {
@@ -305,7 +311,7 @@ class CalculationLegacy {
 
         // #####
         // #####
-        kvz = e_kvz
+        kvz = vmLegacTax.e_kvz
         re4 = vmLegacTax.e_re4 * 100
         var re4sozlzz = re4
         sonstb = e_sonstb.toDouble() * 100
@@ -323,10 +329,11 @@ class CalculationLegacy {
         if (ajahr < 2018)
             alter1 = 1.0
 
-        stkl = 1.0 // steure klass
+
 
         f = 1.0
-        //if (stkl == 4) f = change(e_f) // flimit()
+        if (vmLegacTax.e_stkl == 4.0)
+            f = vmLegacTax.e_f // flimit()
         af = 0.0
         if (f > 0.0 && f < 1.0)
             af = 1.0
@@ -405,11 +412,25 @@ class CalculationLegacy {
         lstlzz = Math.floor(lstlzz) / 100;
         sts = Math.floor(sts) / 100;
         stv = Math.floor(stv) / 100;
+
+
+        sozberech()
+
         Log.d("taxes", "steuer:  " + steuer)
         Log.d("taxes", "soli:  " + soli)
         Log.d("taxes", "kisteuer:  " + kisteuer)
+        Log.d("taxes", "###summeSteuer:  " + (steuer + kisteuer + soli))
+        Log.d("taxes", "renteVers:  " + rentewert)
+        Log.d("taxes", "arbeitslosVerse:  " + aloswert)
+        Log.d("taxes", "krankVers:  " + kvwert)
+        Log.d("taxes", "pflegeVers:  " + pflegewert)
+        Log.d("taxes", "sozabgabe:  " + sozabgabe)
 
-        sozberech()
+        Log.d("taxes", "Arebitgeberanteil renteVers:  " + rentewertag)
+        Log.d("taxes", "Arebitgeberanteil arbeitslosVerse:  " + aloswertag)
+        Log.d("taxes", "Arebitgeberanteil krankVers:  " + kvwertag)
+        Log.d("taxes", "Arebitgeberanteil pflegeVers:  " + pflegewertag)
+        Log.d("taxes", "Arebitgeberanteil sozabgabe:  " + agsozabgabe)
     }
 
 
@@ -630,7 +651,7 @@ class CalculationLegacy {
             if (zvbez < fvbz) fvbz = Math.floor(zvbez)  // ?? double
         }
 
-        if (stkl < 6) {
+        if (vmLegacTax.e_stkl < 6) {
             if (zvbez > 0) {
                 if (zvbez - fvbz < 102)
                     anp = Math.ceil(zvbez - fvbz)
@@ -642,7 +663,7 @@ class CalculationLegacy {
             fvbzso = 0.0;
         }
 
-        if (stkl < 6) {
+        if (vmLegacTax.e_stkl < 6) {
             if (zre4 > zvbez) {
                 if (zre4 - zvbez < 1200)
                     anp = Math.ceil(anp + zre4 - zvbez)
@@ -652,30 +673,30 @@ class CalculationLegacy {
         }
 
         kztab = 1.0;
-        if (stkl == 1.0) {
+        if (vmLegacTax.e_stkl == 1.0) {
             sap = 36.0;
             kfb = zkf * 8388;
         }
 
-        if (stkl == 2.0) {
+        if (vmLegacTax.e_stkl == 2.0) {
             efa = 4008.0;
             sap = 36.0;
             kfb = zkf * 8388;
         }
-        if (stkl == 3.0) {
+        if (vmLegacTax.e_stkl == 3.0) {
             kztab = 2.0;
             sap = 36.0;
             kfb = zkf * 8388;
         }
-        if (stkl == 4.0) {
+        if (vmLegacTax.e_stkl == 4.0) {
             sap = 36.0;
             kfb = zkf * 4194;
         }
-        if (stkl == 5.0) {
+        if (vmLegacTax.e_stkl == 5.0) {
             sap = 36.0;
             kfb = 0.0;
         }
-        if (stkl == 6.0)
+        if (vmLegacTax.e_stkl == 6.0)
             kfb = 0.0;
 
         ztabfb = efa + anp + sap + fvbz
@@ -736,7 +757,7 @@ class CalculationLegacy {
         } else
             x = Math.floor(zve / kztab)   // auf Euro abrunden   // datay type ????
 
-        if (stkl < 5.0)
+        if (vmLegacTax.e_stkl < 5.0)
             uptab22()
         else
             mst5_6()
@@ -756,7 +777,7 @@ class CalculationLegacy {
         }
 
         vsp2 = 0.12 * zre4vp;
-        if (stkl == 3.0)
+        if (vmLegacTax.e_stkl == 3.0)
             vhb = 3000.0;
         else
             vhb = 1900.0;
@@ -777,7 +798,7 @@ class CalculationLegacy {
         }
 
         if (pkv > 0) {
-            if (stkl == 6.0) {
+            if (vmLegacTax.e_stkl == 6.0) {
                 vsp3 = 0.0;
             } else {
                 vsp3 = ((pkpv * 12) / 100).toDouble();
@@ -920,7 +941,7 @@ class CalculationLegacy {
         }
         else x = Math.floor((solzszve / kztab).toDouble()); //datatype??
 
-        if (stkl < 5) uptab22();
+        if (vmLegacTax.e_stkl < 5) uptab22();
         else mst5_6();
 
         solzsbmg = Math.floor(st * f);
@@ -1069,13 +1090,14 @@ class CalculationLegacy {
         var kvsatz = vmLegacTax.e_barmer
 
         // wtf
-        jw = bemesk.toDouble()
+        bemesberech(); // ermitteln
+        jw = bemesk
         var bemeskoso = bemesk
-        //upanteil();
+        upanteil();
         var bemesklzz = anteil1;
-        jw = bemesr.toDouble();
+        jw = bemesr
         var bemesroso = bemesr;
-        //upanteil();
+        upanteil();
         var bemesrlzz = anteil1;
 
         // wtf
@@ -1085,11 +1107,11 @@ class CalculationLegacy {
         bemesberech(); // ermitteln
         bemeskganz = bemesk;
         bemesrganz = bemesr;
-        bemesk = Math.round(bemesklzz + Math.max(bemeskganz - (bemeskoso + jsonstb), 0.0) /
-                100).toDouble()
+        bemesk = Math.round(bemesklzz + Math.max(bemeskganz - (bemeskoso + jsonstb), 0.0)) /
+                100.0
         bemesr =
-            Math.round(bemesrlzz + Math.max(bemesrganz - (bemesroso + jsonstb.toInt()), 0.0) /
-                    100).toDouble()
+            Math.round(bemesrlzz + Math.max(bemesrganz - (bemesroso + jsonstb.toInt()), 0.0)) /
+                    100.0
         val rente = 9.3;
         val alos = 1.2;
         kvz = vmLegacTax.e_kvz
@@ -1100,45 +1122,45 @@ class CalculationLegacy {
         if (kvsatz == 0.0)
             bemesk = 0.0
 
-        var rentewert = Math.round(bemesr * rente) / 100;
-        var rentewertag = rentewert;
-        var kvwert = Math.round((bemesk * kvsatz) / 2 + (bemesk * kvz) / 2) / 100;
-        var kvwertag = kvwert
-        var pflegewert = Math.round(bemesk * pflege + bemesk * pvzusatz) / 100;
-        var pflegewertag = Math.round(bemesk * pflege_ag) / 100;
+        rentewert = Math.round(bemesr * rente) / 100.0
+        rentewertag = rentewert;
+        kvwert = Math.round((bemesk * kvsatz) / 2 + (bemesk * kvz) / 2) / 100.0
+        kvwertag = kvwert
+        pflegewert = Math.round(bemesk * pflege + bemesk * pvzusatz) / 100.0
+        pflegewertag = Math.round(bemesk * pflege_ag) / 100.0
 
 
         if (anpkv > 0) {
             if (vmLegacTax.mitag)
-                kvwertag = Math.round(Math.min(anpkv / 2, pkvbemes.toDouble()) * 100) / 100;
-            pflegewertag = 0;
-            pflegewert = 0;
-            if (anpkv == 0.0 || pkv == 1.0) kvwertag = 0;
+                kvwertag = Math.round(Math.min(anpkv / 2, pkvbemes.toDouble()) * 100) / 100.0
+            pflegewertag = 0.0
+            pflegewert = 0.0
+            if (anpkv == 0.0 || pkv == 1.0)
+                kvwertag = 0.0
 
-            jw = Math.round(anpkv - kvwertag).toDouble();
+            jw = Math.round(anpkv - kvwertag).toDouble()
             upanteil();
-            kvwert = (Math.floor(anteil1) / 100).toLong();
+            kvwert = Math.floor(anteil1) / 100
             jw = kvwertag.toDouble();
             upanteil();
-            kvwertag = (Math.floor(anteil1) / 100).toLong()
-
-            aloswert = (Math.round(bemesr * alos) / 100).toDouble();
-            aloswertag = aloswert;
-            if (krv == 2.0) {
-                rentewert = 0;
-                rentewertag = 0;
-            }
-
-            if (vmLegacTax.e_av) {
-                aloswert = 0.0;
-                aloswertag = 0.0;
-            }
-            var agsozabgabe =
-                Math.floor((rentewertag + kvwertag + pflegewertag + aloswertag) * 100) /
-                        100
-            var sozabgabe =
-                Math.floor((rentewert + kvwert + pflegewert + aloswert) * 1000) / 1000
+            kvwertag = Math.floor(anteil1) / 100
         }
+        aloswert = Math.round(bemesr * alos) / 100.0
+        aloswertag = aloswert;
+        if (krv == 2.0) {
+            rentewert = 0.0;
+            rentewertag = 0.0;
+        }
+
+        if (!vmLegacTax.e_av) {
+            aloswert = 0.0;
+            aloswertag = 0.0;
+        }
+        agsozabgabe =
+            Math.floor((rentewertag + kvwertag + pflegewertag + aloswertag) * 100) / 100
+        sozabgabe =
+            Math.floor((rentewert + kvwert + pflegewert + aloswert) * 1000) / 1000
+
 
     }
 

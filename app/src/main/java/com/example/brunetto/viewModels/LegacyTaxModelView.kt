@@ -8,15 +8,16 @@ import androidx.lifecycle.ViewModel
 class LegacyTaxModelView : ViewModel() {
 
     // main input
-    var e_re4 : Double by mutableStateOf(40000.0)     // brutto lohn
+    var e_re4 : Double by mutableStateOf(90000.0)     // brutto lohn
     var e_lzz : Int by mutableStateOf(1)     // zeitraum
 
     // dropdown menus
     var geb_tag : Double by mutableStateOf(0.0)     // jahr gebohren
-    var e_stkl : Double by mutableStateOf(1.0)      // steuer klasse  & faczeigen()
+    var e_stkl : Double by mutableStateOf(4.0)      // steuer klasse  & faczeigen()
+    var e_f : Double by mutableStateOf(0.0)     // only with str class 4, between 0 and 1, no more then 3 digit after comma
     var e_zkf : Double by mutableStateOf(0.0)       //kinder frei betr, number of childs
     var e_bundesland : Int by mutableStateOf(1)     // krv by index +1
-    var e_r : Double by mutableStateOf(9.0)             // kirch steuer
+    var e_r : Double by mutableStateOf(8.0)             // kirch steuer
 
     // checkboxes
     var kinderlos : Boolean by mutableStateOf(true)         // no children above 23 years old
