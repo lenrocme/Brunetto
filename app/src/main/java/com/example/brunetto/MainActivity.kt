@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.brunetto.helpers.CalcTax
+import com.example.brunetto.helpers.CalculationLegacy
 import com.example.brunetto.ui.theme.BrunettoTheme
 import com.example.brunetto.viewModels.TaxViewModel
 
@@ -81,6 +82,13 @@ fun Main() {
                 onClick = {
                     mainCalcTax.setCalculatedTaxes(userInput.toDouble(), calcTaxViewModel)
                     globLogs(calcTaxViewModel)
+                }) {
+
+            }
+
+            Button(
+                onClick = {
+                    CalculationLegacy().setData()
                 }) {
 
             }
