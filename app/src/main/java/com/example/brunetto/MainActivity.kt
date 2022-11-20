@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -145,6 +146,11 @@ fun Body(taxViewModel: LegacyTaxModelView) {
              * */
             DropDownMenu_Bundesland("Bundesland", taxViewModel)
 
+            /**
+             * The Card for the checkboxes like "kinderlos" and > 23 & "renteversicherung" & "arbeitslosversicherung"
+             * */
+            CheckBoxes(taxViewModel)
+
             Text(
                 text = bruttoLohn
             )
@@ -164,6 +170,9 @@ fun Body(taxViewModel: LegacyTaxModelView) {
                     Log.d("taxes", "zahl der kinder: " + taxViewModel.e_zkf)
                     Log.d("taxes", "Bundesland: " + taxViewModel.e_bundesland)
                     Log.d("taxes", "Kirchsteuer: " + taxViewModel.e_r)
+                    Log.d("taxes", "KinderLos: " + taxViewModel.kinderlos)
+                    Log.d("taxes", "renteversicherungspflichtig: " + taxViewModel.e_krv)
+                    Log.d("taxes", "arbeitslosenversicherungspflichtig: " + taxViewModel.e_av)
                 }) {
 
             }
@@ -465,7 +474,8 @@ fun DropDownMenu_Bundesland(textLabel: String, taxViewModel: LegacyTaxModelView)
                     }
                 }
             }
-            Row() {
+            Row(verticalAlignment = Alignment.CenterVertically
+            ) {
                 Checkbox(
                     checked = checkedState,
                     onCheckedChange = {
@@ -485,8 +495,67 @@ fun DropDownMenu_Bundesland(textLabel: String, taxViewModel: LegacyTaxModelView)
                             if (selectedOptionLand == "Bayern" || selectedOptionLand == "Baden-Württemberg")
                                 "Kirchensteur: 8%"
                             else
-                                "Kirchensteur: 9%"
+                                "Kirchensteur: 9%",
+                    modifier = Modifier
+                        .clickable(interactionSource = MutableInteractionSource(), indication = null)
+                        { checkedState = !checkedState }
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(percentWidth(.06f)),
+        elevation = 5.dp
+    ) {
+        Column() {
+            Row(verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = taxViewModel.kinderlos,
+                    onCheckedChange = {
+                        taxViewModel.kinderlos = it
+                    },
+                    )
+                Text(
+                    text = "Kinderlos und älter als 23",
+                    modifier = Modifier
+                        .clickable(interactionSource = MutableInteractionSource(), indication = null)
+                        { taxViewModel.kinderlos = !taxViewModel.kinderlos })
+            }
+            Row(verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = taxViewModel.e_krv,
+                    onCheckedChange = {
+                        taxViewModel.e_krv = it
+                    },
+                    )
+                Text(
+                    text = "Renteversicherungspflichtig",
+                    modifier = Modifier
+                        .clickable(interactionSource = MutableInteractionSource(), indication = null)
+                        { taxViewModel.e_krv = !taxViewModel.e_krv })
+            }
+            Row(verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = taxViewModel.e_av,
+                    onCheckedChange = {
+                        taxViewModel.e_av = it
+                    },
+                    )
+                Text(
+                    text = "Arbeitslosenversicherungspflichtig",
+                    modifier = Modifier
+                        .clickable(interactionSource = MutableInteractionSource(), indication = null)
+                        { taxViewModel.e_av = !taxViewModel.e_av }
+                    )
             }
         }
     }
