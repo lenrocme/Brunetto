@@ -94,6 +94,7 @@ fun Header(taxViewModel: LegacyTaxModelView) {
 
 @Composable
 fun Body(taxViewModel: LegacyTaxModelView) {
+    val spaceBetweenCards = percentHeight(.022f)
     val state = rememberScrollState()
     val calcTaxViewModel = TaxViewModel()
     val mainCalcTax = CalcTax()
@@ -122,35 +123,50 @@ fun Body(taxViewModel: LegacyTaxModelView) {
                 .verticalScroll(state),
         ) {
             Spacer(modifier = Modifier
-                .height(percentHeight(.01f))
+                .height(spaceBetweenCards)
                 .fillMaxWidth())
-            OutlinedTextField(
+            /*OutlinedTextField(
                 value = bruttoLohn,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 onValueChange = {
                     bruttoLohn = it
-                })
+                })*/
 
             /**
              * The Card for the "Steur class" and when the option 4 is selected => active "Ehegattenfaktor"
              * */
             SteuerClass(taxViewModel)
-
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
             /**
              * The Card with "Kinderfreibeträge" drop down menu
              * */
             DropDownMenu("Kinderfreibeträge", optionsKinder, taxViewModel)
-
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
             /**
              * The Card with "Bundesland" drop down menu & and checkbox for "kirchsteur"
              * */
             DropDownMenu_Bundesland("Bundesland", taxViewModel)
-
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
             /**
              * The Card for the checkboxes like "kinderlos" and > 23 & "renteversicherung" & "arbeitslosversicherung"
              * */
             CheckBoxes(taxViewModel)
-
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
+            /**
+             * The Card for "krankversicherungen" , gesetzliche & private
+             * */
+            Card_KrankVers(taxViewModel)
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
             Text(
                 text = bruttoLohn
             )
@@ -165,6 +181,7 @@ fun Body(taxViewModel: LegacyTaxModelView) {
             Button(
                 onClick = {
                     //CalculationLegacy().setData()
+                    Log.d("taxes", "inputed lohn: " + taxViewModel.e_re4)
                     Log.d("taxes", "steurclass: " + taxViewModel.e_stkl)
                     Log.d("taxes", "when steuer 4, value: " + taxViewModel.e_f)
                     Log.d("taxes", "zahl der kinder: " + taxViewModel.e_zkf)
@@ -173,6 +190,12 @@ fun Body(taxViewModel: LegacyTaxModelView) {
                     Log.d("taxes", "KinderLos: " + taxViewModel.kinderlos)
                     Log.d("taxes", "renteversicherungspflichtig: " + taxViewModel.e_krv)
                     Log.d("taxes", "arbeitslosenversicherungspflichtig: " + taxViewModel.e_av)
+                    Log.d("taxes", "krankenversicherung beitragssatz: " + taxViewModel.e_barmer)
+                    Log.d("taxes", "Zusatzbeitrag: " + taxViewModel.e_kvz)
+                    Log.d("taxes", "Beitra / Monat: " + taxViewModel.e_anpkv)
+                    Log.d("taxes", "Grundsicherung / Monat: " + taxViewModel.e_pkpv)
+                    Log.d("taxes", "mit Arbeitgeberzushuss: " + taxViewModel.mitag)
+                    Log.d("taxes", "ohne Nachweis: " + taxViewModel.nachweis)
                 }) {
 
             }
@@ -184,15 +207,29 @@ fun Body(taxViewModel: LegacyTaxModelView) {
 fun SteuerClass(taxViewModel: LegacyTaxModelView) {
     var selectedOption by remember { mutableStateOf(1) }
     var valueEhegattenfaktor by remember { mutableStateOf("") }
+    var txtValueLohn by remember { mutableStateOf(taxViewModel.e_re4.toString()) }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             // .height(percentHeight(.15f))
-            .padding(percentWidth(.06f)),
+            .padding(horizontal = percentWidth(.06f)),
         elevation = 5.dp
     ) {
         Column() {
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = txtValueLohn,
+                onValueChange = {
+                    txtValueLohn = it
+                    if (!it.isEmpty())
+                        taxViewModel.e_re4 = it.toDouble()
+                    else
+                        taxViewModel.e_re4 = 1.0
+                },
+                label = { Text(text = "Zusatzbeitrag") },
+            )
             Spacer(modifier = Modifier
                 .height(10.dp)
                 .fillMaxWidth())
@@ -321,11 +358,10 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                         textAlign = TextAlign.Center)
                 }
             }
-
+            Spacer(modifier = Modifier
+                .height(10.dp)
+                .fillMaxWidth())
             if (selectedOption == 4) {
-                Spacer(modifier = Modifier
-                    .height(10.dp)
-                    .fillMaxWidth())
                 TextField(  //OutlinedTextField
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -343,13 +379,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                     label = { Text(text = "Ehegattenfaktor") },
                 )
             }
-            Spacer(modifier = Modifier
-                .height(10.dp)
-                .fillMaxWidth())
         }
     }
-
-
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -362,7 +393,7 @@ fun DropDownMenu(textLabel: String, optionsDropMenu: List<String>, taxViewModel:
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(percentWidth(.06f)),
+            .padding(horizontal = percentWidth(.06f)),
         elevation = 5.dp
     ) {
         //Text(text = textLabel)
@@ -425,7 +456,7 @@ fun DropDownMenu_Bundesland(textLabel: String, taxViewModel: LegacyTaxModelView)
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(percentWidth(.06f)),
+            .padding(horizontal = percentWidth(.06f)),
         elevation = 5.dp
     ) {
         Column()
@@ -510,7 +541,7 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(percentWidth(.06f)),
+            .padding(horizontal = percentWidth(.06f)),
         elevation = 5.dp
     ) {
         Column() {
@@ -560,6 +591,203 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
         }
     }
 }
+
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
+    var expanded by remember { mutableStateOf(false) }
+    var checkedState by remember { mutableStateOf(true) }
+    var isKrankVersGesetzlich by remember { mutableStateOf(true) }
+
+    val optionsDropMenu = listOf("0.0", "14.0", "14.6")
+    var selectedOption by remember { mutableStateOf(optionsDropMenu[0]) }
+
+    var txtValueZusatzbeitrag by remember { mutableStateOf(taxViewModel.e_kvz.toString()) }
+    var txtValueBeitrag by remember { mutableStateOf(taxViewModel.e_anpkv.toString()) }
+    var txtValueGrundSicherung by remember { mutableStateOf(taxViewModel.e_pkpv.toString()) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = percentWidth(.06f)),
+        elevation = 5.dp
+    ) {
+        Column() {
+            Row(modifier = Modifier
+                .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(text = "Krankenversicherung")
+            }
+            Row(modifier = Modifier
+                .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(text = "Gesetzliche",
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = MutableInteractionSource(),
+                            indication = null
+                        ) { isKrankVersGesetzlich = true }
+                    )
+                Switch(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp),
+                    checked = !isKrankVersGesetzlich,
+                    enabled = true,
+                    onCheckedChange = {
+                        isKrankVersGesetzlich = !it
+                        if (isKrankVersGesetzlich) {
+                            taxViewModel.e_barmer = 14.6
+                            taxViewModel.e_kvz = 1.3
+                        } else {
+                            taxViewModel.e_barmer = 0.0
+                            taxViewModel.e_kvz = 0.0
+                        }
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.LightGray,
+                        uncheckedThumbColor = Color.LightGray,
+                        checkedTrackColor = Color.Gray,
+                        uncheckedTrackColor = Color.Gray,
+                        checkedTrackAlpha = 1.0f,
+                        uncheckedTrackAlpha = 1.0f
+                    )
+                )
+                Text(text = "Private",
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = MutableInteractionSource(),
+                            indication = null
+                        ) { isKrankVersGesetzlich = false }
+                )
+            }
+            if (isKrankVersGesetzlich) {
+                Column()
+                {
+                    //Text(text = textLabel)
+                    ExposedDropdownMenuBox(
+                        modifier = Modifier,
+                        //.fillMaxWidth()
+                        // .padding(horizontal = percentWidth(.06f)),
+                        expanded = expanded,
+                        onExpandedChange = {
+                            expanded = !expanded
+                        }
+                    ) {
+                        TextField(  //OutlinedTextField
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            readOnly = true,
+                            value = taxViewModel.e_barmer.toString(),
+                            onValueChange = {},
+                            label = { Text(text = "Krankenversicherung Beitragssatz") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                    expanded = expanded
+                                )
+                            },
+                            colors = ExposedDropdownMenuDefaults.textFieldColors()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = {
+                                expanded = false
+                            },
+                        ) {
+                            optionsDropMenu.forEach { selectionOption ->
+                                DropdownMenuItem(
+                                    onClick = {
+                                        expanded = false
+                                        taxViewModel.e_barmer = selectedOption.toDouble()
+                                    }
+                                ) {
+                                    Text(text = selectionOption)
+                                }
+                            }
+                        }
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        //Text(text = "Kirchensteur:")
+                        TextField(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            value = txtValueZusatzbeitrag,
+                            onValueChange = {
+                                txtValueZusatzbeitrag = it
+                                if (!it.isEmpty())
+                                    taxViewModel.e_kvz = it.toDouble()
+                                else
+                                    taxViewModel.e_kvz = 0.0
+                            },
+                            label = { Text(text = "Zusatzbeitrag") },
+                        )
+                    }
+                }
+            } else {
+                TextField(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    value = txtValueBeitrag,
+                    onValueChange = {
+                        txtValueBeitrag = it
+                        if (!it.isEmpty())
+                            taxViewModel.e_anpkv = it.toDouble()
+                        else
+                            taxViewModel.e_anpkv = 0.0
+                    },
+                    label = { Text(text = "Beitrag / Monat") },
+                )
+                TextField(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    value = txtValueGrundSicherung,
+                    onValueChange = {
+                        txtValueGrundSicherung = it
+                        if (!it.isEmpty())
+                            taxViewModel.e_pkpv = it.toDouble()
+                        else
+                            taxViewModel.e_pkpv = 0.0
+                    },
+                    label = { Text(text = "Grundsicherung / Monat") },
+                )
+                Row(verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = taxViewModel.mitag,
+                        onCheckedChange = {
+                            taxViewModel.mitag = it
+                        },
+                    )
+                    Text(
+                        text = "mit Arbeitgeberzuscuss",
+                        modifier = Modifier
+                            .clickable(interactionSource = MutableInteractionSource(), indication = null)
+                            { taxViewModel.mitag = !taxViewModel.mitag })
+                }
+                Row(verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = taxViewModel.nachweis,
+                        onCheckedChange = {
+                            taxViewModel.nachweis = it
+                        },
+                    )
+                    Text(
+                        text = "ohne Nachweis",
+                        modifier = Modifier
+                            .clickable(interactionSource = MutableInteractionSource(), indication = null)
+                            { taxViewModel.nachweis = !taxViewModel.nachweis })
+                }
+            }
+        }
+    }
+}
+
 
 /**
  * Set the value to view model for "kirchsteuer"
