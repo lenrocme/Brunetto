@@ -135,11 +135,15 @@ fun Body(taxViewModel: LegacyTaxModelView) {
              * */
             SteuerClass(taxViewModel)
 
-
             /**
              * The Card with "Kinderfreibeträge" drop down menu
              * */
             DropDownMenu("Kinderfreibeträge", optionsKinder, taxViewModel)
+
+            /**
+             * The Card with "Bundesland" drop down menu & and checkbox for "kirchsteur"
+             * */
+            DropDownMenu_Bundesland("Bundesland", taxViewModel)
 
             Text(
                 text = bruttoLohn
@@ -158,6 +162,8 @@ fun Body(taxViewModel: LegacyTaxModelView) {
                     Log.d("taxes", "steurclass: " + taxViewModel.e_stkl)
                     Log.d("taxes", "when steuer 4, value: " + taxViewModel.e_f)
                     Log.d("taxes", "zahl der kinder: " + taxViewModel.e_zkf)
+                    Log.d("taxes", "Bundesland: " + taxViewModel.e_bundesland)
+                    Log.d("taxes", "Kirchsteuer: " + taxViewModel.e_r)
                 }) {
 
             }
@@ -394,4 +400,110 @@ fun DropDownMenu(textLabel: String, optionsDropMenu: List<String>, taxViewModel:
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun DropDownMenu_Bundesland(textLabel: String, taxViewModel: LegacyTaxModelView) {
+    var expanded by remember { mutableStateOf(false) }
+    var checkedState by remember { mutableStateOf(true) }
+
+    val optionsDropMenu = listOf("Baden-Württemberg", "Bayern", "Berlin(West)", "Berlin(Ost)", "Brandenburg",
+        "Bremen/Bremerhaven", "Hamburg", "Hessen", "Mecklenburg-Vorpommern", "Niedersachsen", "Nordrhein-Westfalen",
+        "Rheinland-Pfalz", "Saarland", "Sachsen", "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen",)
+    var selectedOptionLand by remember { mutableStateOf(optionsDropMenu[0]) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(percentWidth(.06f)),
+        elevation = 5.dp
+    ) {
+        Column()
+        {
+            //Text(text = textLabel)
+            ExposedDropdownMenuBox(
+                modifier = Modifier,
+                //.fillMaxWidth()
+                // .padding(horizontal = percentWidth(.06f)),
+                expanded = expanded,
+                onExpandedChange = {
+                    expanded = !expanded
+                }
+            ) {
+                TextField(  //OutlinedTextField
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    readOnly = true,
+                    value = selectedOptionLand,
+                    onValueChange = {},
+                    label = { Text(text = textLabel) },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(
+                            expanded = expanded
+                        )
+                    },
+                    colors = ExposedDropdownMenuDefaults.textFieldColors()
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = {
+                        expanded = false
+                    },
+                ) {
+                    optionsDropMenu.forEach { selectionOption ->
+                        DropdownMenuItem(
+                            onClick = {
+                                selectedOptionLand = selectionOption
+                                expanded = false
+                                taxViewModel.e_bundesland = optionsDropMenu.indexOf(selectedOptionLand) + 1
+                                taxViewModel.e_r = SetKirchSteur(checkedState, selectedOptionLand)
+                            }
+                        ) {
+                            Text(text = selectionOption)
+                        }
+                    }
+                }
+            }
+            Row() {
+                Checkbox(
+                    checked = checkedState,
+                    onCheckedChange = {
+                        checkedState = it
+                        taxViewModel.e_r = SetKirchSteur(checkedState, selectedOptionLand)
+                    },
+                    /*colors = CheckboxDefaults.colors(
+                        checkedColor = MaterialTheme.myColors.main_400,
+                        uncheckedColor = MaterialTheme.myColors.main_350
+                    )*/
+                )
+                //Text(text = "Kirchensteur:")
+                Text(
+                    text = if (checkedState == false)
+                            "Kirchensteur: 0%"
+                        else
+                            if (selectedOptionLand == "Bayern" || selectedOptionLand == "Baden-Württemberg")
+                                "Kirchensteur: 8%"
+                            else
+                                "Kirchensteur: 9%"
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Set the value to view model for "kirchsteuer"
+ * @param checkedState The state of checkbox, true for active "krichsteuer"
+ * @param selectedOptionLand The select land as option from drop down menu
+ * @return The "kirchsteur" value
+ * */
+private fun SetKirchSteur(checkedState: Boolean, selectedOptionLand: String) : Double {
+    return if (!checkedState)
+        0.0
+    else
+        if (selectedOptionLand == "Bayern" || selectedOptionLand == "Baden-Württemberg")
+            8.0
+        else
+            9.0
 }
