@@ -13,7 +13,7 @@ class LegacyTaxModelView : ViewModel() {
 
     // dropdown menus
     var geb_tag : Double by mutableStateOf(0.0)     // jahr gebohren
-    var e_stkl : Double by mutableStateOf(4.0)      // steuer klasse  & faczeigen()
+    var e_stkl : Double by mutableStateOf(1.0)      // steuer klasse  & faczeigen()
     var e_f : Double by mutableStateOf(0.0)     // only with str class 4, between 0 and 1, no more then 3 digit after comma
     var e_zkf : Double by mutableStateOf(0.0)       //kinder frei betr, number of childs
     var e_bundesland : Int by mutableStateOf(1)     // krv by index +1
