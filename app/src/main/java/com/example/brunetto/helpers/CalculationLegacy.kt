@@ -324,7 +324,8 @@ class CalculationLegacy {
         pkpv = e_pkpv.toDouble() * 100
         anpkv = e_anpkv.toDouble() * 1200
 
-        ajahr = 2022.0  // from view must
+        ajahr = vmLegacTax.geb_tag // from view must
+        ajahr = 2022.0 // from view must
         alter1 = 0.0
         if (ajahr < 2018)
             alter1 = 1.0
@@ -927,7 +928,6 @@ class CalculationLegacy {
         }
     }
 
-
     fun msolzsts(){
         // neu in PAP 2021: Berechnung des SolZ auf sonstige Bezüge
         if (zkf > 0)
@@ -950,7 +950,6 @@ class CalculationLegacy {
             solzs = Math.floor(sts * 5.5) / 100;
         else
             solzs = 0.0;
-
     }
 
     fun mvmt() {

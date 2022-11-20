@@ -13,7 +13,7 @@ class LegacyTaxModelView : ViewModel() {
 
     // dropdown menus
     var geb_tag : Double by mutableStateOf(0.0)     // jahr gebohren
-    var e_stkl : Double by mutableStateOf(4.0)      // steuer klasse  & faczeigen()
+    var e_stkl : Double by mutableStateOf(1.0)      // steuer klasse  & faczeigen()
     var e_f : Double by mutableStateOf(0.0)     // only with str class 4, between 0 and 1, no more then 3 digit after comma
     var e_zkf : Double by mutableStateOf(0.0)       //kinder frei betr, number of childs
     var e_bundesland : Int by mutableStateOf(1)     // krv by index +1
@@ -28,13 +28,13 @@ class LegacyTaxModelView : ViewModel() {
     var e_barmer : Double by mutableStateOf(14.6)
     var e_kvz : Double by mutableStateOf(1.3)
 
-    // private health insurance
-    var e_anpkv : Double by mutableStateOf(0.0)     // call listener pkvwahl()
+    // private health insurance !! not used yet in the calculation
+    var e_anpkv : Double by mutableStateOf(0.0)     // call listener pkvwahl()  //was not used
     var mitag : Boolean by mutableStateOf(false)
-    var nachweis : Boolean by mutableStateOf(false)
-    var e_pkpv : Double by mutableStateOf(0.0)     // call listener pkvwahl()
+    var nachweis : Boolean by mutableStateOf(false)                             //was not used
+    var e_pkpv : Double by mutableStateOf(0.0)     // call listener pkvwahl()   //was not used
 
-    // last points optional
+    // last points optional !! not used yet in the calculation
     var e_sonstb : Double by mutableStateOf(0.0)
     var e_jsonstb : Double by mutableStateOf(0.0)
     var e_vmt : Double by mutableStateOf(0.0)

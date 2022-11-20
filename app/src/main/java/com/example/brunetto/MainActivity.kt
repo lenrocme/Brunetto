@@ -1,22 +1,31 @@
 package com.example.brunetto
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.brunetto.helpers.CalcTax
-import com.example.brunetto.helpers.CalculationLegacy
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.brunetto.helpers.*
 import com.example.brunetto.ui.theme.BrunettoTheme
+import com.example.brunetto.viewModels.LegacyTaxModelView
 import com.example.brunetto.viewModels.TaxViewModel
 
 class MainActivity : ComponentActivity() {
@@ -29,7 +38,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
+                    MainActivityScreen()
                 }
             }
         }
@@ -37,50 +46,133 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String) {
-    Main()
+fun MainActivityScreen() {
+    val focusManager = LocalFocusManager.current
+    val taxViewModel = LegacyTaxModelView()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+        /* .background(MaterialTheme.myColors.CL_BackGround)
+         .pointerInput(Unit) {
+             detectTapGestures(onTap = {
+                 focusManager.clearFocus()
+             })
+         },*/
+    ) {
+        Column() {
+            Header(taxViewModel)
+            Body(taxViewModel)
+        }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     BrunettoTheme {
-        Greeting("Android")
+        MainActivityScreen()
     }
 }
 
 @Composable
-fun Main() {
+fun Header(taxViewModel: LegacyTaxModelView) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Spacer(modifier = Modifier
+            .height(percentHeight(adaptHeight(.035f, .05f, 0.065f)) - 19.dp)
+            .fillMaxWidth())
+        Text(
+            text = "Netto jährlich: "
+        )
+        Text(
+            text = "Netto monatlich: "
+        )
+    }
+}
+
+@Composable
+fun Body(taxViewModel: LegacyTaxModelView) {
+    val spaceBetweenCards = percentHeight(.022f)
+    val state = rememberScrollState()
     val calcTaxViewModel = TaxViewModel()
     val mainCalcTax = CalcTax()
     val focusManager = LocalFocusManager.current
-    var userInput by remember { mutableStateOf("") }
+    var bruttoLohn by remember { mutableStateOf("") }
+
+    /**
+     *  Option for dropdown menu
+     * */
+    val optionsKinder = listOf("--", "0.5", "1.0", "1.5", "2.0", "2.5", "3.0", "3.5", "4.0",
+        "4.5", "5.0", "5.5", "6.0", "6.5", "7.0", "7.5")
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            /*.background(MaterialTheme.myColors.CL_BackGround)
-            .pointerInput(Unit) {
-                detectTapGestures(onTap = {
-                    focusManager.clearFocus()
-                })
-            },*/
+        /*.background(MaterialTheme.myColors.CL_BackGround)
+        .pointerInput(Unit) {
+            detectTapGestures(onTap = {
+                focusManager.clearFocus()
+            })
+        },*/
     ) {
         Column(
             modifier = Modifier
                 .fillMaxHeight(1f)
+                .verticalScroll(state),
         ) {
-            OutlinedTextField(
-                value = userInput,
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
+            /*OutlinedTextField(
+                value = bruttoLohn,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 onValueChange = {
-                    userInput = it
-            })
+                    bruttoLohn = it
+                })*/
+
+            /**
+             * The Card for the "Steur class" and when the option 4 is selected => active "Ehegattenfaktor"
+             * */
+            SteuerClass(taxViewModel)
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
+            /**
+             * The Card with "Kinderfreibeträge" drop down menu
+             * */
+            DropDownMenu("Kinderfreibeträge", optionsKinder, taxViewModel)
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
+            /**
+             * The Card with "Bundesland" drop down menu & and checkbox for "kirchsteur"
+             * */
+            DropDownMenu_Bundesland("Bundesland", taxViewModel)
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
+            /**
+             * The Card for the checkboxes like "kinderlos" and > 23 & "renteversicherung" & "arbeitslosversicherung"
+             * */
+            CheckBoxes(taxViewModel)
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
+            /**
+             * The Card for "krankversicherungen" , gesetzliche & private
+             * */
+            Card_KrankVers(taxViewModel)
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
             Text(
-                text = userInput
+                text = bruttoLohn
             )
             Button(
                 onClick = {
-                    mainCalcTax.setCalculatedTaxes(userInput.toDouble(), calcTaxViewModel)
+                    mainCalcTax.setCalculatedTaxes(bruttoLohn.toDouble(), calcTaxViewModel)
                     globLogs(calcTaxViewModel)
                 }) {
 
@@ -88,10 +180,627 @@ fun Main() {
 
             Button(
                 onClick = {
-                    CalculationLegacy().setData()
+                    //CalculationLegacy().setData()
+                    Log.d("taxes", "inputed lohn: " + taxViewModel.e_re4)
+                    Log.d("taxes", "steurclass: " + taxViewModel.e_stkl)
+                    Log.d("taxes", "when steuer 4, value: " + taxViewModel.e_f)
+                    Log.d("taxes", "zahl der kinder: " + taxViewModel.e_zkf)
+                    Log.d("taxes", "Bundesland: " + taxViewModel.e_bundesland)
+                    Log.d("taxes", "Kirchsteuer: " + taxViewModel.e_r)
+                    Log.d("taxes", "KinderLos: " + taxViewModel.kinderlos)
+                    Log.d("taxes", "renteversicherungspflichtig: " + taxViewModel.e_krv)
+                    Log.d("taxes", "arbeitslosenversicherungspflichtig: " + taxViewModel.e_av)
+                    Log.d("taxes", "krankenversicherung beitragssatz: " + taxViewModel.e_barmer)
+                    Log.d("taxes", "Zusatzbeitrag: " + taxViewModel.e_kvz)
+                    Log.d("taxes", "Beitra / Monat: " + taxViewModel.e_anpkv)
+                    Log.d("taxes", "Grundsicherung / Monat: " + taxViewModel.e_pkpv)
+                    Log.d("taxes", "mit Arbeitgeberzushuss: " + taxViewModel.mitag)
+                    Log.d("taxes", "ohne Nachweis: " + taxViewModel.nachweis)
                 }) {
 
             }
         }
     }
+}
+
+@Composable
+fun SteuerClass(taxViewModel: LegacyTaxModelView) {
+    var selectedOption by remember { mutableStateOf(1) }
+    var valueEhegattenfaktor by remember { mutableStateOf("") }
+    var txtValueLohn by remember { mutableStateOf(taxViewModel.e_re4.toString()) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            // .height(percentHeight(.15f))
+            .padding(horizontal = percentWidth(.06f)),
+        elevation = 5.dp
+    ) {
+        Column() {
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = txtValueLohn,
+                onValueChange = {
+                    txtValueLohn = it
+                    if (!it.isEmpty())
+                        taxViewModel.e_re4 = it.toDouble()
+                    else
+                        taxViewModel.e_re4 = 1.0
+                },
+                label = { Text(text = "Zusatzbeitrag") },
+            )
+            Spacer(modifier = Modifier
+                .height(10.dp)
+                .fillMaxWidth())
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth(),
+            ){
+                Surface(
+                    elevation = 5.dp,
+                    shape = CircleShape,
+                    color = Color.LightGray,
+                    modifier = Modifier
+                        .clickable(true) {
+                            selectedOption = 1
+                            taxViewModel.e_stkl = selectedOption.toDouble()
+                        }
+                        .width(42.dp)
+                        .height(42.dp),
+                ){
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 5.dp),
+                        text = "I",
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center)
+                }
+                Surface(
+                    elevation = 5.dp,
+                    shape = CircleShape,
+                    color = Color.LightGray,
+                    modifier = Modifier
+                        .clickable(true) {
+                            selectedOption = 2
+                            taxViewModel.e_stkl = selectedOption.toDouble()
+                        }
+                        .width(42.dp)
+                        .height(42.dp),
+                ){
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 5.dp),
+                        text = "II",
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center)
+                }
+                Surface(
+                    elevation = 5.dp,
+                    shape = CircleShape,
+                    color = Color.LightGray,
+                    modifier = Modifier
+                        .clickable(true) {
+                            selectedOption = 3
+                            taxViewModel.e_stkl = selectedOption.toDouble()
+                        }
+                        .width(42.dp)
+                        .height(42.dp),
+                ){
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 5.dp),
+                        text = "III",
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center)
+                }
+                Surface(
+                    elevation = 5.dp,
+                    shape = CircleShape,
+                    color = Color.LightGray,
+                    modifier = Modifier
+                        .clickable(true) {
+                            selectedOption = 4
+                            taxViewModel.e_stkl = selectedOption.toDouble()
+                        }
+                        .width(42.dp)
+                        .height(42.dp),
+                ){
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 5.dp),
+                        text = "IV",
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center)
+                }
+                Surface(
+                    elevation = 5.dp,
+                    shape = CircleShape,
+                    color = Color.LightGray,
+                    modifier = Modifier
+                        .clickable(true) {
+                            selectedOption = 5
+                            taxViewModel.e_stkl = selectedOption.toDouble()
+                        }
+                        .width(42.dp)
+                        .height(42.dp),
+                ){
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 5.dp),
+                        text = "V",
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center)
+                }
+                Surface(
+                    elevation = 5.dp,
+                    shape = CircleShape,
+                    color = Color.LightGray,
+                    modifier = Modifier
+                        .clickable(true) {
+                            selectedOption = 6
+                            taxViewModel.e_stkl = selectedOption.toDouble()
+                        }
+                        .width(42.dp)
+                        .height(42.dp),
+                ){
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 5.dp),
+                        text = "VI",
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center)
+                }
+            }
+            Spacer(modifier = Modifier
+                .height(10.dp)
+                .fillMaxWidth())
+            if (selectedOption == 4) {
+                TextField(  //OutlinedTextField
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    value = valueEhegattenfaktor,
+                    onValueChange = {
+                        if (it.isEmpty()) {
+                            valueEhegattenfaktor = it
+                            taxViewModel.e_f = 1.0
+                        }
+                        else {
+                            valueEhegattenfaktor = it
+                            taxViewModel.e_f = valueEhegattenfaktor.toDouble()
+                        }
+                    },
+                    label = { Text(text = "Ehegattenfaktor") },
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun DropDownMenu(textLabel: String, optionsDropMenu: List<String>, taxViewModel: LegacyTaxModelView) {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOptionText by remember { mutableStateOf(optionsDropMenu[0]) }
+
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = percentWidth(.06f)),
+        elevation = 5.dp
+    ) {
+        //Text(text = textLabel)
+        ExposedDropdownMenuBox(
+            modifier = Modifier,
+                //.fillMaxWidth()
+               // .padding(horizontal = percentWidth(.06f)),
+            expanded = expanded,
+            onExpandedChange = {
+                expanded = !expanded
+            }
+        ) {
+            TextField(  //OutlinedTextField
+                modifier = Modifier
+                    .fillMaxWidth(),
+                readOnly = true,
+                value = selectedOptionText,
+                onValueChange = {},
+                label = { Text(text = textLabel) },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(
+                        expanded = expanded
+                    )
+                },
+                colors = ExposedDropdownMenuDefaults.textFieldColors()
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = {
+                    expanded = false
+                },
+            ) {
+                optionsDropMenu.forEach { selectionOption ->
+                    DropdownMenuItem(
+                        onClick = {
+                            selectedOptionText = selectionOption
+                            expanded = false
+                            taxViewModel.e_zkf = selectedOptionText.toDouble()  // change children numbers
+                        }
+                    ) {
+                        Text(text = selectionOption)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun DropDownMenu_Bundesland(textLabel: String, taxViewModel: LegacyTaxModelView) {
+    var expanded by remember { mutableStateOf(false) }
+    var checkedState by remember { mutableStateOf(true) }
+
+    val optionsDropMenu = listOf("Baden-Württemberg", "Bayern", "Berlin(West)", "Berlin(Ost)", "Brandenburg",
+        "Bremen/Bremerhaven", "Hamburg", "Hessen", "Mecklenburg-Vorpommern", "Niedersachsen", "Nordrhein-Westfalen",
+        "Rheinland-Pfalz", "Saarland", "Sachsen", "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen",)
+    var selectedOptionLand by remember { mutableStateOf(optionsDropMenu[0]) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = percentWidth(.06f)),
+        elevation = 5.dp
+    ) {
+        Column()
+        {
+            //Text(text = textLabel)
+            ExposedDropdownMenuBox(
+                modifier = Modifier,
+                //.fillMaxWidth()
+                // .padding(horizontal = percentWidth(.06f)),
+                expanded = expanded,
+                onExpandedChange = {
+                    expanded = !expanded
+                }
+            ) {
+                TextField(  //OutlinedTextField
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    readOnly = true,
+                    value = selectedOptionLand,
+                    onValueChange = {},
+                    label = { Text(text = textLabel) },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(
+                            expanded = expanded
+                        )
+                    },
+                    colors = ExposedDropdownMenuDefaults.textFieldColors()
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = {
+                        expanded = false
+                    },
+                ) {
+                    optionsDropMenu.forEach { selectionOption ->
+                        DropdownMenuItem(
+                            onClick = {
+                                selectedOptionLand = selectionOption
+                                expanded = false
+                                taxViewModel.e_bundesland = optionsDropMenu.indexOf(selectedOptionLand) + 1
+                                taxViewModel.e_r = SetKirchSteur(checkedState, selectedOptionLand)
+                            }
+                        ) {
+                            Text(text = selectionOption)
+                        }
+                    }
+                }
+            }
+            Row(verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = checkedState,
+                    onCheckedChange = {
+                        checkedState = it
+                        taxViewModel.e_r = SetKirchSteur(checkedState, selectedOptionLand)
+                    },
+                    /*colors = CheckboxDefaults.colors(
+                        checkedColor = MaterialTheme.myColors.main_400,
+                        uncheckedColor = MaterialTheme.myColors.main_350
+                    )*/
+                )
+                //Text(text = "Kirchensteur:")
+                Text(
+                    text = if (checkedState == false)
+                            "Kirchensteur: 0%"
+                        else
+                            if (selectedOptionLand == "Bayern" || selectedOptionLand == "Baden-Württemberg")
+                                "Kirchensteur: 8%"
+                            else
+                                "Kirchensteur: 9%",
+                    modifier = Modifier
+                        .clickable(interactionSource = MutableInteractionSource(), indication = null)
+                        { checkedState = !checkedState }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = percentWidth(.06f)),
+        elevation = 5.dp
+    ) {
+        Column() {
+            Row(verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = taxViewModel.kinderlos,
+                    onCheckedChange = {
+                        taxViewModel.kinderlos = it
+                    },
+                    )
+                Text(
+                    text = "Kinderlos und älter als 23",
+                    modifier = Modifier
+                        .clickable(interactionSource = MutableInteractionSource(), indication = null)
+                        { taxViewModel.kinderlos = !taxViewModel.kinderlos })
+            }
+            Row(verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = taxViewModel.e_krv,
+                    onCheckedChange = {
+                        taxViewModel.e_krv = it
+                    },
+                    )
+                Text(
+                    text = "Renteversicherungspflichtig",
+                    modifier = Modifier
+                        .clickable(interactionSource = MutableInteractionSource(), indication = null)
+                        { taxViewModel.e_krv = !taxViewModel.e_krv })
+            }
+            Row(verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = taxViewModel.e_av,
+                    onCheckedChange = {
+                        taxViewModel.e_av = it
+                    },
+                    )
+                Text(
+                    text = "Arbeitslosenversicherungspflichtig",
+                    modifier = Modifier
+                        .clickable(interactionSource = MutableInteractionSource(), indication = null)
+                        { taxViewModel.e_av = !taxViewModel.e_av }
+                    )
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
+    var expanded by remember { mutableStateOf(false) }
+    var checkedState by remember { mutableStateOf(true) }
+    var isKrankVersGesetzlich by remember { mutableStateOf(true) }
+
+    val optionsDropMenu = listOf("0.0", "14.0", "14.6")
+    var selectedOption by remember { mutableStateOf(optionsDropMenu[0]) }
+
+    var txtValueZusatzbeitrag by remember { mutableStateOf(taxViewModel.e_kvz.toString()) }
+    var txtValueBeitrag by remember { mutableStateOf(taxViewModel.e_anpkv.toString()) }
+    var txtValueGrundSicherung by remember { mutableStateOf(taxViewModel.e_pkpv.toString()) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = percentWidth(.06f)),
+        elevation = 5.dp
+    ) {
+        Column() {
+            Row(modifier = Modifier
+                .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(text = "Krankenversicherung")
+            }
+            Row(modifier = Modifier
+                .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(text = "Gesetzliche",
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = MutableInteractionSource(),
+                            indication = null
+                        ) { isKrankVersGesetzlich = true }
+                    )
+                Switch(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp),
+                    checked = !isKrankVersGesetzlich,
+                    enabled = true,
+                    onCheckedChange = {
+                        isKrankVersGesetzlich = !it
+                        if (isKrankVersGesetzlich) {
+                            taxViewModel.e_barmer = 14.6
+                            taxViewModel.e_kvz = 1.3
+                        } else {
+                            taxViewModel.e_barmer = 0.0
+                            taxViewModel.e_kvz = 0.0
+                        }
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.LightGray,
+                        uncheckedThumbColor = Color.LightGray,
+                        checkedTrackColor = Color.Gray,
+                        uncheckedTrackColor = Color.Gray,
+                        checkedTrackAlpha = 1.0f,
+                        uncheckedTrackAlpha = 1.0f
+                    )
+                )
+                Text(text = "Private",
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = MutableInteractionSource(),
+                            indication = null
+                        ) { isKrankVersGesetzlich = false }
+                )
+            }
+            if (isKrankVersGesetzlich) {
+                Column()
+                {
+                    //Text(text = textLabel)
+                    ExposedDropdownMenuBox(
+                        modifier = Modifier,
+                        //.fillMaxWidth()
+                        // .padding(horizontal = percentWidth(.06f)),
+                        expanded = expanded,
+                        onExpandedChange = {
+                            expanded = !expanded
+                        }
+                    ) {
+                        TextField(  //OutlinedTextField
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            readOnly = true,
+                            value = taxViewModel.e_barmer.toString(),
+                            onValueChange = {},
+                            label = { Text(text = "Krankenversicherung Beitragssatz") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                    expanded = expanded
+                                )
+                            },
+                            colors = ExposedDropdownMenuDefaults.textFieldColors()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = {
+                                expanded = false
+                            },
+                        ) {
+                            optionsDropMenu.forEach { selectionOption ->
+                                DropdownMenuItem(
+                                    onClick = {
+                                        expanded = false
+                                        taxViewModel.e_barmer = selectedOption.toDouble()
+                                    }
+                                ) {
+                                    Text(text = selectionOption)
+                                }
+                            }
+                        }
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        //Text(text = "Kirchensteur:")
+                        TextField(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            value = txtValueZusatzbeitrag,
+                            onValueChange = {
+                                txtValueZusatzbeitrag = it
+                                if (!it.isEmpty())
+                                    taxViewModel.e_kvz = it.toDouble()
+                                else
+                                    taxViewModel.e_kvz = 0.0
+                            },
+                            label = { Text(text = "Zusatzbeitrag") },
+                        )
+                    }
+                }
+            } else {
+                TextField(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    value = txtValueBeitrag,
+                    onValueChange = {
+                        txtValueBeitrag = it
+                        if (!it.isEmpty())
+                            taxViewModel.e_anpkv = it.toDouble()
+                        else
+                            taxViewModel.e_anpkv = 0.0
+                    },
+                    label = { Text(text = "Beitrag / Monat") },
+                )
+                TextField(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    value = txtValueGrundSicherung,
+                    onValueChange = {
+                        txtValueGrundSicherung = it
+                        if (!it.isEmpty())
+                            taxViewModel.e_pkpv = it.toDouble()
+                        else
+                            taxViewModel.e_pkpv = 0.0
+                    },
+                    label = { Text(text = "Grundsicherung / Monat") },
+                )
+                Row(verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = taxViewModel.mitag,
+                        onCheckedChange = {
+                            taxViewModel.mitag = it
+                        },
+                    )
+                    Text(
+                        text = "mit Arbeitgeberzuscuss",
+                        modifier = Modifier
+                            .clickable(interactionSource = MutableInteractionSource(), indication = null)
+                            { taxViewModel.mitag = !taxViewModel.mitag })
+                }
+                Row(verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = taxViewModel.nachweis,
+                        onCheckedChange = {
+                            taxViewModel.nachweis = it
+                        },
+                    )
+                    Text(
+                        text = "ohne Nachweis",
+                        modifier = Modifier
+                            .clickable(interactionSource = MutableInteractionSource(), indication = null)
+                            { taxViewModel.nachweis = !taxViewModel.nachweis })
+                }
+            }
+        }
+    }
+}
+
+
+/**
+ * Set the value to view model for "kirchsteuer"
+ * @param checkedState The state of checkbox, true for active "krichsteuer"
+ * @param selectedOptionLand The select land as option from drop down menu
+ * @return The "kirchsteur" value
+ * */
+private fun SetKirchSteur(checkedState: Boolean, selectedOptionLand: String) : Double {
+    return if (!checkedState)
+        0.0
+    else
+        if (selectedOptionLand == "Bayern" || selectedOptionLand == "Baden-Württemberg")
+            8.0
+        else
+            9.0
 }
