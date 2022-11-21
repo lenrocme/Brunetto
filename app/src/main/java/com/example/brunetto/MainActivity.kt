@@ -9,7 +9,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -18,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -167,6 +165,27 @@ fun Body(taxViewModel: LegacyTaxModelView) {
             Spacer(modifier = Modifier
                 .height(spaceBetweenCards)
                 .fillMaxWidth())
+            /**
+             * The Card for optional bezüge, top one
+             * */
+            Card_Optional_Top(taxViewModel)
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
+            /**
+             * The Card for optional bezüge, midle one
+             * */
+            Card_Optional_Midle(taxViewModel)
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
+            /**
+             * The Card for optional bezüge, bottom one
+             * */
+            Card_Optional_Bottom(taxViewModel)
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
             Text(
                 text = bruttoLohn
             )
@@ -195,6 +214,9 @@ fun Body(taxViewModel: LegacyTaxModelView) {
                     Log.d("taxes", "Beitra / Monat: " + taxViewModel.e_anpkv)
                     Log.d("taxes", "Grundsicherung / Monat: " + taxViewModel.e_pkpv)
                     Log.d("taxes", "mit Arbeitgeberzushuss: " + taxViewModel.mitag)
+                    Log.d("taxes", "ohne Nachweis: " + taxViewModel.nachweis)
+
+                    Log.d("taxes", "ohne Nachweis: " + taxViewModel.nachweis)
                     Log.d("taxes", "ohne Nachweis: " + taxViewModel.nachweis)
                 }) {
 
@@ -788,6 +810,128 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
     }
 }
 
+@Composable
+fun Card_Optional_Top(taxViewModel: LegacyTaxModelView) {
+    var txtValueEinmalBezuege by remember{ mutableStateOf("") }
+    var txtValueAbgerecnhet by remember{ mutableStateOf("") }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = percentWidth(.06f)),
+        elevation = 5.dp
+    ) {
+        Column() {
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = txtValueEinmalBezuege,
+                onValueChange = {
+                    txtValueEinmalBezuege = it
+                    if (!it.isEmpty())
+                        taxViewModel.e_sonstb = it.toDouble()
+                    else
+                        taxViewModel.e_sonstb = 0.0
+                },
+                label = { Text(text = "Einmal Bezüge") },
+            )
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = txtValueAbgerecnhet,
+                onValueChange = {
+                    txtValueAbgerecnhet = it
+                    if (!it.isEmpty())
+                        taxViewModel.e_jsonstb = it.toDouble()
+                    else
+                        taxViewModel.e_jsonstb = 0.0
+                },
+                label = { Text(text = "schon abgerenchete Einmalbezüge") },
+            )
+        }
+    }
+}
+
+@Composable
+fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView) {
+    var txtValueBetugeMehrJahr by remember{ mutableStateOf("") }
+    var txtValueEntscheidungZahlung by remember{ mutableStateOf("") }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = percentWidth(.06f)),
+        elevation = 5.dp
+    ) {
+        Column() {
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = txtValueBetugeMehrJahr,
+                onValueChange = {
+                    txtValueBetugeMehrJahr = it
+                    if (!it.isEmpty())
+                        taxViewModel.e_vmt = it.toDouble()
+                    else
+                        taxViewModel.e_vmt = 0.0
+                },
+                label = { Text(text = "Bezüge aus mehrjährige Tätigkeit") },
+            )
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = txtValueEntscheidungZahlung,
+                onValueChange = {
+                    txtValueEntscheidungZahlung = it
+                    if (!it.isEmpty())
+                        taxViewModel.e_entsch = it.toDouble()
+                    else
+                        taxViewModel.e_entsch = 0.0
+                },
+                label = { Text(text = "davon Entschädigungszahlung") },
+            )
+        }
+    }
+}
+
+@Composable
+fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView) {
+    var txtValueLstkarte by remember{ mutableStateOf("") }
+    var txtValueHinzurechnugsBetrag by remember{ mutableStateOf("") }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = percentWidth(.06f)),
+        elevation = 5.dp
+    ) {
+        Column() {
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = txtValueLstkarte,
+                onValueChange = {
+                    txtValueLstkarte = it
+                    if (!it.isEmpty())
+                        taxViewModel.e_wfundf = it.toDouble()
+                    else
+                        taxViewModel.e_wfundf = 0.0
+                },
+                label = { Text(text = "Freibetrag aus LStKarte") },
+            )
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = txtValueHinzurechnugsBetrag,
+                onValueChange = {
+                    txtValueHinzurechnugsBetrag = it
+                    if (!it.isEmpty())
+                        taxViewModel.e_hinzur = it.toDouble()
+                    else
+                        taxViewModel.e_hinzur = 0.0
+                },
+                label = { Text(text = "Hinzurechnungsbetrag") },
+            )
+        }
+    }
+}
 
 /**
  * Set the value to view model for "kirchsteuer"
