@@ -9,12 +9,16 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
@@ -167,6 +171,27 @@ fun Body(taxViewModel: LegacyTaxModelView) {
             Spacer(modifier = Modifier
                 .height(spaceBetweenCards)
                 .fillMaxWidth())
+            /**
+             * The Card for optional bezüge, top one
+             * */
+            Card_Optional_Top(taxViewModel)
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
+            /**
+             * The Card for optional bezüge, midle one
+             * */
+            Card_Optional_Midle(taxViewModel)
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
+            /**
+             * The Card for optional bezüge, bottom one
+             * */
+            Card_Optional_Bottom(taxViewModel)
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
             Text(
                 text = bruttoLohn
             )
@@ -196,8 +221,14 @@ fun Body(taxViewModel: LegacyTaxModelView) {
                     Log.d("taxes", "Grundsicherung / Monat: " + taxViewModel.e_pkpv)
                     Log.d("taxes", "mit Arbeitgeberzushuss: " + taxViewModel.mitag)
                     Log.d("taxes", "ohne Nachweis: " + taxViewModel.nachweis)
-                }) {
 
+                    Log.d("taxes", "Einmal Bezüge: " + taxViewModel.e_sonstb)
+                    Log.d("taxes", "schon abgerenchete Einmalbezüge: " + taxViewModel.e_jsonstb)
+                    Log.d("taxes", "Bezüge aus mehrjährige Tätigkeit: " + taxViewModel.e_vmt)
+                    Log.d("taxes", "davon Entschädigungszahlung: " + taxViewModel.e_entsch)
+                    Log.d("taxes", "Freibetrag aus LStKarte: " + taxViewModel.e_wfundf)
+                    Log.d("taxes", "Hinzurechnungsbetrag: " + taxViewModel.e_hinzur)
+                }) {
             }
         }
     }
@@ -788,6 +819,251 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
     }
 }
 
+@Composable
+fun Card_Optional_Top(taxViewModel: LegacyTaxModelView) {
+    val focusManager = LocalFocusManager.current
+    var txtValueEinmalBezuege by remember{ mutableStateOf("") }
+    var txtValueAbgerecnhet by remember{ mutableStateOf("") }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = percentWidth(.06f)),
+        elevation = 5.dp
+    ) {
+        Column() {
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = txtValueEinmalBezuege,
+                onValueChange = {
+                    if (it.length <= 15 && it[0] != '.' && it.filter { it == '.' }.count() < 2) {
+                        txtValueEinmalBezuege = it.replace("[^0-9.]".toRegex(), "")
+                        if (!it.isEmpty())
+                            taxViewModel.e_sonstb = txtValueEinmalBezuege.toDouble()
+                        else
+                            taxViewModel.e_sonstb = 0.0
+                    }
+                },
+                label = { Text(text = "Einmal Bezüge") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                keyboardActions = KeyboardActions(onDone = {
+                    focusManager.clearFocus()
+                }),
+                singleLine = true,
+                maxLines = 1,
+                trailingIcon = {
+                    if (txtValueEinmalBezuege != "")
+                        Icon(
+                            Icons.Default.Clear,
+                            modifier = Modifier
+                                .clickable(true){
+                                    txtValueEinmalBezuege = ""
+                                },
+                            contentDescription = "Clear",
+                            //tint = MaterialTheme.myColors.main_350,
+                        )
+                },
+            )
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = txtValueAbgerecnhet,
+                onValueChange = {
+                    if (it.length <= 15 && it[0] != '.' && it.filter { it == '.' }.count() < 2) {
+                        txtValueAbgerecnhet = it.replace("[^0-9.]".toRegex(), "")
+                        if (!it.isEmpty())
+                            taxViewModel.e_jsonstb = txtValueAbgerecnhet.toDouble()
+                        else
+                            taxViewModel.e_jsonstb = 0.0
+                    }
+                },
+                label = { Text(text = "schon abgerenchete Einmalbezüge") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                keyboardActions = KeyboardActions(onDone = {
+                    focusManager.clearFocus()
+                }),
+                singleLine = true,
+                maxLines = 1,
+                trailingIcon = {
+                    if (txtValueAbgerecnhet != "")
+                        Icon(
+                            Icons.Default.Clear,
+                            modifier = Modifier
+                                .clickable(true){
+                                    txtValueAbgerecnhet = ""
+                                },
+                            contentDescription = "Clear",
+                            //tint = MaterialTheme.myColors.main_350,
+                        )
+                },
+            )
+        }
+    }
+}
+
+@Composable
+fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView) {
+    val focusManager = LocalFocusManager.current
+    var txtValueBetugeMehrJahr by remember{ mutableStateOf("") }
+    var txtValueEntscheidungZahlung by remember{ mutableStateOf("") }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = percentWidth(.06f)),
+        elevation = 5.dp
+    ) {
+        Column() {
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = txtValueBetugeMehrJahr,
+                onValueChange = {
+                    if (it.length <= 15 && it[0] != '.' && it.filter { it == '.' }.count() < 2) {
+                        txtValueBetugeMehrJahr = it.replace("[^0-9.]".toRegex(), "")
+                        if (!it.isEmpty())
+                            taxViewModel.e_vmt = txtValueBetugeMehrJahr.toDouble()
+                        else
+                            taxViewModel.e_vmt = 0.0
+                    }
+                },
+                label = { Text(text = "Bezüge aus mehrjährige Tätigkeit") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                keyboardActions = KeyboardActions(onDone = {
+                    focusManager.clearFocus()
+                }),
+                singleLine = true,
+                maxLines = 1,
+                trailingIcon = {
+                    if (txtValueBetugeMehrJahr != "")
+                        Icon(
+                            Icons.Default.Clear,
+                            modifier = Modifier
+                                .clickable(true){
+                                    txtValueBetugeMehrJahr = ""
+                                },
+                            contentDescription = "Clear",
+                            //tint = MaterialTheme.myColors.main_350,
+                        )
+                },
+            )
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = txtValueEntscheidungZahlung,
+                onValueChange = {
+                    if (it.length <= 15 && it[0] != '.' && it.filter { it == '.' }.count() < 2) {
+                        txtValueEntscheidungZahlung = it.replace("[^0-9.]".toRegex(), "")
+                        if (!it.isEmpty())
+                            taxViewModel.e_entsch = txtValueEntscheidungZahlung.toDouble()
+                        else
+                            taxViewModel.e_entsch = 0.0
+                    }
+                },
+                label = { Text(text = "davon Entschädigungszahlung") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                keyboardActions = KeyboardActions(onDone = {
+                    focusManager.clearFocus()
+                }),
+                singleLine = true,
+                maxLines = 1,
+                trailingIcon = {
+                    if (txtValueEntscheidungZahlung != "")
+                        Icon(
+                            Icons.Default.Clear,
+                            modifier = Modifier
+                                .clickable(true){
+                                    txtValueEntscheidungZahlung = ""
+                                },
+                            contentDescription = "Clear",
+                            //tint = MaterialTheme.myColors.main_350,
+                        )
+                },
+            )
+        }
+    }
+}
+
+@Composable
+fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView) {
+    val focusManager = LocalFocusManager.current
+    var txtValueLstkarte by remember{ mutableStateOf("") }
+    var txtValueHinzurechnugsBetrag by remember{ mutableStateOf("") }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = percentWidth(.06f)),
+        elevation = 5.dp
+    ) {
+        Column() {
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = txtValueLstkarte,
+                onValueChange = {
+                    if (it.length <= 15 && it[0] != '.' && it.filter { it == '.' }.count() < 2) {
+                        txtValueLstkarte = it.replace("[^0-9.]".toRegex(), "")
+                        if (!it.isEmpty())
+                            taxViewModel.e_wfundf = txtValueLstkarte.toDouble()
+                        else
+                            taxViewModel.e_wfundf = 0.0
+                    }
+                },
+                label = { Text(text = "Freibetrag aus LStKarte") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                keyboardActions = KeyboardActions(onDone = {
+                    focusManager.clearFocus()
+                }),
+                singleLine = true,
+                maxLines = 1,
+                trailingIcon = {
+                    if (txtValueLstkarte != "")
+                        Icon(
+                            Icons.Default.Clear,
+                            modifier = Modifier
+                                .clickable(true){
+                                    txtValueLstkarte = ""
+                                },
+                            contentDescription = "Clear",
+                            //tint = MaterialTheme.myColors.main_350,
+                        )
+                },
+            )
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = txtValueHinzurechnugsBetrag,
+                onValueChange = { it ->
+                    if (it.length <= 15 && it[0] != '.' && it.filter { it == '.' }.count() < 2) {
+                        txtValueHinzurechnugsBetrag = it.replace("[^0-9.]".toRegex(), "")
+                        if (!it.isEmpty())
+                            taxViewModel.e_hinzur = txtValueHinzurechnugsBetrag.toDouble()
+                        else
+                            taxViewModel.e_hinzur = 0.0
+                    }
+                },
+                label = { Text(text = "Hinzurechnungsbetrag") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                keyboardActions = KeyboardActions(onDone = {
+                    focusManager.clearFocus()
+                }),
+                singleLine = true,
+                maxLines = 1,
+                trailingIcon = {
+                    if (txtValueHinzurechnugsBetrag != "")
+                        Icon(
+                            Icons.Default.Clear,
+                            modifier = Modifier
+                                .clickable(true){
+                                    txtValueHinzurechnugsBetrag = ""
+                                },
+                            contentDescription = "Clear",
+                            //tint = MaterialTheme.myColors.main_350,
+                        )
+                },
+            )
+        }
+    }
+}
 
 /**
  * Set the value to view model for "kirchsteuer"
