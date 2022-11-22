@@ -331,7 +331,7 @@ class CalculationLegacy {
             alter1 = 1.0
 
 
-
+        var stkl = vmLegacTax.e_stkl
         f = 1.0
         if (vmLegacTax.e_stkl == 4.0)
             f = vmLegacTax.e_f // flimit()
@@ -347,11 +347,11 @@ class CalculationLegacy {
         zkf = vmLegacTax.e_zkf * 0.5
 
        // if ( zkf > 0)
-      //      uncheck kinder
+      //      uncheck kinder    done!
 
         // kirchsteuer
-        //if (e_r > 0 )
-            r = 1.0
+        //if (e_r > 0 )         done!
+        r = vmLegacTax.e_r
 
         // ignore, working only with optional data
         /*if (stkl == 6 && lzzhinzu > 0) {
@@ -363,12 +363,12 @@ class CalculationLegacy {
 
 
         // important after set ui, to put to work also for steuer cl 2
-        /*if (stkl == 2 && zkf == 0) {
+        /*if (stkl == 2 && zkf == 0) {          done!
             alert("Bei Steuerklasse II muss ein Kinderfreibetrag angegeben werden!");
             document.eingabe.e_zkf.selectedIndex = 2;
             document.eingabe.kinderlos[0].checked;
-            document.eingabe.e_zkf.focus();
-            Calc();
+            document.eingabe.e_zkf.focus();         done!
+            Calc();   ??????
         }*/
 
         kist = vmLegacTax.e_r * 0.01        // kirch steuer

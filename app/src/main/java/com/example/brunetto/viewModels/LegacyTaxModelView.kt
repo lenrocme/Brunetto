@@ -42,6 +42,9 @@ class LegacyTaxModelView : ViewModel() {
     var e_wfundf : Double by mutableStateOf(0.0)
     var e_hinzur : Double by mutableStateOf(0.0)
 
+    // view model
+    var selectedOptionKinderZahl : String by mutableStateOf("--")
+
 
 
 

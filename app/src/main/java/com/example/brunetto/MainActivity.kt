@@ -2,6 +2,7 @@ package com.example.brunetto
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -170,13 +172,6 @@ fun Body(taxViewModel: LegacyTaxModelView) {
                 .height(spaceBetweenCards)
                 .fillMaxWidth())
             /**
-             * The Card with "Kinderfreibeträge" drop down menu
-             * */
-            //DropDownMenu("Kinderfreibeträge", optionsKinder, taxViewModel)
-            Spacer(modifier = Modifier
-                .height(spaceBetweenCards)
-                .fillMaxWidth())
-            /**
              * The Card with "Bundesland" drop down menu & and checkbox for "kirchsteur"
              * */
             DropDownMenu_Bundesland("Bundesland", taxViewModel)
@@ -263,6 +258,7 @@ fun Body(taxViewModel: LegacyTaxModelView) {
 
 @Composable
 fun SteuerClass(taxViewModel: LegacyTaxModelView) {
+    val mContext = LocalContext.current
     var selectedOption by remember { mutableStateOf(1) }
     var valueEhegattenfaktor by remember { mutableStateOf("") }
     var txtValueLohn by remember { mutableStateOf(taxViewModel.e_re4.toString()) }
@@ -368,8 +364,23 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                     color = Color.LightGray,
                     modifier = Modifier
                         .clickable(true) {
-                            selectedOption = 2
-                            taxViewModel.e_stkl = selectedOption.toDouble()
+                            if (selectedOption != 2) {
+                                selectedOption = 2
+                                taxViewModel.e_stkl = selectedOption.toDouble()
+
+                                // case of stclass 2
+                                taxViewModel.kinderlos = false
+                                if (taxViewModel.selectedOptionKinderZahl == "--") {
+                                    Toast.makeText(
+                                        mContext,
+                                        "Mit der Steuerklasse II muss ein Kinderfreibetrag angegeben werden!",
+                                        Toast.LENGTH_LONG).show()
+                                    taxViewModel.e_zkf = 0.5
+                                    taxViewModel.selectedOptionKinderZahl = "0.5"
+                                } else {
+                                    taxViewModel.selectedOptionKinderZahl = taxViewModel.e_zkf.toString()
+                                }
+                            }
                         }
                         .width(42.dp)
                         .height(42.dp),
@@ -487,67 +498,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
         }
     }
 }
-/*
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun DropDownMenu(textLabel: String, optionsDropMenu: List<String>, taxViewModel: LegacyTaxModelView) {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOptionText by remember { mutableStateOf(optionsDropMenu[0]) }
 
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = percentWidth(.06f)),
-        elevation = 5.dp
-    ) {
-        //Text(text = textLabel)
-        ExposedDropdownMenuBox(
-            modifier = Modifier,
-                //.fillMaxWidth()
-               // .padding(horizontal = percentWidth(.06f)),
-            expanded = expanded,
-            onExpandedChange = {
-                expanded = !expanded
-            }
-        ) {
-            TextField(  //OutlinedTextField
-                modifier = Modifier
-                    .fillMaxWidth(),
-                readOnly = true,
-                value = selectedOptionText,
-                onValueChange = {},
-                label = { Text(text = textLabel) },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(
-                        expanded = expanded
-                    )
-                },
-                colors = ExposedDropdownMenuDefaults.textFieldColors()
-            )
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = {
-                    expanded = false
-                },
-            ) {
-                optionsDropMenu.forEach { selectionOption ->
-                    DropdownMenuItem(
-                        onClick = {
-                            taxViewModel.e_krv = !taxViewModel.e_krv
-                            selectedOptionText = selectionOption
-                            expanded = false
-                            taxViewModel.e_zkf = selectedOptionText.toDouble()  // change children numbers
-                        }
-                    ) {
-                        Text(text = selectionOption)
-                    }
-                }
-            }
-        }
-    }
-}
-*/
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DropDownMenu_Bundesland(textLabel: String, taxViewModel: LegacyTaxModelView) {
@@ -645,11 +596,12 @@ fun DropDownMenu_Bundesland(textLabel: String, taxViewModel: LegacyTaxModelView)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
+    val mContext = LocalContext.current
     val optionsDropMenu = listOf("--", "0.5", "1.0", "1.5", "2.0", "2.5", "3.0", "3.5", "4.0",
         "4.5", "5.0", "5.5", "6.0", "6.5", "7.0", "7.5")
     val textLabel = "Kinderfreibeträge"
     var expanded by remember { mutableStateOf(false) }
-    var selectedOptionText by remember { mutableStateOf(optionsDropMenu[0]) }
+    //var selectedOptionText by remember { mutableStateOf(optionsDropMenu[0]) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -671,7 +623,7 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
                     modifier = Modifier
                         .fillMaxWidth(),
                     readOnly = true,
-                    value = selectedOptionText,
+                    value = taxViewModel.selectedOptionKinderZahl,
                     onValueChange = {},
                     label = { Text(text = textLabel) },
                     trailingIcon = {
@@ -690,15 +642,23 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
                     optionsDropMenu.forEach { selectionOption ->
                         DropdownMenuItem(
                             onClick = {
-                                selectedOptionText = selectionOption
-                                if (optionsDropMenu[0] == selectionOption) {
-                                    // set false to checkbox with no children
-                                    taxViewModel.e_zkf = 0.0
+                                if (selectionOption == "--" && taxViewModel.e_stkl == 2.0) {
+                                    Toast.makeText(
+                                        mContext,
+                                        "Mit der Steuerklasse II muss ein Kinderfreibetrag angegeben werden!",
+                                        Toast.LENGTH_LONG).show()
                                 } else {
-                                    taxViewModel.kinderlos = false
-                                    taxViewModel.e_zkf = selectedOptionText.toDouble()  // change children numbers
+                                    taxViewModel.selectedOptionKinderZahl = selectionOption
+                                    if (optionsDropMenu[0] == selectionOption) {
+                                        // set false to checkbox with no children
+                                        taxViewModel.e_zkf = 0.0
+                                    } else {
+                                        taxViewModel.kinderlos = false
+                                        taxViewModel.e_zkf =
+                                            taxViewModel.selectedOptionKinderZahl.toDouble()  // change children numbers
+                                    }
+                                    expanded = false
                                 }
-                                expanded = false
                             }
                         ) {
                             Text(text = selectionOption)
@@ -711,19 +671,34 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
                 Checkbox(
                     checked = taxViewModel.kinderlos,
                     onCheckedChange = {
-                        taxViewModel.kinderlos = it
-                        if (it)
-                            selectedOptionText = optionsDropMenu[0]
+                        if(taxViewModel.e_stkl != 2.0) {
+                            taxViewModel.kinderlos = it
+                            if (it)
+                                taxViewModel.selectedOptionKinderZahl = optionsDropMenu[0]
+                        } else {
+                            Toast.makeText(
+                                mContext,
+                                "Mit der Steuerklasse II muss ein Kinderfreibetrag angegeben werden!",
+                                Toast.LENGTH_LONG).show()
+                        }
                     },
                     )
                 Text(
                     text = "Kinderlos und älter als 23",
                     modifier = Modifier
                         .clickable(interactionSource = MutableInteractionSource(), indication = null)
-                        { taxViewModel.kinderlos = !taxViewModel.kinderlos
-                            if (taxViewModel.kinderlos) {
-                                selectedOptionText = optionsDropMenu[0]
-                                taxViewModel.e_zkf = 0.0
+                        {
+                            if (taxViewModel.e_stkl != 2.0) {
+                                taxViewModel.kinderlos = !taxViewModel.kinderlos
+                                if (taxViewModel.kinderlos) {
+                                    taxViewModel.selectedOptionKinderZahl = optionsDropMenu[0]
+                                    taxViewModel.e_zkf = 0.0
+                                }
+                            } else {
+                                Toast.makeText(
+                                    mContext,
+                                    "Mit der Steuerklasse II muss ein Kinderfreibetrag angegeben werden!",
+                                    Toast.LENGTH_LONG).show()
                             }
                         })
             }
