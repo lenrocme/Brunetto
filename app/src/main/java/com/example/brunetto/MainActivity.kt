@@ -87,12 +87,38 @@ fun Header(taxViewModel: LegacyTaxModelView) {
         Spacer(modifier = Modifier
             .height(percentHeight(adaptHeight(.035f, .05f, 0.065f)) - 19.dp)
             .fillMaxWidth())
-        Text(
-            text = "Netto jährlich: "
-        )
-        Text(
-            text = "Netto monatlich: "
-        )
+        Row(modifier = Modifier
+            .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                modifier = Modifier.width(percentWidth(.5f)),
+                text = "Netto jährlich:",
+                textAlign = TextAlign.Right,
+            )
+            Text(
+                modifier = Modifier.width(percentWidth(.5f)),
+                text = " 90000.00 €",
+                textAlign = TextAlign.Left,
+            )
+        }
+        Row(modifier = Modifier
+            .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                modifier = Modifier.width(percentWidth(.5f)),
+                text = "Netto monatlich:",
+                textAlign = TextAlign.Right,
+            )
+            Text(
+                modifier = Modifier.width(percentWidth(.5f)),
+                text = " 8000.00 €",
+                textAlign = TextAlign.Left,
+            )
+        }
     }
 }
 
@@ -206,6 +232,7 @@ fun Body(taxViewModel: LegacyTaxModelView) {
             Button(
                 onClick = {
                     //CalculationLegacy().setData()
+                    Log.d("taxes", "Zeitraum: " + taxViewModel.e_lzz)
                     Log.d("taxes", "inputed lohn: " + taxViewModel.e_re4)
                     Log.d("taxes", "steurclass: " + taxViewModel.e_stkl)
                     Log.d("taxes", "when steuer 4, value: " + taxViewModel.e_f)
@@ -239,6 +266,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
     var selectedOption by remember { mutableStateOf(1) }
     var valueEhegattenfaktor by remember { mutableStateOf("") }
     var txtValueLohn by remember { mutableStateOf(taxViewModel.e_re4.toString()) }
+    var isMonatlich by remember { mutableStateOf(true) }
 
     Card(
         modifier = Modifier
@@ -248,6 +276,52 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
         elevation = 5.dp
     ) {
         Column() {
+            Row(modifier = Modifier
+                .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(text = "Monatlich",
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = MutableInteractionSource(),
+                            indication = null
+                        ) { isMonatlich = true
+                            taxViewModel.e_lzz = 2.0
+                        }
+                )
+                Switch(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp),
+                    checked = !isMonatlich,
+                    enabled = true,
+                    onCheckedChange = {
+                        isMonatlich = !it
+                        if (isMonatlich) {
+                            taxViewModel.e_lzz = 2.0    // 2 stand for month
+                        } else {
+                            taxViewModel.e_lzz = 1.0    // 1 stand for year
+                        }
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.LightGray,
+                        uncheckedThumbColor = Color.LightGray,
+                        checkedTrackColor = Color.Gray,
+                        uncheckedTrackColor = Color.Gray,
+                        checkedTrackAlpha = 1.0f,
+                        uncheckedTrackAlpha = 1.0f
+                    )
+                )
+                Text(text = "Jährlich",
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = MutableInteractionSource(),
+                            indication = null
+                        ) { isMonatlich = false
+                            taxViewModel.e_lzz = 1.0
+                        }
+                )
+            }
             TextField(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -628,7 +702,6 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
 @Composable
 fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
     var expanded by remember { mutableStateOf(false) }
-    var checkedState by remember { mutableStateOf(true) }
     var isKrankVersGesetzlich by remember { mutableStateOf(true) }
 
     val optionsDropMenu = listOf("0.0", "14.0", "14.6")
