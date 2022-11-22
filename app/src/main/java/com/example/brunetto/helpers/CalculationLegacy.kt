@@ -341,7 +341,7 @@ class CalculationLegacy {
         else
             f =  1.0
 
-        lzz = 1.0
+        lzz = vmLegacTax.e_lzz
         var lzzsoz = lzz
 
         zkf = vmLegacTax.e_zkf * 0.5
