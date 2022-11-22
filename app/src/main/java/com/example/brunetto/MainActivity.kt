@@ -172,7 +172,7 @@ fun Body(taxViewModel: LegacyTaxModelView) {
             /**
              * The Card with "Kinderfreibeträge" drop down menu
              * */
-            DropDownMenu("Kinderfreibeträge", optionsKinder, taxViewModel)
+            //DropDownMenu("Kinderfreibeträge", optionsKinder, taxViewModel)
             Spacer(modifier = Modifier
                 .height(spaceBetweenCards)
                 .fillMaxWidth())
@@ -487,7 +487,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
         }
     }
 }
-
+/*
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DropDownMenu(textLabel: String, optionsDropMenu: List<String>, taxViewModel: LegacyTaxModelView) {
@@ -534,6 +534,7 @@ fun DropDownMenu(textLabel: String, optionsDropMenu: List<String>, taxViewModel:
                 optionsDropMenu.forEach { selectionOption ->
                     DropdownMenuItem(
                         onClick = {
+                            taxViewModel.e_krv = !taxViewModel.e_krv
                             selectedOptionText = selectionOption
                             expanded = false
                             taxViewModel.e_zkf = selectedOptionText.toDouble()  // change children numbers
@@ -546,7 +547,7 @@ fun DropDownMenu(textLabel: String, optionsDropMenu: List<String>, taxViewModel:
         }
     }
 }
-
+*/
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DropDownMenu_Bundesland(textLabel: String, taxViewModel: LegacyTaxModelView) {
@@ -641,8 +642,14 @@ fun DropDownMenu_Bundesland(textLabel: String, taxViewModel: LegacyTaxModelView)
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
+    val optionsDropMenu = listOf("--", "0.5", "1.0", "1.5", "2.0", "2.5", "3.0", "3.5", "4.0",
+        "4.5", "5.0", "5.5", "6.0", "6.5", "7.0", "7.5")
+    val textLabel = "Kinderfreibeträge"
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOptionText by remember { mutableStateOf(optionsDropMenu[0]) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -650,19 +657,75 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
         elevation = 5.dp
     ) {
         Column() {
+            //Text(text = textLabel)
+            ExposedDropdownMenuBox(
+                modifier = Modifier,
+                //.fillMaxWidth()
+                // .padding(horizontal = percentWidth(.06f)),
+                expanded = expanded,
+                onExpandedChange = {
+                    expanded = !expanded
+                }
+            ) {
+                TextField(  //OutlinedTextField
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    readOnly = true,
+                    value = selectedOptionText,
+                    onValueChange = {},
+                    label = { Text(text = textLabel) },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(
+                            expanded = expanded
+                        )
+                    },
+                    colors = ExposedDropdownMenuDefaults.textFieldColors()
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = {
+                        expanded = false
+                    },
+                ) {
+                    optionsDropMenu.forEach { selectionOption ->
+                        DropdownMenuItem(
+                            onClick = {
+                                selectedOptionText = selectionOption
+                                if (optionsDropMenu[0] == selectionOption) {
+                                    // set false to checkbox with no children
+                                    taxViewModel.e_zkf = 0.0
+                                } else {
+                                    taxViewModel.kinderlos = false
+                                    taxViewModel.e_zkf = selectedOptionText.toDouble()  // change children numbers
+                                }
+                                expanded = false
+                            }
+                        ) {
+                            Text(text = selectionOption)
+                        }
+                    }
+                }
+            }
             Row(verticalAlignment = Alignment.CenterVertically
             ) {
                 Checkbox(
                     checked = taxViewModel.kinderlos,
                     onCheckedChange = {
                         taxViewModel.kinderlos = it
+                        if (it)
+                            selectedOptionText = optionsDropMenu[0]
                     },
                     )
                 Text(
                     text = "Kinderlos und älter als 23",
                     modifier = Modifier
                         .clickable(interactionSource = MutableInteractionSource(), indication = null)
-                        { taxViewModel.kinderlos = !taxViewModel.kinderlos })
+                        { taxViewModel.kinderlos = !taxViewModel.kinderlos
+                            if (taxViewModel.kinderlos) {
+                                selectedOptionText = optionsDropMenu[0]
+                                taxViewModel.e_zkf = 0.0
+                            }
+                        })
             }
             Row(verticalAlignment = Alignment.CenterVertically
             ) {
