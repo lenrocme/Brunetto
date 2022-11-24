@@ -226,8 +226,8 @@ fun Body(taxViewModel: LegacyTaxModelView) {
 
             Button(
                 onClick = {
-                    //CalculationLegacy().setData()
-                    Log.d("taxes", "Zeitraum: " + taxViewModel.e_lzz)
+                    CalculationLegacy().setData()
+                    /*Log.d("taxes", "Zeitraum: " + taxViewModel.e_lzz)
                     Log.d("taxes", "inputed lohn: " + taxViewModel.e_re4)
                     Log.d("taxes", "steurclass: " + taxViewModel.e_stkl)
                     Log.d("taxes", "when steuer 4, value: " + taxViewModel.e_f)
@@ -250,6 +250,7 @@ fun Body(taxViewModel: LegacyTaxModelView) {
                     Log.d("taxes", "davon Entschädigungszahlung: " + taxViewModel.e_entsch)
                     Log.d("taxes", "Freibetrag aus LStKarte: " + taxViewModel.e_wfundf)
                     Log.d("taxes", "Hinzurechnungsbetrag: " + taxViewModel.e_hinzur)
+               */
                 }) {
             }
         }
@@ -772,16 +773,16 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                         .clickable(
                             interactionSource = MutableInteractionSource(),
                             indication = null
-                        ) { isKrankVersGesetzlich = true }
+                        ) { taxViewModel.isPrivatInsur = false }
                     )
                 Switch(
                     modifier = Modifier
                         .padding(horizontal = 20.dp),
-                    checked = !isKrankVersGesetzlich,
+                    checked = taxViewModel.isPrivatInsur,
                     enabled = true,
                     onCheckedChange = {
-                        isKrankVersGesetzlich = !it
-                        if (isKrankVersGesetzlich) {
+                        taxViewModel.isPrivatInsur = it
+                        if (!taxViewModel.isPrivatInsur) {
                             taxViewModel.e_barmer = 14.6
                             taxViewModel.e_kvz = 1.3
                         } else {
@@ -803,10 +804,10 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                         .clickable(
                             interactionSource = MutableInteractionSource(),
                             indication = null
-                        ) { isKrankVersGesetzlich = false }
+                        ) { taxViewModel.isPrivatInsur = true }
                 )
             }
-            if (isKrankVersGesetzlich) {
+            if (!taxViewModel.isPrivatInsur) {
                 Column()
                 {
                     //Text(text = textLabel)

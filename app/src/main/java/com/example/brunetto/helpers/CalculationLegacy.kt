@@ -145,9 +145,9 @@ class CalculationLegacy {
     var lzz = 1.0;
     var lzzfreib = 0.0;
     var lzzhinzu = 0.0;
-    var pkv = 0.0;
-    var pkpv = 0.0;
-    var anpkv = 0.0;  // not present in orig
+    var pkv = 2.0;
+    var pkpv = 500.0;
+    var anpkv = 300.0;  // not present in orig
     var pvs = 0.0;
     var pvz = 0.0;
     var r = 0.0;
@@ -300,140 +300,6 @@ class CalculationLegacy {
         zx = 0;
         zzx = 0;*/
     }
-
-    fun hasPrivateKrankVers() {
-        if (pkpv == 0.0 && anpkv > 0.0) {
-            return;
-        }
-    }
-
-    fun setData() {     // Calc
-
-        // #####
-        // #####
-        kvz = vmLegacTax.e_kvz
-        re4 = vmLegacTax.e_re4 * 100
-        var re4sozlzz = re4
-        sonstb = e_sonstb.toDouble() * 100
-        jsonstb = e_jsonstb.toDouble() * 100
-        vmt = e_vmt.toDouble() * 100
-        lzz = e_lzz.toDouble()
-        entsch = e_entsch.toDouble() * 100
-        lzzfreib = e_wfundf.toDouble() * 100
-        lzzhinzu = e_hinzur.toDouble() * 100
-        pkpv = e_pkpv.toDouble() * 100
-        anpkv = e_anpkv.toDouble() * 1200
-
-        ajahr = vmLegacTax.geb_tag // from view must
-        ajahr = 2022.0 // from view must
-        alter1 = 0.0
-        if (ajahr < 2018)
-            alter1 = 1.0
-
-
-        var stkl = vmLegacTax.e_stkl
-        f = 1.0
-        if (vmLegacTax.e_stkl == 4.0)
-            f = vmLegacTax.e_f // flimit()
-        af = 0.0
-        if (f > 0.0 && f < 1.0)
-            af = 1.0
-        else
-            f =  1.0
-
-        lzz = vmLegacTax.e_lzz
-        var lzzsoz = lzz
-
-        zkf = vmLegacTax.e_zkf * 0.5
-
-       // if ( zkf > 0)
-      //      uncheck kinder    done!
-
-        // kirchsteuer
-        //if (e_r > 0 )         done!
-        r = vmLegacTax.e_r
-
-        // ignore, working only with optional data
-        /*if (stkl == 6 && lzzhinzu > 0) {
-            document.eingabe.e_hinzur.value = "";
-            alert(
-                "Bei Steuerklasse 6 wird kein Hinzurechnungsbetrag\nber&uuml;cksichtigt!"
-            );
-        }*/
-
-
-        // important after set ui, to put to work also for steuer cl 2
-        /*if (stkl == 2 && zkf == 0) {          done!
-            alert("Bei Steuerklasse II muss ein Kinderfreibetrag angegeben werden!");
-            document.eingabe.e_zkf.selectedIndex = 2;
-            document.eingabe.kinderlos[0].checked;
-            document.eingabe.e_zkf.focus();         done!
-            Calc();   ??????
-        }*/
-
-        kist = vmLegacTax.e_r * 0.01        // kirch steuer
-
-        krv = 2.0
-
-       /* bundesland = document.eingabe.e_bundesland.selectedIndex + 1;
-
-        if (
-            bundesland == 4 ||
-            bundesland == 5 ||
-            bundesland == 9 ||
-            bundesland == 14 ||
-            bundesland == 15 ||
-            bundesland == 17
-        )
-            krv = 1;*/
-
-        if (vmLegacTax.e_krv)
-            krv = 0.0           // to find??
-
-        if (vmLegacTax.e_bundesland == 14) pvs = 1.0
-
-        pvzusatz = 0.0
-        pvz = 1.0
-
-        if (vmLegacTax.kinderlos && vmLegacTax.e_zkf == 0.0) {
-            pvzusatz = 0.35
-            pvz = 1.0
-        }
-
-        mre4jl()
-        jre4 = zre4j * 100 + jsonstb // Voraussichtlicher Jahreslohn f&uuml;r Sonstige Bez&uuml;ge
-        jvbez = zvbezj * 100  // darin enthaltene Versorgungsbez&uuml;ge
-        jre4soz = zre4j * 100  // Ber&uuml;cksichtigung schon abgerechneter                                                        Einmalzahlungen/Jahr
-        lst2022()  //Aufruf PAP Berechnung
-
-
-        var steuer = Math.floor(lstlzz + sts + stv) / 100;
-        var soli = Math.floor(solzlzz + solzs + solzv + 0.0001) / 100;
-        var kisteuer = Math.floor((bk + bks + bkv) * kist) / 100;
-        lstlzz = Math.floor(lstlzz) / 100;
-        sts = Math.floor(sts) / 100;
-        stv = Math.floor(stv) / 100;
-
-
-        sozberech()
-
-        Log.d("taxes", "steuer:  " + steuer)
-        Log.d("taxes", "soli:  " + soli)
-        Log.d("taxes", "kisteuer:  " + kisteuer)
-        Log.d("taxes", "###summeSteuer:  " + (steuer + kisteuer + soli))
-        Log.d("taxes", "renteVers:  " + rentewert)
-        Log.d("taxes", "arbeitslosVerse:  " + aloswert)
-        Log.d("taxes", "krankVers:  " + kvwert)
-        Log.d("taxes", "pflegeVers:  " + pflegewert)
-        Log.d("taxes", "sozabgabe:  " + sozabgabe)
-
-        Log.d("taxes", "Arebitgeberanteil renteVers:  " + rentewertag)
-        Log.d("taxes", "Arebitgeberanteil arbeitslosVerse:  " + aloswertag)
-        Log.d("taxes", "Arebitgeberanteil krankVers:  " + kvwertag)
-        Log.d("taxes", "Arebitgeberanteil pflegeVers:  " + pflegewertag)
-        Log.d("taxes", "Arebitgeberanteil sozabgabe:  " + agsozabgabe)
-    }
-
 
     fun lst2022() {
         mpara();
@@ -1076,8 +942,148 @@ class CalculationLegacy {
 
     // ###########################
 
+    fun hasPrivateKrankVers() {
+        if (pkpv > 0.0 || anpkv > 0.0) {
+            return;
+        }
+    }
+
+    fun setData() {     // Calc
+
+        // #####
+
+        // #####
+        kvz = vmLegacTax.e_kvz
+        re4 = vmLegacTax.e_re4 * 100        // brutto lohn
+        var re4sozlzz = re4
+        sonstb = e_sonstb.toDouble() * 100      // optional
+        jsonstb = e_jsonstb.toDouble() * 100    // optional
+        vmt = e_vmt.toDouble() * 100            // optional
+        lzz = e_lzz.toDouble()                  // optional
+        entsch = e_entsch.toDouble() * 100      // optional
+        lzzfreib = e_wfundf.toDouble() * 100    // optional
+        lzzhinzu = e_hinzur.toDouble() * 100    // optional
+       // pkpv = vmLegacTax.e_pkpv * 100
+        //anpkv = vmLegacTax.e_anpkv * 1200
+        pkpv = e_pkpv.toDouble() * 100
+        anpkv = e_anpkv.toDouble() * 1200
+
+        ajahr = vmLegacTax.geb_tag // from view must
+        ajahr = 2022.0 // from view must
+        alter1 = 0.0
+        if (ajahr < 2018)
+            alter1 = 1.0
+
+
+        var stkl = vmLegacTax.e_stkl
+        f = 1.0
+        if (vmLegacTax.e_stkl == 4.0)
+            f = vmLegacTax.e_f // flimit()
+        af = 0.0
+        if (f > 0.0 && f < 1.0)
+            af = 1.0
+        else
+            f =  1.0
+
+        lzz = vmLegacTax.e_lzz
+        var lzzsoz = lzz
+
+        zkf = vmLegacTax.e_zkf * 0.5
+
+        // if ( zkf > 0)
+        //      uncheck kinder    done!
+
+        // kirchsteuer
+        //if (e_r > 0 )         done!
+        r = vmLegacTax.e_r
+
+        // ignore, working only with optional data
+        /*if (stkl == 6 && lzzhinzu > 0) {
+            document.eingabe.e_hinzur.value = "";
+            alert(
+                "Bei Steuerklasse 6 wird kein Hinzurechnungsbetrag\nber&uuml;cksichtigt!"
+            );
+        }*/
+
+
+        // important after set ui, to put to work also for steuer cl 2
+        /*if (stkl == 2 && zkf == 0) {          done!
+            alert("Bei Steuerklasse II muss ein Kinderfreibetrag angegeben werden!");
+            document.eingabe.e_zkf.selectedIndex = 2;
+            document.eingabe.kinderlos[0].checked;
+            document.eingabe.e_zkf.focus();         done!
+            Calc();   ??????
+        }*/
+
+        kist = vmLegacTax.e_r * 0.01        // kirch steuer
+
+        krv = 2.0
+
+        /* bundesland = document.eingabe.e_bundesland.selectedIndex + 1;
+
+         if (
+             bundesland == 4 ||
+             bundesland == 5 ||
+             bundesland == 9 ||
+             bundesland == 14 ||
+             bundesland == 15 ||
+             bundesland == 17
+         )
+             krv = 1;*/
+
+        if (vmLegacTax.e_krv)
+            krv = 0.0           // to find??
+
+        if (vmLegacTax.e_bundesland == 14) pvs = 1.0
+
+        pvzusatz = 0.0
+        pvz = 1.0
+
+        if (vmLegacTax.kinderlos && vmLegacTax.e_zkf == 0.0) {
+            pvzusatz = 0.35
+            pvz = 1.0
+        }
+
+        mre4jl()
+        jre4 = zre4j * 100 + jsonstb // Voraussichtlicher Jahreslohn f&uuml;r Sonstige Bez&uuml;ge
+        jvbez = zvbezj * 100  // darin enthaltene Versorgungsbez&uuml;ge
+        jre4soz = zre4j * 100  // Ber&uuml;cksichtigung schon abgerechneter                                                        Einmalzahlungen/Jahr
+        lst2022()  //Aufruf PAP Berechnung
+
+
+        var steuer = Math.floor(lstlzz + sts + stv) / 100;
+        var soli = Math.floor(solzlzz + solzs + solzv + 0.0001) / 100;
+        var kisteuer = Math.floor((bk + bks + bkv) * kist) / 100;
+        lstlzz = Math.floor(lstlzz) / 100;
+        sts = Math.floor(sts) / 100;
+        stv = Math.floor(stv) / 100;
+
+        sozberech()
+
+
+
+        Log.d("taxes", "steuer:  " + steuer)
+        Log.d("taxes", "soli:  " + soli)
+        Log.d("taxes", "kisteuer:  " + kisteuer)
+        Log.d("taxes", "###summeSteuer:  " + (steuer + kisteuer + soli))
+        Log.d("taxes", "renteVers:  " + rentewert)
+        Log.d("taxes", "arbeitslosVerse:  " + aloswert)
+        Log.d("taxes", "krankVers:  " + kvwert)
+        Log.d("taxes", "pflegeVers:  " + pflegewert)
+        Log.d("taxes", "sozabgabe:  " + sozabgabe)
+
+        Log.d("taxes", "Arebitgeberanteil renteVers:  " + rentewertag)
+        Log.d("taxes", "Arebitgeberanteil arbeitslosVerse:  " + aloswertag)
+        Log.d("taxes", "Arebitgeberanteil krankVers:  " + kvwertag)
+        Log.d("taxes", "Arebitgeberanteil pflegeVers:  " + pflegewertag)
+        Log.d("taxes", "Arebitgeberanteil sozabgabe:  " + agsozabgabe)
+    }
+
     fun sozberech() {
-        lzz = vmLegacTax.e_lzz.toDouble()
+        if (!vmLegacTax.isPrivatInsur)
+            anpkv = 0.0
+
+        lzz = vmLegacTax.e_lzz
         var pflege = 1.525;
         var pflege_ag = pflege;
 
