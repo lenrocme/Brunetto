@@ -3,10 +3,7 @@ package com.example.brunetto.helpers
 import android.util.Log
 import com.example.brunetto.viewModels.LegacyTaxModelView
 
-class CalculationLegacy {
-
-    val vmLegacTax = LegacyTaxModelView()
-
+class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
 
     //var e_kvz = 1.3     // 1.3% Zusatzbeitrag
    // var e_re4 = 90000
@@ -145,7 +142,7 @@ class CalculationLegacy {
     var lzz = 1.0;
     var lzzfreib = 0.0;
     var lzzhinzu = 0.0;
-    var pkv = 2.0;
+    var pkv = 0.0;
     var pkpv = 500.0;
     var anpkv = 300.0;  // not present in orig
     var pvs = 0.0;
@@ -668,7 +665,7 @@ class CalculationLegacy {
             if (vmLegacTax.e_stkl == 6.0) {
                 vsp3 = 0.0;
             } else {
-                vsp3 = ((pkpv * 12) / 100).toDouble();
+                vsp3 = (pkpv * 12) / 100
 
                 if (pkv == 2.0) {
                     vsp3 = vsp3 - zre4vp * (kvsatzag + pvsatzag);
@@ -691,7 +688,8 @@ class CalculationLegacy {
             if (zzx > w3stkl5) {
                 st = st + (w3stkl5 - w2stkl5) * 0.42;
                 st = Math.floor(st + (zzx - w3stkl5) * 0.45);
-            } else st = Math.floor(st + (zzx - w2stkl5) * 0.42);
+            } else
+                st = Math.floor(st + (zzx - w2stkl5) * 0.42);
         } else {
             zx = zzx;
             up5_6();
@@ -700,8 +698,10 @@ class CalculationLegacy {
                 zx = w1stkl5;
                 up5_6();
                 hoch = Math.floor(st + (zzx - w1stkl5) * 0.42);
-                if (hoch < vergl) st = hoch;
-                else st = vergl;
+                if (hoch < vergl)
+                    st = hoch;
+                else
+                    st = vergl;
             }
         }
     }
@@ -715,8 +715,10 @@ class CalculationLegacy {
         st2 = st;
         diff = (st1 - st2) * 2;
         mist = Math.floor(zx * 0.14);
-        if (mist > diff) st = mist;
-        else st = diff;
+        if (mist > diff)
+            st = mist;
+        else
+            st = diff;
     }
 
     fun msolz() {
@@ -963,10 +965,17 @@ class CalculationLegacy {
         entsch = e_entsch.toDouble() * 100      // optional
         lzzfreib = e_wfundf.toDouble() * 100    // optional
         lzzhinzu = e_hinzur.toDouble() * 100    // optional
-       // pkpv = vmLegacTax.e_pkpv * 100
-        //anpkv = vmLegacTax.e_anpkv * 1200
-        pkpv = e_pkpv.toDouble() * 100
-        anpkv = e_anpkv.toDouble() * 1200
+        pkpv = vmLegacTax.e_pkpv * 100
+        anpkv = vmLegacTax.e_anpkv * 1200
+        //pkpv = e_pkpv.toDouble() * 100
+        //anpkv = e_anpkv.toDouble() * 1200
+
+        pkv = 0.0
+        if (vmLegacTax.isPrivatInsur)
+            if (vmLegacTax.mitag)
+                pkv = 2.0
+            else
+                pkv = 1.0
 
         ajahr = vmLegacTax.geb_tag // from view must
         ajahr = 2022.0 // from view must
@@ -1080,8 +1089,6 @@ class CalculationLegacy {
     }
 
     fun sozberech() {
-        if (!vmLegacTax.isPrivatInsur)
-            anpkv = 0.0
 
         lzz = vmLegacTax.e_lzz
         var pflege = 1.525;
@@ -1093,6 +1100,12 @@ class CalculationLegacy {
         }
 
         var kvsatz = vmLegacTax.e_barmer
+
+        Log.d("taxes", "IsPrivate insurance:  " + vmLegacTax.isPrivatInsur)
+        if (vmLegacTax.isPrivatInsur)
+            kvsatz = 0.0
+        else
+            anpkv = 0.0
 
         // wtf
         bemesberech(); // ermitteln
@@ -1112,11 +1125,10 @@ class CalculationLegacy {
         bemesberech(); // ermitteln
         bemeskganz = bemesk;
         bemesrganz = bemesr;
-        bemesk = Math.round(bemesklzz + Math.max(bemeskganz - (bemeskoso + jsonstb), 0.0)) /
-                100.0
+        bemesk =
+            Math.round(bemesklzz + Math.max(bemeskganz - (bemeskoso + jsonstb), 0.0)) / 100.0
         bemesr =
-            Math.round(bemesrlzz + Math.max(bemesrganz - (bemesroso + jsonstb.toInt()), 0.0)) /
-                    100.0
+            Math.round(bemesrlzz + Math.max(bemesrganz - (bemesroso + jsonstb.toInt()), 0.0)) / 100.0
         val rente = 9.3;
         val alos = 1.2;
         kvz = vmLegacTax.e_kvz
