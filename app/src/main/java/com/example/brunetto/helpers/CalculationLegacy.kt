@@ -142,7 +142,7 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
     var lzz = 1.0;
     var lzzfreib = 0.0;
     var lzzhinzu = 0.0;
-    var pkv = 2.0;
+    var pkv = 0.0;
     var pkpv = 500.0;
     var anpkv = 300.0;  // not present in orig
     var pvs = 0.0;
@@ -665,7 +665,7 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
             if (vmLegacTax.e_stkl == 6.0) {
                 vsp3 = 0.0;
             } else {
-                vsp3 = ((pkpv * 12) / 100).toDouble();
+                vsp3 = (pkpv * 12) / 100
 
                 if (pkv == 2.0) {
                     vsp3 = vsp3 - zre4vp * (kvsatzag + pvsatzag);
@@ -688,7 +688,8 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
             if (zzx > w3stkl5) {
                 st = st + (w3stkl5 - w2stkl5) * 0.42;
                 st = Math.floor(st + (zzx - w3stkl5) * 0.45);
-            } else st = Math.floor(st + (zzx - w2stkl5) * 0.42);
+            } else
+                st = Math.floor(st + (zzx - w2stkl5) * 0.42);
         } else {
             zx = zzx;
             up5_6();
@@ -697,8 +698,10 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
                 zx = w1stkl5;
                 up5_6();
                 hoch = Math.floor(st + (zzx - w1stkl5) * 0.42);
-                if (hoch < vergl) st = hoch;
-                else st = vergl;
+                if (hoch < vergl)
+                    st = hoch;
+                else
+                    st = vergl;
             }
         }
     }
@@ -712,8 +715,10 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
         st2 = st;
         diff = (st1 - st2) * 2;
         mist = Math.floor(zx * 0.14);
-        if (mist > diff) st = mist;
-        else st = diff;
+        if (mist > diff)
+            st = mist;
+        else
+            st = diff;
     }
 
     fun msolz() {
@@ -964,6 +969,13 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
         anpkv = vmLegacTax.e_anpkv * 1200
         //pkpv = e_pkpv.toDouble() * 100
         //anpkv = e_anpkv.toDouble() * 1200
+
+        pkv = 0.0
+        if (vmLegacTax.isPrivatInsur)
+            if (vmLegacTax.mitag)
+                pkv = 2.0
+            else
+                pkv = 1.0
 
         ajahr = vmLegacTax.geb_tag // from view must
         ajahr = 2022.0 // from view must
