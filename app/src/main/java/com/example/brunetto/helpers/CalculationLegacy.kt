@@ -1113,11 +1113,10 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
         bemesberech(); // ermitteln
         bemeskganz = bemesk;
         bemesrganz = bemesr;
-        bemesk = Math.round(bemesklzz + Math.max(bemeskganz - (bemeskoso + jsonstb), 0.0)) /
-                100.0
+        bemesk =
+            Math.round(bemesklzz + Math.max(bemeskganz - (bemeskoso + jsonstb), 0.0)) / 100.0
         bemesr =
-            Math.round(bemesrlzz + Math.max(bemesrganz - (bemesroso + jsonstb.toInt()), 0.0)) /
-                    100.0
+            Math.round(bemesrlzz + Math.max(bemesrganz - (bemesroso + jsonstb.toInt()), 0.0)) / 100.0
         val rente = 9.3;
         val alos = 1.2;
         kvz = vmLegacTax.e_kvz
