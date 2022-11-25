@@ -3,10 +3,7 @@ package com.example.brunetto.helpers
 import android.util.Log
 import com.example.brunetto.viewModels.LegacyTaxModelView
 
-class CalculationLegacy {
-
-    val vmLegacTax = LegacyTaxModelView()
-
+class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
 
     //var e_kvz = 1.3     // 1.3% Zusatzbeitrag
    // var e_re4 = 90000
@@ -963,10 +960,10 @@ class CalculationLegacy {
         entsch = e_entsch.toDouble() * 100      // optional
         lzzfreib = e_wfundf.toDouble() * 100    // optional
         lzzhinzu = e_hinzur.toDouble() * 100    // optional
-       // pkpv = vmLegacTax.e_pkpv * 100
-        //anpkv = vmLegacTax.e_anpkv * 1200
-        pkpv = e_pkpv.toDouble() * 100
-        anpkv = e_anpkv.toDouble() * 1200
+        pkpv = vmLegacTax.e_pkpv * 100
+        anpkv = vmLegacTax.e_anpkv * 1200
+        //pkpv = e_pkpv.toDouble() * 100
+        //anpkv = e_anpkv.toDouble() * 1200
 
         ajahr = vmLegacTax.geb_tag // from view must
         ajahr = 2022.0 // from view must
@@ -1080,8 +1077,6 @@ class CalculationLegacy {
     }
 
     fun sozberech() {
-        if (!vmLegacTax.isPrivatInsur)
-            anpkv = 0.0
 
         lzz = vmLegacTax.e_lzz
         var pflege = 1.525;
@@ -1093,6 +1088,12 @@ class CalculationLegacy {
         }
 
         var kvsatz = vmLegacTax.e_barmer
+
+        Log.d("taxes", "IsPrivate insurance:  " + vmLegacTax.isPrivatInsur)
+        if (vmLegacTax.isPrivatInsur)
+            kvsatz = 0.0
+        else
+            anpkv = 0.0
 
         // wtf
         bemesberech(); // ermitteln

@@ -226,7 +226,7 @@ fun Body(taxViewModel: LegacyTaxModelView) {
 
             Button(
                 onClick = {
-                    CalculationLegacy().setData()
+                    CalculationLegacy(taxViewModel).setData()
                     /*Log.d("taxes", "Zeitraum: " + taxViewModel.e_lzz)
                     Log.d("taxes", "inputed lohn: " + taxViewModel.e_re4)
                     Log.d("taxes", "steurclass: " + taxViewModel.e_stkl)
@@ -773,7 +773,8 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                         .clickable(
                             interactionSource = MutableInteractionSource(),
                             indication = null
-                        ) { taxViewModel.isPrivatInsur = false }
+                        ) { taxViewModel.isPrivatInsur = false
+                            Log.d("taxes", "IsPrivate insurance:  " + taxViewModel.isPrivatInsur)}
                     )
                 Switch(
                     modifier = Modifier
@@ -789,6 +790,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                             taxViewModel.e_barmer = 0.0
                             taxViewModel.e_kvz = 0.0
                         }
+                        Log.d("taxes", "IsPrivate insurance:  " + taxViewModel.isPrivatInsur)
                     },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Color.LightGray,
@@ -804,7 +806,8 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                         .clickable(
                             interactionSource = MutableInteractionSource(),
                             indication = null
-                        ) { taxViewModel.isPrivatInsur = true }
+                        ) { taxViewModel.isPrivatInsur = true
+                            Log.d("taxes", "IsPrivate insurance:  " + taxViewModel.isPrivatInsur)}
                 )
             }
             if (!taxViewModel.isPrivatInsur) {
