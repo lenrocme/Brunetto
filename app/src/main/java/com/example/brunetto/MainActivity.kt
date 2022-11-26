@@ -227,7 +227,7 @@ fun Body(taxViewModel: LegacyTaxModelView) {
             Button(
                 onClick = {
                     CalculationLegacy(taxViewModel).setData()
-                    /*Log.d("taxes", "Zeitraum: " + taxViewModel.e_lzz)
+                 /*   Log.d("taxes", "Zeitraum: " + taxViewModel.e_lzz)
                     Log.d("taxes", "inputed lohn: " + taxViewModel.e_re4)
                     Log.d("taxes", "steurclass: " + taxViewModel.e_stkl)
                     Log.d("taxes", "when steuer 4, value: " + taxViewModel.e_f)
@@ -674,8 +674,10 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
                     onCheckedChange = {
                         if(taxViewModel.e_stkl != 2.0) {
                             taxViewModel.kinderlos = it
-                            if (it)
+                            if (it) {
                                 taxViewModel.selectedOptionKinderZahl = optionsDropMenu[0]
+                                taxViewModel.e_zkf = 0.0
+                            }
                         } else {
                             Toast.makeText(
                                 mContext,

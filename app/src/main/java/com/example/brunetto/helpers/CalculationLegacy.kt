@@ -335,7 +335,7 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
         }
 
         if (pvz == 1.0) {
-            pvsatzan += 0.0035
+            pvsatzan = pvsatzan + 0.0035
         }
 
         w1stkl5 = 11793.0         // grenz für steurklass V & VI
@@ -1043,10 +1043,11 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
         if (vmLegacTax.e_krv)
             krv = 0.0           // to find??
 
-        if (vmLegacTax.e_bundesland == 14) pvs = 1.0
+        if (vmLegacTax.e_bundesland == 14)
+            pvs = 1.0
 
         pvzusatz = 0.0
-        pvz = 1.0
+        pvz = 0.0
 
         if (vmLegacTax.kinderlos && vmLegacTax.e_zkf == 0.0) {
             pvzusatz = 0.35
