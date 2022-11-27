@@ -998,7 +998,7 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
         lzz = vmLegacTax.e_lzz
         var lzzsoz = lzz
 
-        zkf = vmLegacTax.e_zkf * 0.5
+        zkf = vmLegacTax.e_zkf  // * 0.5, not need multiply by 1/2, bc its take direct value
 
         // if ( zkf > 0)
         //      uncheck kinder    done!
@@ -1031,15 +1031,15 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
 
         bundesland = vmLegacTax.e_bundesland // it's already  + 1 from view
 
-         if (
-             bundesland == 4 ||
-             bundesland == 5 ||
-             bundesland == 9 ||
-             bundesland == 14 ||
-             bundesland == 15 ||
-             bundesland == 17
-         )
-             krv = 1.0
+        if (
+         bundesland == 4 ||
+         bundesland == 5 ||
+         bundesland == 9 ||
+         bundesland == 14 ||
+         bundesland == 15 ||
+         bundesland == 17
+        )
+            krv = 1.0
 
         if (!vmLegacTax.e_krv)
             krv = 2.0           // to find??
