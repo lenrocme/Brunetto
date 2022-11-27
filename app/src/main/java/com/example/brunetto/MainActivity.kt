@@ -227,7 +227,7 @@ fun Body(taxViewModel: LegacyTaxModelView) {
             Button(
                 onClick = {
                     CalculationLegacy(taxViewModel).setData()
-                    /*Log.d("taxes", "Zeitraum: " + taxViewModel.e_lzz)
+                 /*   Log.d("taxes", "Zeitraum: " + taxViewModel.e_lzz)
                     Log.d("taxes", "inputed lohn: " + taxViewModel.e_re4)
                     Log.d("taxes", "steurclass: " + taxViewModel.e_stkl)
                     Log.d("taxes", "when steuer 4, value: " + taxViewModel.e_f)
@@ -342,7 +342,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                 Surface(
                     elevation = 5.dp,
                     shape = CircleShape,
-                    color = Color.LightGray,
+                    color = SetColorSteuerClassByIsSelected(taxViewModel, 1),
                     modifier = Modifier
                         .clickable(true) {
                             selectedOption = 1
@@ -362,7 +362,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                 Surface(
                     elevation = 5.dp,
                     shape = CircleShape,
-                    color = Color.LightGray,
+                    color = SetColorSteuerClassByIsSelected(taxViewModel, 2),
                     modifier = Modifier
                         .clickable(true) {
                             if (selectedOption != 2) {
@@ -397,7 +397,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                 Surface(
                     elevation = 5.dp,
                     shape = CircleShape,
-                    color = Color.LightGray,
+                    color = SetColorSteuerClassByIsSelected(taxViewModel, 3),
                     modifier = Modifier
                         .clickable(true) {
                             selectedOption = 3
@@ -417,7 +417,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                 Surface(
                     elevation = 5.dp,
                     shape = CircleShape,
-                    color = Color.LightGray,
+                    color = SetColorSteuerClassByIsSelected(taxViewModel, 4),
                     modifier = Modifier
                         .clickable(true) {
                             selectedOption = 4
@@ -437,7 +437,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                 Surface(
                     elevation = 5.dp,
                     shape = CircleShape,
-                    color = Color.LightGray,
+                    color = SetColorSteuerClassByIsSelected(taxViewModel, 5),
                     modifier = Modifier
                         .clickable(true) {
                             selectedOption = 5
@@ -457,7 +457,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                 Surface(
                     elevation = 5.dp,
                     shape = CircleShape,
-                    color = Color.LightGray,
+                    color = SetColorSteuerClassByIsSelected(taxViewModel, 6),
                     modifier = Modifier
                         .clickable(true) {
                             selectedOption = 6
@@ -674,8 +674,10 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
                     onCheckedChange = {
                         if(taxViewModel.e_stkl != 2.0) {
                             taxViewModel.kinderlos = it
-                            if (it)
+                            if (it) {
                                 taxViewModel.selectedOptionKinderZahl = optionsDropMenu[0]
+                                taxViewModel.e_zkf = 0.0
+                            }
                         } else {
                             Toast.makeText(
                                 mContext,
@@ -1194,4 +1196,17 @@ private fun SetKirchSteur(checkedState: Boolean, selectedOptionLand: String) : D
             8.0
         else
             9.0
+}
+
+/**
+ * Set the color as selected by selecting steuer class or vice-versa
+ * @param taxViewModel The view model with actual status of selected steuer class
+ * @param selectedSteuerClass The selected steuer class by user
+ * @return The color for the selected steuer class or color for not selected steuer class
+ * */
+private fun SetColorSteuerClassByIsSelected(taxViewModel : LegacyTaxModelView, selectedSteuerClass: Int): Color {
+    if (taxViewModel.e_stkl == selectedSteuerClass.toDouble())
+        return Color.Gray
+    else
+        return Color.LightGray
 }

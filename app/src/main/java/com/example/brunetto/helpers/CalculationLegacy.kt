@@ -195,6 +195,7 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
 
 
     // not writen in js
+    var bundesland = 0
     var rvsatzan = 0.0
     var tbsvorv = 0.0
     var pvzusatz = 0.0
@@ -335,7 +336,7 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
         }
 
         if (pvz == 1.0) {
-            pvsatzan += 0.0035
+            pvsatzan = pvsatzan + 0.0035
         }
 
         w1stkl5 = 11793.0         // grenz für steurklass V & VI
@@ -997,7 +998,7 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
         lzz = vmLegacTax.e_lzz
         var lzzsoz = lzz
 
-        zkf = vmLegacTax.e_zkf * 0.5
+        zkf = vmLegacTax.e_zkf  // * 0.5, not need multiply by 1/2, bc its take direct value
 
         // if ( zkf > 0)
         //      uncheck kinder    done!
@@ -1026,27 +1027,30 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
 
         kist = vmLegacTax.e_r * 0.01        // kirch steuer
 
-        krv = 2.0
+        krv = 0.0
 
-        /* bundesland = document.eingabe.e_bundesland.selectedIndex + 1;
+        bundesland = vmLegacTax.e_bundesland // it's already  + 1 from view
 
-         if (
-             bundesland == 4 ||
-             bundesland == 5 ||
-             bundesland == 9 ||
-             bundesland == 14 ||
-             bundesland == 15 ||
-             bundesland == 17
-         )
-             krv = 1;*/
+        if (
+         bundesland == 4 ||
+         bundesland == 5 ||
+         bundesland == 9 ||
+         bundesland == 14 ||
+         bundesland == 15 ||
+         bundesland == 17
+        )
+            krv = 1.0
 
-        if (vmLegacTax.e_krv)
-            krv = 0.0           // to find??
+        if (!vmLegacTax.e_krv)
+            krv = 2.0           // to find??
 
-        if (vmLegacTax.e_bundesland == 14) pvs = 1.0
+        pvs = 0.0
+
+        if (bundesland == 14)
+            pvs = 1.0
 
         pvzusatz = 0.0
-        pvz = 1.0
+        pvz = 0.0
 
         if (vmLegacTax.kinderlos && vmLegacTax.e_zkf == 0.0) {
             pvzusatz = 0.35
@@ -1094,7 +1098,7 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
         var pflege = 1.525;
         var pflege_ag = pflege;
 
-        if (vmLegacTax.e_bundesland == 14) {
+        if (bundesland == 14) {
             pflege = 2.025;
             pflege_ag = 1.025;
         }
