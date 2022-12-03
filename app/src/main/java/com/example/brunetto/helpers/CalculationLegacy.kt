@@ -959,13 +959,13 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
         kvz = vmLegacTax.e_kvz
         re4 = vmLegacTax.e_re4 * 100        // brutto lohn
         var re4sozlzz = re4
-        sonstb = e_sonstb.toDouble() * 100      // optional
-        jsonstb = e_jsonstb.toDouble() * 100    // optional
-        vmt = e_vmt.toDouble() * 100            // optional
+        sonstb = vmLegacTax.e_sonstb * 100      // optional
+        jsonstb = vmLegacTax.e_jsonstb * 100    // optional
+        vmt = vmLegacTax.e_vmt * 100            // optional
         lzz = e_lzz.toDouble()                  // optional
-        entsch = e_entsch.toDouble() * 100      // optional
-        lzzfreib = e_wfundf.toDouble() * 100    // optional
-        lzzhinzu = e_hinzur.toDouble() * 100    // optional
+        entsch = vmLegacTax.e_entsch * 100      // optional
+        lzzfreib = vmLegacTax.e_wfundf * 100    // optional
+        lzzhinzu = vmLegacTax.e_hinzur * 100    // optional
         pkpv = vmLegacTax.e_pkpv * 100
         anpkv = vmLegacTax.e_anpkv * 1200
         //pkpv = e_pkpv.toDouble() * 100
@@ -1073,23 +1073,31 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
 
         sozberech()
 
+        var stganz = steuer + soli + kisteuer // sum steuer
+        var netto = ((re4sozlzz + sonstb + vmt) / 100 - sozabgabe - stganz) * 100 / 100
+
 
 
         Log.d("taxes", "steuer:  " + steuer)
+        Log.d("taxes", "davon für Brutolohn:  " + lstlzz)
+        Log.d("taxes", "für Einmalzahlung:  " + sts)
+        Log.d("taxes", "für mehrjährige Tätigkeit:  " + stv)
         Log.d("taxes", "soli:  " + soli)
         Log.d("taxes", "kisteuer:  " + kisteuer)
-        Log.d("taxes", "###summeSteuer:  " + (steuer + kisteuer + soli))
+        Log.d("taxes", "###Summe der Steuern:  " + (steuer + kisteuer + soli))
         Log.d("taxes", "renteVers:  " + rentewert)
         Log.d("taxes", "arbeitslosVerse:  " + aloswert)
         Log.d("taxes", "krankVers:  " + kvwert)
         Log.d("taxes", "pflegeVers:  " + pflegewert)
         Log.d("taxes", "sozabgabe:  " + sozabgabe)
+        Log.d("taxes", "Nettolohn:  " + netto)
 
         Log.d("taxes", "Arebitgeberanteil renteVers:  " + rentewertag)
         Log.d("taxes", "Arebitgeberanteil arbeitslosVerse:  " + aloswertag)
         Log.d("taxes", "Arebitgeberanteil krankVers:  " + kvwertag)
         Log.d("taxes", "Arebitgeberanteil pflegeVers:  " + pflegewertag)
         Log.d("taxes", "Arebitgeberanteil sozabgabe:  " + agsozabgabe)
+        Log.d("taxes", "Gesamtbelastung Arbeitgeber:  " + (agsozabgabe + vmLegacTax.e_re4 + sts))
     }
 
     fun sozberech() {
@@ -1181,8 +1189,6 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
             Math.floor((rentewertag + kvwertag + pflegewertag + aloswertag) * 100) / 100
         sozabgabe =
             Math.floor((rentewert + kvwert + pflegewert + aloswert) * 1000) / 1000
-
-
     }
 
     fun bemesberech() {
