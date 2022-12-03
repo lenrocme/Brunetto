@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -742,6 +741,7 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
+    val focusManager = LocalFocusManager.current
     var expanded by remember { mutableStateOf(false) }
     var isKrankVersGesetzlich by remember { mutableStateOf(true) }
 
@@ -873,6 +873,24 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                                     taxViewModel.e_kvz = 0.0
                             },
                             label = { Text(text = "Zusatzbeitrag") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                            keyboardActions = KeyboardActions(onDone = {
+                                focusManager.clearFocus()
+                            }),
+                            singleLine = true,
+                            maxLines = 1,
+                            trailingIcon = {
+                                if (txtValueZusatzbeitrag != "")
+                                    Icon(
+                                        Icons.Default.Clear,
+                                        modifier = Modifier
+                                            .clickable(true){
+                                                txtValueZusatzbeitrag = ""
+                                            },
+                                        contentDescription = "Clear",
+                                        //tint = MaterialTheme.myColors.main_350,
+                                    )
+                            },
                         )
                     }
                 }
@@ -889,6 +907,24 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                             taxViewModel.e_anpkv = 0.0
                     },
                     label = { Text(text = "Beitrag / Monat") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    keyboardActions = KeyboardActions(onDone = {
+                        focusManager.clearFocus()
+                    }),
+                    singleLine = true,
+                    maxLines = 1,
+                    trailingIcon = {
+                        if (txtValueBeitrag != "")
+                            Icon(
+                                Icons.Default.Clear,
+                                modifier = Modifier
+                                    .clickable(true){
+                                        txtValueBeitrag = ""
+                                    },
+                                contentDescription = "Clear",
+                                //tint = MaterialTheme.myColors.main_350,
+                            )
+                    },
                 )
                 TextField(
                     modifier = Modifier
@@ -902,6 +938,24 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                             taxViewModel.e_pkpv = 0.0
                     },
                     label = { Text(text = "Grundsicherung / Monat") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    keyboardActions = KeyboardActions(onDone = {
+                        focusManager.clearFocus()
+                    }),
+                    singleLine = true,
+                    maxLines = 1,
+                    trailingIcon = {
+                        if (txtValueGrundSicherung != "")
+                            Icon(
+                                Icons.Default.Clear,
+                                modifier = Modifier
+                                    .clickable(true){
+                                        txtValueGrundSicherung = ""
+                                    },
+                                contentDescription = "Clear",
+                                //tint = MaterialTheme.myColors.main_350,
+                            )
+                    },
                 )
                 Row(verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -1150,16 +1204,11 @@ fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView) {
                     .fillMaxWidth(),
                 value = txtValueHinzurechnugsBetrag,
                 onValueChange = { it ->
-                    if (it.length <= 15 && it[0] != '.' && it.filter { it == '.' }.count() < 2) {
-                        txtValueHinzurechnugsBetrag = it.replace("[^0-9.]".toRegex(), "")
-                        if (!it.isEmpty())
-                            taxViewModel.e_hinzur = txtValueHinzurechnugsBetrag.toDouble()
-                        else
-                            taxViewModel.e_hinzur = 0.0
-                    }
+                    txtValueHinzurechnugsBetrag = filterUserInput(it, txtValueHinzurechnugsBetrag)
+                    taxViewModel.e_hinzur = getDoubleValFromInput(txtValueHinzurechnugsBetrag)
                 },
                 label = { Text(text = "Hinzurechnungsbetrag") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 keyboardActions = KeyboardActions(onDone = {
                     focusManager.clearFocus()
                 }),
@@ -1172,6 +1221,7 @@ fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView) {
                             modifier = Modifier
                                 .clickable(true){
                                     txtValueHinzurechnugsBetrag = ""
+                                    taxViewModel.e_hinzur = 0.0
                                 },
                             contentDescription = "Clear",
                             //tint = MaterialTheme.myColors.main_350,
@@ -1209,4 +1259,38 @@ private fun SetColorSteuerClassByIsSelected(taxViewModel : LegacyTaxModelView, s
         return Color.Gray
     else
         return Color.LightGray
+}
+
+/**
+ * Transform user input to double
+ * @param filteredInput The already filtered user input
+ * @return The double value from user input, when this it a number. Otherwise return 0.0
+ * */
+private fun getDoubleValFromInput(filteredInput : String) : Double {
+    return if (!filteredInput.isEmpty())
+        try {
+            filteredInput.toDouble()
+        } catch(e : NumberFormatException) {
+            0.0
+        }
+    else
+        0.0
+}
+
+/**
+ * Filter the user input with regex to allow only numbers of type double
+ * @param userInput The user input
+ * @param existingInput The already filtered existing input or empty string
+ * @return The double value of inputted string
+ * */
+private fun filterUserInput(userInput : String, existingInput : String): String {
+    var valueFromInput = ""
+
+    if (userInput.length in 1..15 && userInput[0] != '.' && userInput.count { it == '.' } < 2) {
+        valueFromInput = userInput.replace("[^0-9.]".toRegex(), "")
+        return valueFromInput
+    }
+    else if (userInput.isEmpty())
+        return ""
+    return existingInput
 }
