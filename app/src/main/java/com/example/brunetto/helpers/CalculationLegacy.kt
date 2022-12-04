@@ -2,8 +2,9 @@ package com.example.brunetto.helpers
 
 import android.util.Log
 import com.example.brunetto.viewModels.LegacyTaxModelView
+import com.example.brunetto.viewModels.ReportTaxModelView
 
-class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
+class CalculationLegacy(val vmLegacTax: LegacyTaxModelView, val reportTaxModel: ReportTaxModelView) {
 
     //var e_kvz = 1.3     // 1.3% Zusatzbeitrag
    // var e_re4 = 90000
@@ -962,7 +963,7 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
         sonstb = vmLegacTax.e_sonstb * 100      // optional
         jsonstb = vmLegacTax.e_jsonstb * 100    // optional
         vmt = vmLegacTax.e_vmt * 100            // optional
-        lzz = e_lzz.toDouble()                  // optional
+        lzz = vmLegacTax.e_lzz                 // optional
         entsch = vmLegacTax.e_entsch * 100      // optional
         lzzfreib = vmLegacTax.e_wfundf * 100    // optional
         lzzhinzu = vmLegacTax.e_hinzur * 100    // optional
@@ -1077,6 +1078,35 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
         var netto = ((re4sozlzz + sonstb + vmt) / 100 - sozabgabe - stganz) * 100 / 100
 
 
+        if (vmLegacTax.isProYear) {
+            reportTaxModel.netSalary = netto
+            reportTaxModel.netSalaryMonthly = netto / 12
+        } else {
+            reportTaxModel.netSalary = netto * 12
+            reportTaxModel.netSalaryMonthly = netto
+        }
+
+        reportTaxModel.taxes = steuer
+        reportTaxModel.taxesByBrutto = lstlzz
+        reportTaxModel.oneTimePay = sts
+        reportTaxModel.multiYearEmploy = stv
+        reportTaxModel.solidaritat = soli
+        reportTaxModel.churchTax = kisteuer
+        reportTaxModel.sumTax = steuer + kisteuer + soli
+
+        reportTaxModel.pension = rentewert
+        reportTaxModel.unemployed = aloswert
+        reportTaxModel.medInsurance = kvwert
+        reportTaxModel.careInsurance = pflegewert
+        reportTaxModel.socialSum = sozabgabe
+
+        reportTaxModel.pensionCompany = rentewertag
+        reportTaxModel.unemployedCompany = aloswertag
+        reportTaxModel.medInsuranceCompany = kvwertag
+        reportTaxModel.careInsuranceCompany = pflegewertag
+        reportTaxModel.socialSumCompany = agsozabgabe
+
+        reportTaxModel.totalLoadCompany = agsozabgabe + vmLegacTax.e_re4 + sts
 
         Log.d("taxes", "steuer:  " + steuer)
         Log.d("taxes", "davon für Brutolohn:  " + lstlzz)
