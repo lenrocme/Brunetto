@@ -963,7 +963,7 @@ class CalculationLegacy(val vmLegacTax: LegacyTaxModelView, val reportTaxModel: 
         sonstb = vmLegacTax.e_sonstb * 100      // optional
         jsonstb = vmLegacTax.e_jsonstb * 100    // optional
         vmt = vmLegacTax.e_vmt * 100            // optional
-        lzz = e_lzz.toDouble()                  // optional
+        lzz = vmLegacTax.e_lzz                 // optional
         entsch = vmLegacTax.e_entsch * 100      // optional
         lzzfreib = vmLegacTax.e_wfundf * 100    // optional
         lzzhinzu = vmLegacTax.e_hinzur * 100    // optional
