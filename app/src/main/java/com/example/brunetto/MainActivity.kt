@@ -118,6 +118,7 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
             Icon(
                 Icons.Default.KeyboardArrowDown,
                 modifier = Modifier
+                    .size(35.dp)
                     .clickable(true) {
                         isReportExtended = !isReportExtended
                     },
@@ -130,6 +131,7 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
             Icon(
                 Icons.Default.KeyboardArrowUp,
                 modifier = Modifier
+                    .size(40.dp)
                     .clickable(true) {
                         isReportExtended = !isReportExtended
                     },
