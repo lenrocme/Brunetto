@@ -97,8 +97,8 @@ fun DefaultPreview() {
 @Composable
 fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView) {
     var isReportExtended by remember { mutableStateOf(false) }
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Card(
+        elevation = 5.dp,
         modifier = Modifier
             .animateContentSize(
                 animationSpec = spring(
@@ -107,37 +107,46 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
                 )
             )
             .fillMaxWidth()
+            //.padding(bottom = getPaddingCards()),
     ) {
-        Spacer(modifier = Modifier
-            .height(percentHeight(adaptHeight(.035f, .05f, 0.065f)) - 19.dp)
-            .fillMaxWidth())
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Spacer(
+                modifier = Modifier
+                    .height(percentHeight(adaptHeight(.035f, .05f, 0.065f)) - 19.dp)
+                    .fillMaxWidth()
+            )
 
-        ForReportTax("Netto jährlich", reportTaxModel.netSalary)
-        ForReportTax("Netto monatlich", reportTaxModel.netSalaryMonthly)
-        if (!isReportExtended) {
-            Icon(
-                Icons.Default.KeyboardArrowDown,
-                modifier = Modifier
-                    .size(35.dp)
-                    .clickable(true) {
-                        isReportExtended = !isReportExtended
-                    },
-                contentDescription = "Clear",
-                //tint = MaterialTheme.myColors.main_350,
-            )
-        }
-        if (isReportExtended) {
-            ReportTax(taxViewModel, reportTaxModel)
-            Icon(
-                Icons.Default.KeyboardArrowUp,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clickable(true) {
-                        isReportExtended = !isReportExtended
-                    },
-                contentDescription = "Clear",
-                //tint = MaterialTheme.myColors.main_350,
-            )
+            ForReportTax("Netto jährlich", reportTaxModel.netSalary)
+            ForReportTax("Netto monatlich", reportTaxModel.netSalaryMonthly)
+            if (!isReportExtended) {
+                Icon(
+                    Icons.Default.KeyboardArrowDown,
+                    modifier = Modifier
+                        .size(35.dp)
+                        .clickable(true) {
+                            isReportExtended = !isReportExtended
+                        },
+                    contentDescription = "Clear",
+                    //tint = MaterialTheme.myColors.main_350,
+                )
+            }
+            if (isReportExtended) {
+                ReportTax(taxViewModel, reportTaxModel)
+                Icon(
+                    Icons.Default.KeyboardArrowUp,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clickable(true) {
+                            isReportExtended = !isReportExtended
+                        },
+                    contentDescription = "Clear",
+                    //tint = MaterialTheme.myColors.main_350,
+                )
+            }
         }
     }
 }
@@ -168,6 +177,13 @@ fun ReportTax(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelVi
         ForReportTax("Pflegeversicherung", reportTaxModel.careInsurance)
         ForReportTax("Summe Sozialversicherung", reportTaxModel.socialSum)
 
+        Text(
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .fillMaxWidth(),
+            text = "Arbeitgeberanteil",
+            textAlign = TextAlign.Center,
+        )
         ForReportTax("Krankenversicherung", reportTaxModel.medInsuranceCompany)
         ForReportTax("Arbeitslosenversicherung", reportTaxModel.unemployedCompany)
         ForReportTax("Rentenversicherung", reportTaxModel.pensionCompany)
@@ -190,13 +206,13 @@ fun ForReportTax(labelName : String, labelValue : Double) {
         verticalAlignment = Alignment.Bottom,
     ) {
         Text(
-            modifier = Modifier.width(percentWidth(.48f)),
+            modifier = Modifier.width(percentWidth(.49f)),
             text = labelName,
             textAlign = TextAlign.Right,
         )
         Text(
-            modifier = Modifier.width(percentWidth(.04f)),
-            text = " : ",
+            modifier = Modifier.width(percentWidth(.02f)),
+            text = ": ",
             textAlign = TextAlign.Center,
         )
         Text(
@@ -205,7 +221,7 @@ fun ForReportTax(labelName : String, labelValue : Double) {
             textAlign = TextAlign.Right,
         )
         Text(
-            modifier = Modifier.width(percentWidth(.48f) - 120.dp),
+            modifier = Modifier.width(percentWidth(.49f) - 120.dp),
             text = "",
             textAlign = TextAlign.Center,
         )
@@ -339,7 +355,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
     var selectedOption by remember { mutableStateOf(1) }
     var valueEhegattenfaktor by remember { mutableStateOf("") }
     var txtValueLohn by remember { mutableStateOf(taxViewModel.e_re4.toString()) }
-    var isMonatlich by remember { mutableStateOf(true) }
+    var isMonatlich by remember { mutableStateOf(taxViewModel.e_lzz == 2.0) }
 
     Card(
         elevation = 5.dp,
