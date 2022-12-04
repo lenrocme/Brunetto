@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.brunetto.helpers.*
@@ -132,12 +133,12 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
 
 @Composable
 fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
-    val spaceBetweenCards = percentHeight(.022f)
+    val spaceBetweenCards = percentHeight(.011f)
     val state = rememberScrollState()
     val calcTaxViewModel = TaxViewModel()
     val mainCalcTax = CalcTax()
     val focusManager = LocalFocusManager.current
-    var bruttoLohn by remember { mutableStateOf("") }
+    val bruttoLohn by remember { mutableStateOf("") }
 
     /**
      *  Option for dropdown menu
@@ -160,65 +161,45 @@ fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy)
                 .fillMaxHeight(1f)
                 .verticalScroll(state),
         ) {
-            Spacer(modifier = Modifier
-                .height(spaceBetweenCards)
-                .fillMaxWidth())
+
             /*OutlinedTextField(
                 value = bruttoLohn,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 onValueChange = {
                     bruttoLohn = it
                 })*/
-
+            Spacer(modifier = Modifier
+                .height(spaceBetweenCards)
+                .fillMaxWidth())
             /**
              * The Card for the "Steur class" and when the option 4 is selected => active "Ehegattenfaktor"
              * */
             SteuerClass(taxViewModel, mainCalcTaxLegacy)
-            Spacer(modifier = Modifier
-                .height(spaceBetweenCards)
-                .fillMaxWidth())
             /**
              * The Card with "Bundesland" drop down menu & and checkbox for "kirchsteur"
              * */
             DropDownMenu_Bundesland("Bundesland", taxViewModel, mainCalcTaxLegacy)
-            Spacer(modifier = Modifier
-                .height(spaceBetweenCards)
-                .fillMaxWidth())
             /**
              * The Card for the checkboxes like "kinderlos" and > 23 & "renteversicherung" & "arbeitslosversicherung"
              * */
             CheckBoxes(taxViewModel, mainCalcTaxLegacy)
-            Spacer(modifier = Modifier
-                .height(spaceBetweenCards)
-                .fillMaxWidth())
             /**
              * The Card for "krankversicherungen" , gesetzliche & private
              * */
             Card_KrankVers(taxViewModel, mainCalcTaxLegacy)
-            Spacer(modifier = Modifier
-                .height(spaceBetweenCards)
-                .fillMaxWidth())
             /**
              * The Card for optional bezüge, top one
              * */
             Card_Optional_Top(taxViewModel, mainCalcTaxLegacy)
-            Spacer(modifier = Modifier
-                .height(spaceBetweenCards)
-                .fillMaxWidth())
             /**
              * The Card for optional bezüge, midle one
              * */
             Card_Optional_Midle(taxViewModel, mainCalcTaxLegacy)
-            Spacer(modifier = Modifier
-                .height(spaceBetweenCards)
-                .fillMaxWidth())
             /**
              * The Card for optional bezüge, bottom one
              * */
             Card_Optional_Bottom(taxViewModel, mainCalcTaxLegacy)
-            Spacer(modifier = Modifier
-                .height(spaceBetweenCards)
-                .fillMaxWidth())
+
             Text(
                 text = bruttoLohn
             )
@@ -261,6 +242,7 @@ fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy)
             }
         }
     }
+    mainCalcTaxLegacy.setData()
 }
 
 @Composable
@@ -273,6 +255,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
     var isMonatlich by remember { mutableStateOf(true) }
 
     Card(
+        elevation = 5.dp,
         modifier = Modifier
             .animateContentSize( animationSpec = spring(
                 dampingRatio = Spring.DampingRatioLowBouncy,
@@ -280,8 +263,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
             ))
             .fillMaxWidth()
             // .height(percentHeight(.15f))
-            .padding(horizontal = percentWidth(.06f)),
-        elevation = 5.dp
+            .padding(horizontal = percentWidth(.06f))
+            .padding(vertical = getPaddingCards()),
     ) {
         Column() {
             Row(modifier = Modifier
@@ -560,7 +543,8 @@ fun DropDownMenu_Bundesland(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = percentWidth(.06f)),
+            .padding(horizontal = percentWidth(.06f))
+            .padding(vertical = getPaddingCards()),
         elevation = 5.dp
     ) {
         Column()
@@ -656,7 +640,8 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = percentWidth(.06f)),
+            .padding(horizontal = percentWidth(.06f))
+            .padding(vertical = getPaddingCards()),
         elevation = 5.dp
     ) {
         Column() {
@@ -817,7 +802,8 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                 stiffness = Spring.StiffnessLow
             ))
             .fillMaxWidth()
-            .padding(horizontal = percentWidth(.06f)),
+            .padding(horizontal = percentWidth(.06f))
+            .padding(vertical = getPaddingCards()),
         elevation = 5.dp
     ) {
         Column() {
@@ -1067,7 +1053,8 @@ fun Card_Optional_Top(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calcu
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = percentWidth(.06f)),
+            .padding(horizontal = percentWidth(.06f))
+            .padding(vertical = getPaddingCards()),
         elevation = 5.dp
     ) {
         Column() {
@@ -1145,7 +1132,8 @@ fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Cal
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = percentWidth(.06f)),
+            .padding(horizontal = percentWidth(.06f))
+            .padding(vertical = getPaddingCards()),
         elevation = 5.dp
     ) {
         Column() {
@@ -1223,7 +1211,8 @@ fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Ca
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = percentWidth(.06f)),
+            .padding(horizontal = percentWidth(.06f))
+            .padding(vertical = getPaddingCards()),
         elevation = 5.dp
     ) {
         Column() {
@@ -1354,4 +1343,8 @@ private fun filterUserInput(userInput : String, existingInput : String): String 
     else if (userInput.isEmpty())
         return ""
     return existingInput
+}
+
+private fun getPaddingCards(): Dp {
+    return percentHeight(.011f)
 }
