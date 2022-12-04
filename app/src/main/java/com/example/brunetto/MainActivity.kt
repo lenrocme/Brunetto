@@ -235,7 +235,6 @@ fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy)
     val calcTaxViewModel = TaxViewModel()
     val mainCalcTax = CalcTax()
     val focusManager = LocalFocusManager.current
-    val bruttoLohn by remember { mutableStateOf("") }
 
     /**
      *  Option for dropdown menu
@@ -303,18 +302,7 @@ fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy)
              * */
             Card_Optional_Bottom(taxViewModel, mainCalcTaxLegacy)
 
-            Text(
-                text = bruttoLohn
-            )
-            Button(
-                onClick = {
-                    mainCalcTax.setCalculatedTaxes(bruttoLohn.toDouble(), calcTaxViewModel)
-                    globLogs(calcTaxViewModel)
-                }) {
-
-            }
-
-            Button(
+            /*Button(
                 onClick = {
                     mainCalcTaxLegacy.setData()
                  /*   Log.d("taxes", "Zeitraum: " + taxViewModel.e_lzz)
@@ -342,7 +330,7 @@ fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy)
                     Log.d("taxes", "Hinzurechnungsbetrag: " + taxViewModel.e_hinzur)
                */
                 }) {
-            }
+            }*/
         }
     }
     mainCalcTaxLegacy.setData()
