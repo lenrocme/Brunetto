@@ -26,7 +26,6 @@ class LegacyTaxModelView : ViewModel() {
     var e_av : Boolean by mutableStateOf(true)              //arbetislos vers
 
     // about health insurance
-    var isGesetzlichInsur : Boolean by mutableStateOf(true)
     var e_barmer : Double by mutableStateOf(14.6)
     var e_kvz : Double by mutableStateOf(1.3)
 
@@ -47,9 +46,4 @@ class LegacyTaxModelView : ViewModel() {
 
     // view model
     var selectedOptionKinderZahl : String by mutableStateOf("--")
-
-
-
-
-
 }

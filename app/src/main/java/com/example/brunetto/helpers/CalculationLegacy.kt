@@ -1085,6 +1085,29 @@ class CalculationLegacy(val vmLegacTax: LegacyTaxModelView, val reportTaxModel: 
             reportTaxModel.netSalary = netto * 12
             reportTaxModel.netSalaryMonthly = netto
         }
+
+        reportTaxModel.taxes = steuer
+        reportTaxModel.taxesByBrutto = lstlzz
+        reportTaxModel.oneTimePay = sts
+        reportTaxModel.multiYearEmploy = stv
+        reportTaxModel.solidaritat = soli
+        reportTaxModel.churchTax = kisteuer
+        reportTaxModel.sumTax = steuer + kisteuer + soli
+
+        reportTaxModel.pension = rentewert
+        reportTaxModel.unemployed = aloswert
+        reportTaxModel.medInsurance = kvwert
+        reportTaxModel.careInsurance = pflegewert
+        reportTaxModel.socialSum = sozabgabe
+
+        reportTaxModel.pensionCompany = rentewertag
+        reportTaxModel.unemployedCompany = aloswertag
+        reportTaxModel.medInsuranceCompany = kvwertag
+        reportTaxModel.careInsuranceCompany = pflegewertag
+        reportTaxModel.socialSumCompany = agsozabgabe
+
+        reportTaxModel.totalLoadCompany = agsozabgabe + vmLegacTax.e_re4 + sts
+
         Log.d("taxes", "steuer:  " + steuer)
         Log.d("taxes", "davon für Brutolohn:  " + lstlzz)
         Log.d("taxes", "für Einmalzahlung:  " + sts)

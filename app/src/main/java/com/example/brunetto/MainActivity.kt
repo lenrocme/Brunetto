@@ -18,7 +18,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -89,6 +91,7 @@ fun DefaultPreview() {
 
 @Composable
 fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView) {
+    val isReportExtended by remember { mutableStateOf(false) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
@@ -96,38 +99,67 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
         Spacer(modifier = Modifier
             .height(percentHeight(adaptHeight(.035f, .05f, 0.065f)) - 19.dp)
             .fillMaxWidth())
-        Row(modifier = Modifier
+
+        ForReportTax("Netto jährlich", reportTaxModel.netSalary)
+        ForReportTax("Netto monatlich", reportTaxModel.netSalaryMonthly)
+
+    }
+}
+
+@Composable
+fun ReportTax(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        ForReportTax("Lohnsteuer", reportTaxModel.taxes)
+
+        if (reportTaxModel.taxesByBrutto != 0.0)
+            ForReportTax("für Bruttolohn", reportTaxModel.taxesByBrutto)
+
+        if (reportTaxModel.oneTimePay != 0.0)
+            ForReportTax("für Einmalzahlung", reportTaxModel.oneTimePay)
+
+        if (reportTaxModel.multiYearEmploy != 0.0)
+            ForReportTax("für mehrjährige Tätigkeit", reportTaxModel.multiYearEmploy)
+
+        ForReportTax("Solidaritätszuschlag", reportTaxModel.solidaritat)
+        ForReportTax("${taxViewModel.e_krv} Kirchensteuer", reportTaxModel.churchTax)
+        ForReportTax("Summe der Steuern", reportTaxModel.sumTax)
+        ForReportTax("Krankenversicherung", reportTaxModel.medInsurance)
+        ForReportTax("Arbeitslosenversicherung", reportTaxModel.unemployed)
+        ForReportTax("Rentenversicherung", reportTaxModel.pension)
+        ForReportTax("Pflegeversicherung", reportTaxModel.careInsurance)
+        ForReportTax("Summe Sozialversicherung", reportTaxModel.socialSum)
+
+        ForReportTax("Krankenversicherung", reportTaxModel.medInsuranceCompany)
+        ForReportTax("Arbeitslosenversicherung", reportTaxModel.unemployedCompany)
+        ForReportTax("Rentenversicherung", reportTaxModel.pensionCompany)
+        ForReportTax("Pflegeversicherung", reportTaxModel.careInsuranceCompany)
+        ForReportTax("Summe Arbeitgeberanteil", reportTaxModel.socialSumCompany)
+
+        ForReportTax("Gesamtbelastung Arbeitgeber", reportTaxModel.totalLoadCompany)
+    }
+}
+
+@Composable
+fun ForReportTax(labelName : String, labelValue : Double) {
+    Row(
+        modifier = Modifier
             .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                modifier = Modifier.width(percentWidth(.5f)),
-                text = "Netto jährlich:",
-                textAlign = TextAlign.Right,
-            )
-            Text(
-                modifier = Modifier.width(percentWidth(.5f)),
-                text = " ${reportTaxModel.netSalary}",
-                textAlign = TextAlign.Left,
-            )
-        }
-        Row(modifier = Modifier
-            .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                modifier = Modifier.width(percentWidth(.5f)),
-                text = "Netto monatlich:",
-                textAlign = TextAlign.Right,
-            )
-            Text(
-                modifier = Modifier.width(percentWidth(.5f)),
-                text = " ${reportTaxModel.netSalaryMonthly}",
-                textAlign = TextAlign.Left,
-            )
-        }
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            modifier = Modifier.width(percentWidth(.5f)),
+            text = "$labelName: ",
+            textAlign = TextAlign.Right,
+        )
+        Text(
+            modifier = Modifier.width(percentWidth(.5f)),
+            text = "$labelValue",
+            textAlign = TextAlign.Left,
+        )
     }
 }
 
@@ -158,6 +190,12 @@ fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy)
     ) {
         Column(
             modifier = Modifier
+                .animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+                )
                 .fillMaxHeight(1f)
                 .verticalScroll(state),
         ) {
@@ -257,10 +295,12 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
     Card(
         elevation = 5.dp,
         modifier = Modifier
-            .animateContentSize( animationSpec = spring(
-                dampingRatio = Spring.DampingRatioLowBouncy,
-                stiffness = Spring.StiffnessLow
-            ))
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
             .fillMaxWidth()
             // .height(percentHeight(.15f))
             .padding(horizontal = percentWidth(.06f))
@@ -392,14 +432,18 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                                 // case of stclass 2
                                 taxViewModel.kinderlos = false
                                 if (taxViewModel.selectedOptionKinderZahl == "--") {
-                                    Toast.makeText(
-                                        mContext,
-                                        "Mit der Steuerklasse II muss ein Kinderfreibetrag angegeben werden!",
-                                        Toast.LENGTH_LONG).show()
+                                    Toast
+                                        .makeText(
+                                            mContext,
+                                            "Mit der Steuerklasse II muss ein Kinderfreibetrag angegeben werden!",
+                                            Toast.LENGTH_LONG
+                                        )
+                                        .show()
                                     taxViewModel.e_zkf = 0.5
                                     taxViewModel.selectedOptionKinderZahl = "0.5"
                                 } else {
-                                    taxViewModel.selectedOptionKinderZahl = taxViewModel.e_zkf.toString()
+                                    taxViewModel.selectedOptionKinderZahl =
+                                        taxViewModel.e_zkf.toString()
                                 }
                                 mainCalcTaxLegacy.setData()
                             }
@@ -797,10 +841,12 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
 
     Card(
         modifier = Modifier
-            .animateContentSize( animationSpec = spring(
-                dampingRatio = Spring.DampingRatioLowBouncy,
-                stiffness = Spring.StiffnessLow
-            ))
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
             .fillMaxWidth()
             .padding(horizontal = percentWidth(.06f))
             .padding(vertical = getPaddingCards()),
