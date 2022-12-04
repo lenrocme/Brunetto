@@ -41,6 +41,9 @@ import com.example.brunetto.ui.theme.BrunettoTheme
 import com.example.brunetto.viewModels.LegacyTaxModelView
 import com.example.brunetto.viewModels.ReportTaxModelView
 import com.example.brunetto.viewModels.TaxViewModel
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.text.DecimalFormat
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -175,6 +178,8 @@ fun ReportTax(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelVi
 
 @Composable
 fun ForReportTax(labelName : String, labelValue : Double) {
+    val bd = BigDecimal(labelValue)
+    val formattedLabelValue = bd.setScale(2, RoundingMode.FLOOR)
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -194,7 +199,7 @@ fun ForReportTax(labelName : String, labelValue : Double) {
         )
         Text(
             modifier = Modifier.width(120.dp),
-            text = "$labelValue Euro",
+            text = "$formattedLabelValue Euro",
             textAlign = TextAlign.Right,
         )
         Text(
