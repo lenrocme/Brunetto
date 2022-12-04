@@ -10,6 +10,7 @@ class LegacyTaxModelView : ViewModel() {
     // main input
     var e_re4 : Double by mutableStateOf(90000.0)     // brutto lohn
     var e_lzz : Double by mutableStateOf(1.0)     // zeitraum  => 1 for Year, 2 for Month
+    var isProYear : Boolean by mutableStateOf(true)
 
     // dropdown menus
     var geb_tag : Double by mutableStateOf(0.0)     // jahr gebohren

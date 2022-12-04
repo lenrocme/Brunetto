@@ -22,6 +22,7 @@ class ReportTaxModelView : ViewModel(){
     var socialSum : Double by mutableStateOf(0.0)       // sozabgabe
 
     var netSalary : Double by mutableStateOf(0.0)           // netto
+    var netSalaryMonthly : Double by mutableStateOf(0.0)    // netto
 
     var pensionCompany : Double by mutableStateOf(0.0)     // rentewertag
     var unemployedCompany : Double by mutableStateOf(0.0)      // aloswertag
@@ -30,5 +31,4 @@ class ReportTaxModelView : ViewModel(){
     var socialSumCompany : Double by mutableStateOf(0.0)     // agsozabgabe
 
     var totalLoadCompany : Double by mutableStateOf(0.0)    // employerPart
-
 }

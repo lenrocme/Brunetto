@@ -2,8 +2,9 @@ package com.example.brunetto.helpers
 
 import android.util.Log
 import com.example.brunetto.viewModels.LegacyTaxModelView
+import com.example.brunetto.viewModels.ReportTaxModelView
 
-class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
+class CalculationLegacy(val vmLegacTax: LegacyTaxModelView, val reportTaxModel: ReportTaxModelView) {
 
     //var e_kvz = 1.3     // 1.3% Zusatzbeitrag
    // var e_re4 = 90000
@@ -1077,7 +1078,13 @@ class CalculationLegacy(val vmLegacTax : LegacyTaxModelView) {
         var netto = ((re4sozlzz + sonstb + vmt) / 100 - sozabgabe - stganz) * 100 / 100
 
 
-
+        if (vmLegacTax.isProYear) {
+            reportTaxModel.netSalary = netto
+            reportTaxModel.netSalaryMonthly = netto / 12
+        } else {
+            reportTaxModel.netSalary = netto * 12
+            reportTaxModel.netSalaryMonthly = netto
+        }
         Log.d("taxes", "steuer:  " + steuer)
         Log.d("taxes", "davon für Brutolohn:  " + lstlzz)
         Log.d("taxes", "für Einmalzahlung:  " + sts)

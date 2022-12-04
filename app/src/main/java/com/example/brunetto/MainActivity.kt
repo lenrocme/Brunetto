@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.example.brunetto.helpers.*
 import com.example.brunetto.ui.theme.BrunettoTheme
 import com.example.brunetto.viewModels.LegacyTaxModelView
+import com.example.brunetto.viewModels.ReportTaxModelView
 import com.example.brunetto.viewModels.TaxViewModel
 
 class MainActivity : ComponentActivity() {
@@ -57,6 +58,9 @@ class MainActivity : ComponentActivity() {
 fun MainActivityScreen() {
     val focusManager = LocalFocusManager.current
     val taxViewModel = LegacyTaxModelView()
+    val reportTaxModel = ReportTaxModelView()
+    val mainCalcTax = CalculationLegacy(taxViewModel, reportTaxModel)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -68,8 +72,8 @@ fun MainActivityScreen() {
          },*/
     ) {
         Column() {
-            Header(taxViewModel)
-            Body(taxViewModel)
+            Header(taxViewModel, reportTaxModel)
+            Body(taxViewModel, mainCalcTax)
         }
     }
 }
@@ -83,7 +87,7 @@ fun DefaultPreview() {
 }
 
 @Composable
-fun Header(taxViewModel: LegacyTaxModelView) {
+fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
@@ -103,7 +107,7 @@ fun Header(taxViewModel: LegacyTaxModelView) {
             )
             Text(
                 modifier = Modifier.width(percentWidth(.5f)),
-                text = " 90000.00 €",
+                text = " ${reportTaxModel.netSalary}",
                 textAlign = TextAlign.Left,
             )
         }
@@ -119,7 +123,7 @@ fun Header(taxViewModel: LegacyTaxModelView) {
             )
             Text(
                 modifier = Modifier.width(percentWidth(.5f)),
-                text = " 8000.00 €",
+                text = " ${reportTaxModel.netSalaryMonthly}",
                 textAlign = TextAlign.Left,
             )
         }
@@ -127,7 +131,7 @@ fun Header(taxViewModel: LegacyTaxModelView) {
 }
 
 @Composable
-fun Body(taxViewModel: LegacyTaxModelView) {
+fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
     val spaceBetweenCards = percentHeight(.022f)
     val state = rememberScrollState()
     val calcTaxViewModel = TaxViewModel()
@@ -169,49 +173,49 @@ fun Body(taxViewModel: LegacyTaxModelView) {
             /**
              * The Card for the "Steur class" and when the option 4 is selected => active "Ehegattenfaktor"
              * */
-            SteuerClass(taxViewModel)
+            SteuerClass(taxViewModel, mainCalcTaxLegacy)
             Spacer(modifier = Modifier
                 .height(spaceBetweenCards)
                 .fillMaxWidth())
             /**
              * The Card with "Bundesland" drop down menu & and checkbox for "kirchsteur"
              * */
-            DropDownMenu_Bundesland("Bundesland", taxViewModel)
+            DropDownMenu_Bundesland("Bundesland", taxViewModel, mainCalcTaxLegacy)
             Spacer(modifier = Modifier
                 .height(spaceBetweenCards)
                 .fillMaxWidth())
             /**
              * The Card for the checkboxes like "kinderlos" and > 23 & "renteversicherung" & "arbeitslosversicherung"
              * */
-            CheckBoxes(taxViewModel)
+            CheckBoxes(taxViewModel, mainCalcTaxLegacy)
             Spacer(modifier = Modifier
                 .height(spaceBetweenCards)
                 .fillMaxWidth())
             /**
              * The Card for "krankversicherungen" , gesetzliche & private
              * */
-            Card_KrankVers(taxViewModel)
+            Card_KrankVers(taxViewModel, mainCalcTaxLegacy)
             Spacer(modifier = Modifier
                 .height(spaceBetweenCards)
                 .fillMaxWidth())
             /**
              * The Card for optional bezüge, top one
              * */
-            Card_Optional_Top(taxViewModel)
+            Card_Optional_Top(taxViewModel, mainCalcTaxLegacy)
             Spacer(modifier = Modifier
                 .height(spaceBetweenCards)
                 .fillMaxWidth())
             /**
              * The Card for optional bezüge, midle one
              * */
-            Card_Optional_Midle(taxViewModel)
+            Card_Optional_Midle(taxViewModel, mainCalcTaxLegacy)
             Spacer(modifier = Modifier
                 .height(spaceBetweenCards)
                 .fillMaxWidth())
             /**
              * The Card for optional bezüge, bottom one
              * */
-            Card_Optional_Bottom(taxViewModel)
+            Card_Optional_Bottom(taxViewModel, mainCalcTaxLegacy)
             Spacer(modifier = Modifier
                 .height(spaceBetweenCards)
                 .fillMaxWidth())
@@ -228,7 +232,7 @@ fun Body(taxViewModel: LegacyTaxModelView) {
 
             Button(
                 onClick = {
-                    CalculationLegacy(taxViewModel).setData()
+                    mainCalcTaxLegacy.setData()
                  /*   Log.d("taxes", "Zeitraum: " + taxViewModel.e_lzz)
                     Log.d("taxes", "inputed lohn: " + taxViewModel.e_re4)
                     Log.d("taxes", "steurclass: " + taxViewModel.e_stkl)
@@ -260,7 +264,7 @@ fun Body(taxViewModel: LegacyTaxModelView) {
 }
 
 @Composable
-fun SteuerClass(taxViewModel: LegacyTaxModelView) {
+fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
     val focusManager = LocalFocusManager.current
     val mContext = LocalContext.current
     var selectedOption by remember { mutableStateOf(1) }
@@ -292,6 +296,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                             indication = null
                         ) { isMonatlich = true
                             taxViewModel.e_lzz = 2.0
+                            taxViewModel.isProYear = false
+                            mainCalcTaxLegacy.setData()
                         }
                 )
                 Switch(
@@ -303,9 +309,12 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                         isMonatlich = !it
                         if (isMonatlich) {
                             taxViewModel.e_lzz = 2.0    // 2 stand for month
+                            taxViewModel.isProYear = false
                         } else {
                             taxViewModel.e_lzz = 1.0    // 1 stand for year
+                            taxViewModel.isProYear = true
                         }
+                        mainCalcTaxLegacy.setData()
                     },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Color.LightGray,
@@ -323,6 +332,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                             indication = null
                         ) { isMonatlich = false
                             taxViewModel.e_lzz = 1.0
+                            taxViewModel.isProYear = true
+                            mainCalcTaxLegacy.setData()
                         }
                 )
             }
@@ -333,6 +344,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                 onValueChange = {
                     txtValueLohn = filterUserInput(it, txtValueLohn)
                     taxViewModel.e_re4 = getDoubleValFromInput(txtValueLohn)
+                    mainCalcTaxLegacy.setData()
                 },
                 label = { Text(text = "Bruttolohn") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -349,6 +361,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                                 .clickable(true){
                                     txtValueLohn = ""
                                     taxViewModel.e_re4 = 0.0
+                                    //mainCalcTaxLegacy.setData()   // not change the calc when empty
                                 },
                             contentDescription = "Clear",
                             //tint = MaterialTheme.myColors.main_350,
@@ -370,6 +383,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                         .clickable(true) {
                             selectedOption = 1
                             taxViewModel.e_stkl = selectedOption.toDouble()
+                            mainCalcTaxLegacy.setData()
                         }
                         .width(42.dp)
                         .height(42.dp),
@@ -404,6 +418,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                                 } else {
                                     taxViewModel.selectedOptionKinderZahl = taxViewModel.e_zkf.toString()
                                 }
+                                mainCalcTaxLegacy.setData()
                             }
                         }
                         .width(42.dp)
@@ -425,6 +440,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                         .clickable(true) {
                             selectedOption = 3
                             taxViewModel.e_stkl = selectedOption.toDouble()
+                            mainCalcTaxLegacy.setData()
                         }
                         .width(42.dp)
                         .height(42.dp),
@@ -445,6 +461,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                         .clickable(true) {
                             selectedOption = 4
                             taxViewModel.e_stkl = selectedOption.toDouble()
+                            mainCalcTaxLegacy.setData()
                         }
                         .width(42.dp)
                         .height(42.dp),
@@ -465,6 +482,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                         .clickable(true) {
                             selectedOption = 5
                             taxViewModel.e_stkl = selectedOption.toDouble()
+                            mainCalcTaxLegacy.setData()
                         }
                         .width(42.dp)
                         .height(42.dp),
@@ -485,6 +503,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
                         .clickable(true) {
                             selectedOption = 6
                             taxViewModel.e_stkl = selectedOption.toDouble()
+                            mainCalcTaxLegacy.setData()
                         }
                         .width(42.dp)
                         .height(42.dp),
@@ -525,7 +544,11 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun DropDownMenu_Bundesland(textLabel: String, taxViewModel: LegacyTaxModelView) {
+fun DropDownMenu_Bundesland(
+    textLabel: String,
+    taxViewModel: LegacyTaxModelView,
+    mainCalcTaxLegacy: CalculationLegacy
+) {
     var expanded by remember { mutableStateOf(false) }
     var checkedState by remember { mutableStateOf(true) }
 
@@ -579,6 +602,7 @@ fun DropDownMenu_Bundesland(textLabel: String, taxViewModel: LegacyTaxModelView)
                                 expanded = false
                                 taxViewModel.e_bundesland = optionsDropMenu.indexOf(selectedOptionLand) + 1
                                 taxViewModel.e_r = SetKirchSteur(checkedState, selectedOptionLand)
+                                mainCalcTaxLegacy.setData()
                             }
                         ) {
                             Text(text = selectionOption)
@@ -593,6 +617,7 @@ fun DropDownMenu_Bundesland(textLabel: String, taxViewModel: LegacyTaxModelView)
                     onCheckedChange = {
                         checkedState = it
                         taxViewModel.e_r = SetKirchSteur(checkedState, selectedOptionLand)
+                        mainCalcTaxLegacy.setData()
                     },
                     /*colors = CheckboxDefaults.colors(
                         checkedColor = MaterialTheme.myColors.main_400,
@@ -610,7 +635,9 @@ fun DropDownMenu_Bundesland(textLabel: String, taxViewModel: LegacyTaxModelView)
                                 "Kirchensteur: 9%",
                     modifier = Modifier
                         .clickable(interactionSource = MutableInteractionSource(), indication = null)
-                        { checkedState = !checkedState }
+                        { checkedState = !checkedState
+                            mainCalcTaxLegacy.setData()
+                        }
                 )
             }
         }
@@ -619,7 +646,7 @@ fun DropDownMenu_Bundesland(textLabel: String, taxViewModel: LegacyTaxModelView)
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
+fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
     val mContext = LocalContext.current
     val optionsDropMenu = listOf("--", "0.5", "1.0", "1.5", "2.0", "2.5", "3.0", "3.5", "4.0",
         "4.5", "5.0", "5.5", "6.0", "6.5", "7.0", "7.5")
@@ -683,6 +710,7 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
                                     }
                                     expanded = false
                                 }
+                                mainCalcTaxLegacy.setData()
                             }
                         ) {
                             Text(text = selectionOption)
@@ -707,6 +735,7 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
                                 "Mit der Steuerklasse II muss ein Kinderfreibetrag angegeben werden!",
                                 Toast.LENGTH_LONG).show()
                         }
+                        mainCalcTaxLegacy.setData()
                     },
                     )
                 Text(
@@ -726,6 +755,7 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
                                     "Mit der Steuerklasse II muss ein Kinderfreibetrag angegeben werden!",
                                     Toast.LENGTH_LONG).show()
                             }
+                            mainCalcTaxLegacy.setData()
                         })
             }
             Row(verticalAlignment = Alignment.CenterVertically
@@ -734,13 +764,15 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
                     checked = taxViewModel.e_krv,
                     onCheckedChange = {
                         taxViewModel.e_krv = it
+                        mainCalcTaxLegacy.setData()
                     },
                     )
                 Text(
                     text = "Renteversicherungspflichtig",
                     modifier = Modifier
                         .clickable(interactionSource = MutableInteractionSource(), indication = null)
-                        { taxViewModel.e_krv = !taxViewModel.e_krv })
+                        { taxViewModel.e_krv = !taxViewModel.e_krv
+                            mainCalcTaxLegacy.setData()})
             }
             Row(verticalAlignment = Alignment.CenterVertically
             ) {
@@ -748,13 +780,15 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
                     checked = taxViewModel.e_av,
                     onCheckedChange = {
                         taxViewModel.e_av = it
+                        mainCalcTaxLegacy.setData()
                     },
                     )
                 Text(
                     text = "Arbeitslosenversicherungspflichtig",
                     modifier = Modifier
                         .clickable(interactionSource = MutableInteractionSource(), indication = null)
-                        { taxViewModel.e_av = !taxViewModel.e_av }
+                        { taxViewModel.e_av = !taxViewModel.e_av
+                            mainCalcTaxLegacy.setData()}
                     )
             }
         }
@@ -764,7 +798,7 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
+fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
     val focusManager = LocalFocusManager.current
     var expanded by remember { mutableStateOf(false) }
     var isKrankVersGesetzlich by remember { mutableStateOf(true) }
@@ -804,6 +838,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                             interactionSource = MutableInteractionSource(),
                             indication = null
                         ) { taxViewModel.isPrivatInsur = false
+                            mainCalcTaxLegacy.setData()
                             Log.d("taxes", "IsPrivate insurance:  " + taxViewModel.isPrivatInsur)}
                     )
                 Switch(
@@ -820,6 +855,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                             taxViewModel.e_barmer = 0.0
                             taxViewModel.e_kvz = 0.0
                         }
+                        mainCalcTaxLegacy.setData()
                         Log.d("taxes", "IsPrivate insurance:  " + taxViewModel.isPrivatInsur)
                     },
                     colors = SwitchDefaults.colors(
@@ -836,7 +872,8 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                         .clickable(
                             interactionSource = MutableInteractionSource(),
                             indication = null
-                        ) { taxViewModel.isPrivatInsur = true }
+                        ) { taxViewModel.isPrivatInsur = true
+                            mainCalcTaxLegacy.setData()}
                 )
             }
             if (!taxViewModel.isPrivatInsur) {
@@ -877,6 +914,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                                     onClick = {
                                         expanded = false
                                         taxViewModel.e_barmer = selectedOption.toDouble()
+                                        mainCalcTaxLegacy.setData()
                                     }
                                 ) {
                                     Text(text = selectionOption)
@@ -895,6 +933,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                             onValueChange = {
                                 txtValueZusatzbeitrag = filterUserInput(it, txtValueZusatzbeitrag)
                                 taxViewModel.e_kvz = getDoubleValFromInput(txtValueZusatzbeitrag)
+                                mainCalcTaxLegacy.setData()
                             },
                             label = { Text(text = "Zusatzbeitrag") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -911,6 +950,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                                             .clickable(true){
                                                 txtValueZusatzbeitrag = ""
                                                 taxViewModel.e_kvz = 0.0
+                                                mainCalcTaxLegacy.setData()
                                             },
                                         contentDescription = "Clear",
                                         //tint = MaterialTheme.myColors.main_350,
@@ -927,6 +967,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                     onValueChange = {
                         txtValueBeitrag = filterUserInput(it, txtValueBeitrag)
                         taxViewModel.e_anpkv = getDoubleValFromInput(txtValueBeitrag)
+                        mainCalcTaxLegacy.setData()
                     },
                     label = { Text(text = "Beitrag / Monat") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -943,6 +984,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                                     .clickable(true){
                                         txtValueBeitrag = ""
                                         taxViewModel.e_anpkv = 0.0
+                                        mainCalcTaxLegacy.setData()
                                     },
                                 contentDescription = "Clear",
                                 //tint = MaterialTheme.myColors.main_350,
@@ -956,6 +998,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                     onValueChange = {
                         txtValueGrundSicherung = filterUserInput(it, txtValueGrundSicherung)
                         taxViewModel.e_pkpv = getDoubleValFromInput(txtValueGrundSicherung)
+                        mainCalcTaxLegacy.setData()
                     },
                     label = { Text(text = "Grundsicherung / Monat") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -972,6 +1015,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                                     .clickable(true){
                                         txtValueGrundSicherung = ""
                                         taxViewModel.e_pkpv = 0.0
+                                        mainCalcTaxLegacy.setData()
                                     },
                                 contentDescription = "Clear",
                                 //tint = MaterialTheme.myColors.main_350,
@@ -984,13 +1028,15 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                         checked = taxViewModel.mitag,
                         onCheckedChange = {
                             taxViewModel.mitag = it
+                            mainCalcTaxLegacy.setData()
                         },
                     )
                     Text(
                         text = "mit Arbeitgeberzuscuss",
                         modifier = Modifier
                             .clickable(interactionSource = MutableInteractionSource(), indication = null)
-                            { taxViewModel.mitag = !taxViewModel.mitag })
+                            { taxViewModel.mitag = !taxViewModel.mitag
+                                mainCalcTaxLegacy.setData()})
                 }
                 Row(verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -998,13 +1044,15 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
                         checked = taxViewModel.nachweis,
                         onCheckedChange = {
                             taxViewModel.nachweis = it
+                            mainCalcTaxLegacy.setData()
                         },
                     )
                     Text(
                         text = "ohne Nachweis",
                         modifier = Modifier
                             .clickable(interactionSource = MutableInteractionSource(), indication = null)
-                            { taxViewModel.nachweis = !taxViewModel.nachweis })
+                            { taxViewModel.nachweis = !taxViewModel.nachweis
+                                mainCalcTaxLegacy.setData()})
                 }
             }
         }
@@ -1012,7 +1060,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView) {
 }
 
 @Composable
-fun Card_Optional_Top(taxViewModel: LegacyTaxModelView) {
+fun Card_Optional_Top(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
     val focusManager = LocalFocusManager.current
     var txtValueEinmalBezuege by remember{ mutableStateOf("") }
     var txtValueAbgerecnhet by remember{ mutableStateOf("") }
@@ -1030,6 +1078,7 @@ fun Card_Optional_Top(taxViewModel: LegacyTaxModelView) {
                 onValueChange = {
                     txtValueEinmalBezuege = filterUserInput(it, txtValueEinmalBezuege)
                     taxViewModel.e_sonstb = getDoubleValFromInput(txtValueEinmalBezuege)
+                    mainCalcTaxLegacy.setData()
                 },
                 label = { Text(text = "Einmal Bezüge") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -1046,6 +1095,7 @@ fun Card_Optional_Top(taxViewModel: LegacyTaxModelView) {
                                 .clickable(true){
                                     txtValueEinmalBezuege = ""
                                     taxViewModel.e_sonstb = 0.0
+                                    mainCalcTaxLegacy.setData()
                                 },
                             contentDescription = "Clear",
                             //tint = MaterialTheme.myColors.main_350,
@@ -1059,6 +1109,7 @@ fun Card_Optional_Top(taxViewModel: LegacyTaxModelView) {
                 onValueChange = {
                     txtValueAbgerecnhet = filterUserInput(it, txtValueAbgerecnhet)
                     taxViewModel.e_jsonstb = getDoubleValFromInput(txtValueAbgerecnhet)
+                    mainCalcTaxLegacy.setData()
                 },
                 label = { Text(text = "schon abgerenchete Einmalbezüge") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -1075,6 +1126,7 @@ fun Card_Optional_Top(taxViewModel: LegacyTaxModelView) {
                                 .clickable(true){
                                     txtValueAbgerecnhet = ""
                                     taxViewModel.e_jsonstb = 0.0
+                                    mainCalcTaxLegacy.setData()
                                 },
                             contentDescription = "Clear",
                             //tint = MaterialTheme.myColors.main_350,
@@ -1086,7 +1138,7 @@ fun Card_Optional_Top(taxViewModel: LegacyTaxModelView) {
 }
 
 @Composable
-fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView) {
+fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
     val focusManager = LocalFocusManager.current
     var txtValueBetugeMehrJahr by remember{ mutableStateOf("") }
     var txtValueEntscheidungZahlung by remember{ mutableStateOf("") }
@@ -1104,6 +1156,7 @@ fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView) {
                 onValueChange = {
                     txtValueBetugeMehrJahr = filterUserInput(it, txtValueBetugeMehrJahr)
                     taxViewModel.e_vmt = getDoubleValFromInput(txtValueBetugeMehrJahr)
+                    mainCalcTaxLegacy.setData()
                 },
                 label = { Text(text = "Bezüge aus mehrjährige Tätigkeit") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -1120,6 +1173,7 @@ fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView) {
                                 .clickable(true){
                                     txtValueBetugeMehrJahr = ""
                                     taxViewModel.e_vmt = 0.0
+                                    mainCalcTaxLegacy.setData()
                                 },
                             contentDescription = "Clear",
                             //tint = MaterialTheme.myColors.main_350,
@@ -1133,6 +1187,7 @@ fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView) {
                 onValueChange = {
                     txtValueEntscheidungZahlung = filterUserInput(it, txtValueEntscheidungZahlung)
                     taxViewModel.e_entsch = getDoubleValFromInput(txtValueEntscheidungZahlung)
+                    mainCalcTaxLegacy.setData()
                 },
                 label = { Text(text = "davon Entschädigungszahlung") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -1149,6 +1204,7 @@ fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView) {
                                 .clickable(true){
                                     txtValueEntscheidungZahlung = ""
                                     taxViewModel.e_entsch = 0.0
+                                    mainCalcTaxLegacy.setData()
                                 },
                             contentDescription = "Clear",
                             //tint = MaterialTheme.myColors.main_350,
@@ -1160,7 +1216,7 @@ fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView) {
 }
 
 @Composable
-fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView) {
+fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
     val focusManager = LocalFocusManager.current
     var txtValueLstkarte by remember{ mutableStateOf("") }
     var txtValueHinzurechnugsBetrag by remember{ mutableStateOf("") }
@@ -1178,6 +1234,7 @@ fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView) {
                 onValueChange = {
                     txtValueLstkarte = filterUserInput(it, txtValueLstkarte)
                     taxViewModel.e_wfundf = getDoubleValFromInput(txtValueLstkarte)
+                    mainCalcTaxLegacy.setData()
                 },
                 label = { Text(text = "Freibetrag aus LStKarte") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -1194,6 +1251,7 @@ fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView) {
                                 .clickable(true){
                                     txtValueLstkarte = ""
                                     taxViewModel.e_wfundf = 0.0
+                                    mainCalcTaxLegacy.setData()
                                 },
                             contentDescription = "Clear",
                             //tint = MaterialTheme.myColors.main_350,
@@ -1207,6 +1265,7 @@ fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView) {
                 onValueChange = { it ->
                     txtValueHinzurechnugsBetrag = filterUserInput(it, txtValueHinzurechnugsBetrag)
                     taxViewModel.e_hinzur = getDoubleValFromInput(txtValueHinzurechnugsBetrag)
+                    mainCalcTaxLegacy.setData()
                 },
                 label = { Text(text = "Hinzurechnungsbetrag") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1223,6 +1282,7 @@ fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView) {
                                 .clickable(true){
                                     txtValueHinzurechnugsBetrag = ""
                                     taxViewModel.e_hinzur = 0.0
+                                    mainCalcTaxLegacy.setData()
                                 },
                             contentDescription = "Clear",
                             //tint = MaterialTheme.myColors.main_350,
