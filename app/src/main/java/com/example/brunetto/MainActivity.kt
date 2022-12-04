@@ -20,7 +20,9 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -91,10 +93,17 @@ fun DefaultPreview() {
 
 @Composable
 fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView) {
-    val isReportExtended by remember { mutableStateOf(false) }
+    var isReportExtended by remember { mutableStateOf(false) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+            .fillMaxWidth()
     ) {
         Spacer(modifier = Modifier
             .height(percentHeight(adaptHeight(.035f, .05f, 0.065f)) - 19.dp)
@@ -102,7 +111,29 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
 
         ForReportTax("Netto jährlich", reportTaxModel.netSalary)
         ForReportTax("Netto monatlich", reportTaxModel.netSalaryMonthly)
-
+        if (!isReportExtended) {
+            Icon(
+                Icons.Default.KeyboardArrowDown,
+                modifier = Modifier
+                    .clickable(true) {
+                        isReportExtended = !isReportExtended
+                    },
+                contentDescription = "Clear",
+                //tint = MaterialTheme.myColors.main_350,
+            )
+        }
+        if (isReportExtended) {
+            ReportTax(taxViewModel, reportTaxModel)
+            Icon(
+                Icons.Default.KeyboardArrowUp,
+                modifier = Modifier
+                    .clickable(true) {
+                        isReportExtended = !isReportExtended
+                    },
+                contentDescription = "Clear",
+                //tint = MaterialTheme.myColors.main_350,
+            )
+        }
     }
 }
 
