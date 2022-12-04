@@ -177,19 +177,30 @@ fun ReportTax(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelVi
 fun ForReportTax(labelName : String, labelValue : Double) {
     Row(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Bottom,
     ) {
         Text(
-            modifier = Modifier.width(percentWidth(.5f)),
-            text = "$labelName: ",
+            modifier = Modifier.width(percentWidth(.48f)),
+            text = labelName,
             textAlign = TextAlign.Right,
         )
         Text(
-            modifier = Modifier.width(percentWidth(.5f)),
-            text = "$labelValue",
-            textAlign = TextAlign.Left,
+            modifier = Modifier.width(percentWidth(.04f)),
+            text = " : ",
+            textAlign = TextAlign.Center,
+        )
+        Text(
+            modifier = Modifier.width(120.dp),
+            text = "$labelValue Euro",
+            textAlign = TextAlign.Right,
+        )
+        Text(
+            modifier = Modifier.width(percentWidth(.48f) - 120.dp),
+            text = "",
+            textAlign = TextAlign.Center,
         )
     }
 }
