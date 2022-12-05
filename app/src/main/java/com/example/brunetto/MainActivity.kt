@@ -1,5 +1,6 @@
 package com.example.brunetto
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -18,11 +19,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,7 +42,6 @@ import com.example.brunetto.viewModels.ReportTaxModelView
 import com.example.brunetto.viewModels.TaxViewModel
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.text.DecimalFormat
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -606,16 +604,41 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                         .fillMaxWidth(),
                     value = valueEhegattenfaktor,
                     onValueChange = {
-                        if (it.isEmpty()) {
-                            valueEhegattenfaktor = it
+                        valueEhegattenfaktor = filterUserInput(it, valueEhegattenfaktor)
+                        var inputDouble = 1.0
+                        if (!valueEhegattenfaktor.isEmpty())
+                            inputDouble = filterUserInput(it, valueEhegattenfaktor).toDouble()
+                        if (inputDouble in 0.001..1.0) {
+                            taxViewModel.e_f = getDoubleValFromInput(valueEhegattenfaktor, true)
+                            mainCalcTaxLegacy.setData()
+                        } else {
                             taxViewModel.e_f = 1.0
-                        }
-                        else {
-                            valueEhegattenfaktor = it
-                            taxViewModel.e_f = valueEhegattenfaktor.toDouble()
+                            Toast.makeText(mContext,
+                                "Ehegattenfaktor: \n Nur Werte zwischen 0.001 und 1.0 sind akzeptabel",
+                                Toast.LENGTH_LONG).show()
                         }
                     },
                     label = { Text(text = "Ehegattenfaktor") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    keyboardActions = KeyboardActions(onDone = {
+                        focusManager.clearFocus()
+                    }),
+                    singleLine = true,
+                    maxLines = 1,
+                    trailingIcon = {
+                        if (valueEhegattenfaktor != "")
+                            Icon(
+                                Icons.Default.Clear,
+                                modifier = Modifier
+                                    .clickable(true){
+                                        valueEhegattenfaktor = ""
+                                        taxViewModel.e_f = 1.0
+                                        mainCalcTaxLegacy.setData()
+                                    },
+                                contentDescription = "Clear",
+                                //tint = MaterialTheme.myColors.main_350,
+                            )
+                    },
                 )
             }
         }
@@ -1021,7 +1044,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                                 mainCalcTaxLegacy.setData()
                             },
                             label = { Text(text = "Zusatzbeitrag") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             keyboardActions = KeyboardActions(onDone = {
                                 focusManager.clearFocus()
                             }),
@@ -1055,7 +1078,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                         mainCalcTaxLegacy.setData()
                     },
                     label = { Text(text = "Beitrag / Monat") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     keyboardActions = KeyboardActions(onDone = {
                         focusManager.clearFocus()
                     }),
@@ -1086,7 +1109,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                         mainCalcTaxLegacy.setData()
                     },
                     label = { Text(text = "Grundsicherung / Monat") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     keyboardActions = KeyboardActions(onDone = {
                         focusManager.clearFocus()
                     }),
@@ -1167,7 +1190,7 @@ fun Card_Optional_Top(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calcu
                     mainCalcTaxLegacy.setData()
                 },
                 label = { Text(text = "Einmal Bezüge") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 keyboardActions = KeyboardActions(onDone = {
                     focusManager.clearFocus()
                 }),
@@ -1198,7 +1221,7 @@ fun Card_Optional_Top(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calcu
                     mainCalcTaxLegacy.setData()
                 },
                 label = { Text(text = "schon abgerenchete Einmalbezüge") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 keyboardActions = KeyboardActions(onDone = {
                     focusManager.clearFocus()
                 }),
@@ -1246,7 +1269,7 @@ fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Cal
                     mainCalcTaxLegacy.setData()
                 },
                 label = { Text(text = "Bezüge aus mehrjährige Tätigkeit") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 keyboardActions = KeyboardActions(onDone = {
                     focusManager.clearFocus()
                 }),
@@ -1277,7 +1300,7 @@ fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Cal
                     mainCalcTaxLegacy.setData()
                 },
                 label = { Text(text = "davon Entschädigungszahlung") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 keyboardActions = KeyboardActions(onDone = {
                     focusManager.clearFocus()
                 }),
@@ -1325,7 +1348,7 @@ fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Ca
                     mainCalcTaxLegacy.setData()
                 },
                 label = { Text(text = "Freibetrag aus LStKarte") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 keyboardActions = KeyboardActions(onDone = {
                     focusManager.clearFocus()
                 }),
@@ -1413,17 +1436,21 @@ private fun SetColorSteuerClassByIsSelected(taxViewModel : LegacyTaxModelView, s
 /**
  * Transform user input to double
  * @param filteredInput The already filtered user input
+ * @param isClassFour The true value in case if class 4 is selected
  * @return The double value from user input, when this it a number. Otherwise return 0.0
  * */
-private fun getDoubleValFromInput(filteredInput : String) : Double {
+private fun getDoubleValFromInput(filteredInput : String, isClassFour : Boolean = false) : Double {
+    var asValueWhenEmptyField = 0.0
+    if (isClassFour)
+        asValueWhenEmptyField = 1.0
     return if (!filteredInput.isEmpty())
         try {
             filteredInput.toDouble()
         } catch(e : NumberFormatException) {
-            0.0
+            asValueWhenEmptyField
         }
     else
-        0.0
+        asValueWhenEmptyField
 }
 
 /**
@@ -1444,6 +1471,10 @@ private fun filterUserInput(userInput : String, existingInput : String): String 
     return existingInput
 }
 
+/**
+ * Set space between cards of main screen
+ * @return The constant as part of the screen from percent value
+ * */
 private fun getPaddingCards(): Dp {
     return percentHeight(.011f)
 }
