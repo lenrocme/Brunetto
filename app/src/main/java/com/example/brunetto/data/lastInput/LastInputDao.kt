@@ -8,7 +8,7 @@ import com.example.brunetto.data.lastInput.LastInput
 interface LastInputDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun addPLastInput(lastInput: LastInput)
+    suspend fun addLastInput(lastInput: LastInput)
 
     @Query("SELECT * FROM LastInput ORDER BY id ASC")
     fun readAllData(): LiveData<List<LastInput>>
@@ -16,4 +16,6 @@ interface LastInputDao {
     @Update
     fun updateLastInput(entity: LastInput)
 
+    @Query("SELECT (SELECT COUNT(id) FROM lastInput) == 0")
+    fun isEmpty(): LiveData<Boolean>
 }
