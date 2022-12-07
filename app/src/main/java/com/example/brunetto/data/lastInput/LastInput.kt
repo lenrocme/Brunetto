@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "preferences")
+@Entity(tableName = "lastInput")
 data class LastInput (
 
     @PrimaryKey(autoGenerate = true)
