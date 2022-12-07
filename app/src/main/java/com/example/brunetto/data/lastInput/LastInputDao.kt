@@ -2,7 +2,6 @@ package com.example.brunetto.data.lastInput
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.example.brunetto.data.lastInput.LastInput
 
 @Dao
 interface LastInputDao {

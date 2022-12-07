@@ -16,7 +16,7 @@ import com.example.brunetto.data.lastInput.LastInputDao
     exportSchema = false)
 abstract class LocalBrunettoDb: RoomDatabase() {
 
-    abstract fun userDao(): LastInputDao
+    abstract fun lastInputDao(): LastInputDao
 
     companion object{
         @Volatile
