@@ -12,6 +12,9 @@ interface LastInputDao {
     @Query("SELECT * FROM LastInput ORDER BY id ASC")
     fun readAllData(): LiveData<List<LastInput>>
 
+    @Query("SELECT * FROM LastInput WHERE id = :id")
+    fun getLastInputByYearId(id: Int = 2022): LiveData<LastInput>
+
     @Update
     fun updateLastInput(entity: LastInput)
 

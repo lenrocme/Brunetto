@@ -42,20 +42,29 @@ import com.example.brunetto.ui.theme.BrunettoTheme
 import com.example.brunetto.viewModels.LegacyTaxModelView
 import com.example.brunetto.viewModels.ReportTaxModelView
 import com.example.brunetto.viewModels.TaxViewModel
+import kotlinx.coroutines.delay
 import java.math.BigDecimal
 import java.math.RoundingMode
 
 class MainActivity : ComponentActivity() {
     private lateinit var mLastInput: LastInputViewModel
+    private lateinit var mLegacyTaxModelView: LegacyTaxModelView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.mLastInput = ViewModelProvider(this)[LastInputViewModel::class.java]
+        this.mLegacyTaxModelView = LegacyTaxModelView()
 
         // store default data to the db
         this.mLastInput.isEmpty.observe(this) { isTableEmpty ->
             if (isTableEmpty)
                 this.initDefaultDataLastInput(mLastInput)
+        }
+
+        this.mLastInput.lastInput.observe(this){ lastInput ->
+            mLegacyTaxModelView.setDataFromTheDbLastInput(lastInput)
+            Log.d("taxes_2", lastInput.salaryBrut.toString())
+            Log.d("taxes_2", mLegacyTaxModelView.e_re4.toString())
         }
 
         setContent {
@@ -65,10 +74,16 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    MainActivityScreen()
+                    MainActivityScreen(mLegacyTaxModelView)
                 }
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val lastInput = mLegacyTaxModelView.getTheEntityLastInput()
+        mLastInput.update(lastInput)
     }
 
     private fun initDefaultDataLastInput(modelLastInputs: LastInputViewModel) {
@@ -77,11 +92,10 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainActivityScreen() {
+fun MainActivityScreen(mLegacyTaxModelView: LegacyTaxModelView) {
     val focusManager = LocalFocusManager.current
-    val taxViewModel = LegacyTaxModelView()
     val reportTaxModel = ReportTaxModelView()
-    val mainCalcTax = CalculationLegacy(taxViewModel, reportTaxModel)
+    val mainCalcTax = CalculationLegacy(mLegacyTaxModelView, reportTaxModel)
 
     Box(
         modifier = Modifier
@@ -94,8 +108,8 @@ fun MainActivityScreen() {
          },*/
     ) {
         Column() {
-            Header(taxViewModel, reportTaxModel)
-            Body(taxViewModel, mainCalcTax)
+            Header(mLegacyTaxModelView, reportTaxModel)
+            Body(mLegacyTaxModelView, mainCalcTax)
         }
     }
 }
@@ -104,7 +118,7 @@ fun MainActivityScreen() {
 @Composable
 fun DefaultPreview() {
     BrunettoTheme {
-        MainActivityScreen()
+        MainActivityScreen(LegacyTaxModelView())
     }
 }
 
@@ -430,7 +444,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
             TextField(
                 modifier = Modifier
                     .fillMaxWidth(),
-                value = txtValueLohn,
+                value = taxViewModel.e_re4.toString(),
                 onValueChange = {
                     txtValueLohn = filterUserInput(it, txtValueLohn)
                     taxViewModel.e_re4 = getDoubleValFromInput(txtValueLohn)

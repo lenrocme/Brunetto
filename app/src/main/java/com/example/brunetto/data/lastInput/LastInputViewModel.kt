@@ -13,18 +13,24 @@ class LastInputViewModel(application: Application): AndroidViewModel(application
     val readAllData: LiveData<List<LastInput>>
     private val repository: LastInputRepository
     val isEmpty: LiveData<Boolean>
+    val lastInput: LiveData<LastInput>
 
     init {
         val lastInputDao = LocalBrunettoDb.getDatabase(application).lastInputDao()
         repository = LastInputRepository(lastInputDao)
         readAllData = repository.readAllData
         isEmpty = repository.isEmpty
+        lastInput = repository.lastInput
     }
 
     fun add(lastInput: LastInput){
         viewModelScope.launch(Dispatchers.IO){
             repository.addLastInput(lastInput)
         }
+    }
+
+    suspend fun getLastInputByYearId(yearId: Int): LiveData<LastInput> {
+        return repository.getLastInputByYearId(yearId)
     }
 
     fun update(lastInput: LastInput){
