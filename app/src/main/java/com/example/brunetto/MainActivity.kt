@@ -1,6 +1,5 @@
 package com.example.brunetto
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -35,6 +34,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
+import com.example.brunetto.data.lastInput.LastInput
+import com.example.brunetto.data.lastInput.LastInputViewModel
 import com.example.brunetto.helpers.*
 import com.example.brunetto.ui.theme.BrunettoTheme
 import com.example.brunetto.viewModels.LegacyTaxModelView
@@ -44,8 +46,18 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 class MainActivity : ComponentActivity() {
+    private lateinit var mLastInput: LastInputViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        this.mLastInput = ViewModelProvider(this)[LastInputViewModel::class.java]
+
+        // store default data to the db
+        this.mLastInput.isEmpty.observe(this) { isTableEmpty ->
+            if (isTableEmpty)
+                this.initDefaultDataLastInput(mLastInput)
+        }
+
         setContent {
             BrunettoTheme {
                 // A surface container using the 'background' color from the theme
@@ -57,6 +69,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun initDefaultDataLastInput(modelLastInputs: LastInputViewModel) {
+        modelLastInputs.add(LastInput())
     }
 }
 

@@ -7,12 +7,12 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "lastInput")
 data class LastInput (
 
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = "id")
-    val id: Int,
+    val id: Int = 2022,
 
     @ColumnInfo(name = "salaryBrut")
-    val salaryBrut: Double = 40000.0,
+    val salaryBrut: Double = 50000.0,
     @ColumnInfo(name = "timePeriod")
     val timePeriod: Double = 1.0,
     @ColumnInfo(name = "isProYear")

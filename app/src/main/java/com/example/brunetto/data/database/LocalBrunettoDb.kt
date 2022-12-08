@@ -13,7 +13,8 @@ import com.example.brunetto.data.lastInput.LastInputDao
         LastInput::class,
     ],
     //autoMigrations = [AutoMigration ( from = 1, to = 2,)],
-    exportSchema = false)
+    //exportSchema = false
+)
 abstract class LocalBrunettoDb: RoomDatabase() {
 
     abstract fun lastInputDao(): LastInputDao
@@ -37,7 +38,7 @@ abstract class LocalBrunettoDb: RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     LocalBrunettoDb::class.java,
-                    "user_database"
+                    "LocalBrunettoDb"
                 )
                     // .addMigrations(migration_1_2)
                     .build()
