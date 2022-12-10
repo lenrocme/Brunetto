@@ -1108,7 +1108,7 @@ class CalculationLegacy(val vmLegacTax: LegacyTaxModelView, val reportTaxModel: 
 
         reportTaxModel.totalLoadCompany = agsozabgabe + vmLegacTax.e_re4 + sts
 
-        Log.d("taxes", "steuer:  " + steuer)
+        /*Log.d("taxes", "steuer:  " + steuer)
         Log.d("taxes", "davon für Brutolohn:  " + lstlzz)
         Log.d("taxes", "für Einmalzahlung:  " + sts)
         Log.d("taxes", "für mehrjährige Tätigkeit:  " + stv)
@@ -1128,7 +1128,9 @@ class CalculationLegacy(val vmLegacTax: LegacyTaxModelView, val reportTaxModel: 
         Log.d("taxes", "Arebitgeberanteil pflegeVers:  " + pflegewertag)
         Log.d("taxes", "Arebitgeberanteil sozabgabe:  " + agsozabgabe)
         Log.d("taxes", "Gesamtbelastung Arbeitgeber:  " + (agsozabgabe + vmLegacTax.e_re4 + sts))
+    */
     }
+
 
     fun sozberech() {
 
