@@ -321,7 +321,7 @@ class CalculationLegacy(val vmLegacTax: LegacyTaxModelView, val reportTaxModel: 
             if (krv == 0.0)
                 bbgrv = 84600.0
             else
-                bbgrv = 8100.0
+                bbgrv = 81000.0
             rvsatzan = 0.093
             tbsvorv = 0.88
         }
@@ -1009,12 +1009,9 @@ class CalculationLegacy(val vmLegacTax: LegacyTaxModelView, val reportTaxModel: 
         r = vmLegacTax.e_r
 
         // ignore, working only with optional data
-        /*if (stkl == 6 && lzzhinzu > 0) {
-            document.eingabe.e_hinzur.value = "";
-            alert(
-                "Bei Steuerklasse 6 wird kein Hinzurechnungsbetrag\nber&uuml;cksichtigt!"
-            );
-        }*/
+        if (stkl == 6.0 && lzzhinzu > 0) {
+            lzzhinzu = 0.0
+        }
 
 
         // important after set ui, to put to work also for steuer cl 2
@@ -1108,7 +1105,7 @@ class CalculationLegacy(val vmLegacTax: LegacyTaxModelView, val reportTaxModel: 
 
         reportTaxModel.totalLoadCompany = agsozabgabe + vmLegacTax.e_re4 + sts
 
-        /*Log.d("taxes", "steuer:  " + steuer)
+        Log.d("taxes", "steuer:  " + steuer)
         Log.d("taxes", "davon für Brutolohn:  " + lstlzz)
         Log.d("taxes", "für Einmalzahlung:  " + sts)
         Log.d("taxes", "für mehrjährige Tätigkeit:  " + stv)
@@ -1128,7 +1125,7 @@ class CalculationLegacy(val vmLegacTax: LegacyTaxModelView, val reportTaxModel: 
         Log.d("taxes", "Arebitgeberanteil pflegeVers:  " + pflegewertag)
         Log.d("taxes", "Arebitgeberanteil sozabgabe:  " + agsozabgabe)
         Log.d("taxes", "Gesamtbelastung Arbeitgeber:  " + (agsozabgabe + vmLegacTax.e_re4 + sts))
-    */
+
     }
 
 
