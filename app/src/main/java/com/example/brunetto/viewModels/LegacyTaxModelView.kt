@@ -8,6 +8,8 @@ import com.example.brunetto.data.lastInput.LastInput
 
 class LegacyTaxModelView : ViewModel() {
 
+    var mOutputTxt : TaxViewModel by mutableStateOf(TaxViewModel())
+
     // main input
     var e_re4 : Double by mutableStateOf(50000.0)     // brutto lohn
     var e_lzz : Double by mutableStateOf(1.0)     // zeitraum  => 1 for Year, 2 for Month
@@ -16,7 +18,7 @@ class LegacyTaxModelView : ViewModel() {
     // dropdown menus
     var geb_tag : Double by mutableStateOf(0.0)     // jahr gebohren
     var e_stkl : Double by mutableStateOf(1.0)      // steuer klasse  & faczeigen()
-    var e_f : Double by mutableStateOf(0.0)     // only with str class 4, between 0 and 1, no more then 3 digit after comma
+    var e_f : Double by mutableStateOf(1.0)     // only with str class 4, between 0 and 1, no more then 3 digit after comma
     var e_zkf : Double by mutableStateOf(0.0)       //kinder frei betr, number of childs
     var e_bundesland : Int by mutableStateOf(1)     // krv by index +1
     var e_r : Double by mutableStateOf(8.0)             // kirch steuer
@@ -100,14 +102,14 @@ class LegacyTaxModelView : ViewModel() {
         e_barmer = lastInput.healthIns
         e_kvz = lastInput.additionalAmount
 
-        // private health insurance !! not used yet in the calculation
+        // private health insurance
         isPrivatInsur = lastInput.isPrivateIns
         e_anpkv = lastInput.anpkvPayedPremium
         mitag = lastInput.mitag
         nachweis   = lastInput.nachweis
         e_pkpv = lastInput.pkpvBasicPremium
 
-        // last points optional !! not used yet in the calculation
+        // optional taxes
         e_sonstb = lastInput.sonstb
         e_jsonstb = lastInput.jsonstb
         e_vmt = lastInput.vmt
