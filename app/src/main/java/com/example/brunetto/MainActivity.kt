@@ -135,7 +135,7 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
     val focusManager = LocalFocusManager.current
     var isReportExtended by remember { mutableStateOf(false) }
     Card(
-        elevation = 10.dp,
+        elevation = 5.dp,
         modifier = Modifier
             .animateContentSize(
                 animationSpec = spring(
@@ -158,12 +158,12 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
         ) {
             Spacer(
                 modifier = Modifier
-                    .height(percentHeight(adaptHeight(.035f, .05f, 0.065f)) - 19.dp)
+                    .height(percentHeight(adaptHeight(.035f, .045f, 0.06f)) - 19.dp)
                     .fillMaxWidth()
             )
 
-            ForReportTax("Netto jährlich", reportTaxModel.netSalary)
-            ForReportTax("Netto monatlich", reportTaxModel.netSalaryMonthly)
+            HeaderForReportTax("Netto jährlich", reportTaxModel.netSalary)
+            HeaderForReportTax("Netto monatlich", reportTaxModel.netSalaryMonthly)
             if (!isReportExtended) {
                 Icon(
                     Icons.Default.KeyboardArrowDown,
@@ -234,6 +234,49 @@ fun ReportTax(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelVi
 }
 
 @Composable
+fun HeaderForReportTax(labelName : String, labelValue : Double, isSummary: Boolean = false) {
+    val bd = BigDecimal(labelValue)
+    val formattedLabelValue = bd.setScale(2, RoundingMode.FLOOR)
+    Column() {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = if (isSummary) Color.LightGray else MaterialTheme.colors.background),
+            //.padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            Text(
+                modifier = Modifier.width(percentWidth(.51f)),
+                text = "$labelName: ",
+                textAlign = TextAlign.Right,
+                fontSize = 18.sp,
+                color = Color.Gray,
+                fontWeight = FontWeight.Medium,
+            )
+
+            Text(
+                modifier = Modifier.width(140.dp),
+                text = "$formattedLabelValue Euro",
+                textAlign = TextAlign.Right,
+                fontSize = 18.sp,
+                color = Color.Gray,
+                fontWeight = FontWeight.Medium,
+            )
+            Spacer(
+                modifier = Modifier
+                    .width(percentWidth(.49f) - 120.dp)
+            )
+        }
+        Spacer(
+            modifier = Modifier
+                .height(2.dp)
+                .fillMaxWidth()
+        )
+    }
+}
+
+@Composable
 fun LabelOfReportTaxByType(lbText: String) {
     Text(
         modifier = Modifier
@@ -258,7 +301,7 @@ fun ForReportTax(labelName : String, labelValue : Double, isSummary: Boolean = f
             verticalAlignment = Alignment.Bottom,
         ) {
             Text(
-                modifier = Modifier.width(percentWidth(.49f)),
+                modifier = Modifier.width(percentWidth(.6f)),
                 text = labelName,
                 textAlign = TextAlign.Right,
             )
@@ -269,11 +312,11 @@ fun ForReportTax(labelName : String, labelValue : Double, isSummary: Boolean = f
             )
             Text(
                 modifier = Modifier.width(120.dp),
-                text = "$formattedLabelValue Euro",
+                text = "$formattedLabelValue €",
                 textAlign = TextAlign.Right,
             )
             Text(
-                modifier = Modifier.width(percentWidth(.49f) - 120.dp),
+                modifier = Modifier.width(percentWidth(.38f) - 120.dp),
                 text = "",
                 textAlign = TextAlign.Center,
             )
