@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -25,7 +26,10 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -114,10 +118,11 @@ fun MainActivityScreen(mLegacyTaxModelView: LegacyTaxModelView) {
              })
          },*/
     ) {
-        Column() {
-            Header(mLegacyTaxModelView, reportTaxModel)
-            Body(mLegacyTaxModelView, mainCalcTax)
-        }
+        //Column() {
+
+        Body(mLegacyTaxModelView, mainCalcTax)
+        Header(mLegacyTaxModelView, reportTaxModel)
+        //}
     }
 }
 
@@ -133,60 +138,66 @@ fun DefaultPreview() {
 fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView) {
     val focusManager = LocalFocusManager.current
     var isReportExtended by remember { mutableStateOf(false) }
-    Card(
-        elevation = 5.dp,
+    Box(
         modifier = Modifier
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
-            .fillMaxWidth()
-            .pointerInput(Unit) {
-                detectTapGestures(onTap = {
-                    focusManager.clearFocus()
-                })
-            }
-            //.padding(bottom = getPaddingCards()),
+            .wrapContentSize()
+            /*.background(MaterialTheme.myColors.CL_BackGround)*/
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Card(
             modifier = Modifier
+                .shadow(elevation = 10.dp, shape = RectangleShape)
+                .animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+                )
                 .fillMaxWidth()
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        focusManager.clearFocus()
+                    })
+                }
+            //.padding(bottom = getPaddingCards()),
         ) {
-            Spacer(
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .height(percentHeight(adaptHeight(.035f, .05f, 0.065f)) - 19.dp)
                     .fillMaxWidth()
-            )
+            ) {
+                Spacer(
+                    modifier = Modifier
+                        .height(percentHeight(adaptHeight(.035f, .045f, 0.06f)) - 19.dp)
+                        .fillMaxWidth()
+                )
 
-            ForReportTax("Netto jährlich", reportTaxModel.netSalary)
-            ForReportTax("Netto monatlich", reportTaxModel.netSalaryMonthly)
-            if (!isReportExtended) {
-                Icon(
-                    Icons.Default.KeyboardArrowDown,
-                    modifier = Modifier
-                        .size(35.dp)
-                        .clickable(true) {
-                            isReportExtended = !isReportExtended
-                        },
-                    contentDescription = "Clear",
-                    //tint = MaterialTheme.myColors.main_350,
-                )
-            }
-            if (isReportExtended) {
-                ReportTax(taxViewModel, reportTaxModel)
-                Icon(
-                    Icons.Default.KeyboardArrowUp,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clickable(true) {
-                            isReportExtended = !isReportExtended
-                        },
-                    contentDescription = "Clear",
-                    //tint = MaterialTheme.myColors.main_350,
-                )
+                HeaderForReportTax("Netto jährlich", reportTaxModel.netSalary)
+                HeaderForReportTax("Netto monatlich", reportTaxModel.netSalaryMonthly)
+                if (!isReportExtended) {
+                    Icon(
+                        Icons.Default.KeyboardArrowDown,
+                        modifier = Modifier
+                            .size(35.dp)
+                            .clickable(true) {
+                                isReportExtended = !isReportExtended
+                            },
+                        contentDescription = "Clear",
+                        //tint = MaterialTheme.myColors.main_350,
+                    )
+                }
+                if (isReportExtended) {
+                    Icon(
+                        Icons.Default.KeyboardArrowUp,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clickable(true) {
+                                isReportExtended = !isReportExtended
+                            },
+                        contentDescription = "Clear",
+                        //tint = MaterialTheme.myColors.main_350,
+                    )
+                    ReportTax(taxViewModel, reportTaxModel)
+                }
             }
         }
     }
@@ -194,13 +205,21 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
 
 @Composable
 fun ReportTax(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView) {
+    val state = rememberScrollState()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .verticalScroll(state)
+            .fillMaxWidth(),
     ) {
+        Spacer(
+            modifier = Modifier
+                .weight(.5f)
+        )
+        LabelOfReportTaxByType("Steuer")
         ForReportTax("Lohnsteuer", reportTaxModel.taxes)
 
-        if (reportTaxModel.taxesByBrutto != 0.0)
+        if (taxViewModel.e_sonstb != 0.0)
             ForReportTax("für Bruttolohn", reportTaxModel.taxesByBrutto)
 
         if (reportTaxModel.oneTimePay != 0.0)
@@ -210,61 +229,123 @@ fun ReportTax(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelVi
             ForReportTax("für mehrjährige Tätigkeit", reportTaxModel.multiYearEmploy)
 
         ForReportTax("Solidaritätszuschlag", reportTaxModel.solidaritat)
-        ForReportTax("${taxViewModel.e_krv} Kirchensteuer", reportTaxModel.churchTax)
-        ForReportTax("Summe der Steuern", reportTaxModel.sumTax)
+        ForReportTax("Kirchensteuer", reportTaxModel.churchTax)
+        ForReportTax("Summe der Steuern", reportTaxModel.sumTax, true)
+
+        LabelOfReportTaxByType("Versicherung")
         ForReportTax("Krankenversicherung", reportTaxModel.medInsurance)
         ForReportTax("Arbeitslosenversicherung", reportTaxModel.unemployed)
         ForReportTax("Rentenversicherung", reportTaxModel.pension)
         ForReportTax("Pflegeversicherung", reportTaxModel.careInsurance)
-        ForReportTax("Summe Sozialversicherung", reportTaxModel.socialSum)
+        ForReportTax("Summe Sozialversicherung", reportTaxModel.socialSum, true)
 
-        Text(
-            modifier = Modifier
-                .padding(vertical = 8.dp)
-                .fillMaxWidth(),
-            text = "Arbeitgeberanteil",
-            textAlign = TextAlign.Center,
-        )
+        LabelOfReportTaxByType("Arbeitgeberanteil")
         ForReportTax("Krankenversicherung", reportTaxModel.medInsuranceCompany)
         ForReportTax("Arbeitslosenversicherung", reportTaxModel.unemployedCompany)
         ForReportTax("Rentenversicherung", reportTaxModel.pensionCompany)
         ForReportTax("Pflegeversicherung", reportTaxModel.careInsuranceCompany)
         ForReportTax("Summe Arbeitgeberanteil", reportTaxModel.socialSumCompany)
 
-        ForReportTax("Gesamtbelastung Arbeitgeber", reportTaxModel.totalLoadCompany)
+        ForReportTax("Gesamtbelastung Arbeitgeber", reportTaxModel.totalLoadCompany, true)
+        Spacer(
+            modifier = Modifier
+                .weight(.5f)
+        )
     }
 }
 
 @Composable
-fun ForReportTax(labelName : String, labelValue : Double) {
+fun HeaderForReportTax(labelName : String, labelValue : Double, isSummary: Boolean = false) {
     val bd = BigDecimal(labelValue)
     val formattedLabelValue = bd.setScale(2, RoundingMode.FLOOR)
-    Row(
+    Column() {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = if (isSummary) Color.LightGray else Color.Transparent),
+            //.padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            Text(
+                modifier = Modifier.width(percentWidth(.51f)),
+                text = "$labelName: ",
+                textAlign = TextAlign.Right,
+                fontSize = 18.sp,
+                color = Color.Gray,
+                fontWeight = FontWeight.Medium,
+            )
+
+            Text(
+                modifier = Modifier.width(140.dp),
+                text = "$formattedLabelValue Euro",
+                textAlign = TextAlign.Right,
+                fontSize = 18.sp,
+                color = Color.Gray,
+                fontWeight = FontWeight.Medium,
+            )
+            Spacer(
+                modifier = Modifier
+                    .width(percentWidth(.49f) - 120.dp)
+            )
+        }
+        Spacer(
+            modifier = Modifier
+                .height(2.dp)
+                .fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+fun LabelOfReportTaxByType(lbText: String) {
+    Text(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 8.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.Bottom,
-    ) {
-        Text(
-            modifier = Modifier.width(percentWidth(.49f)),
-            text = labelName,
-            textAlign = TextAlign.Right,
-        )
-        Text(
-            modifier = Modifier.width(percentWidth(.02f)),
-            text = ": ",
-            textAlign = TextAlign.Center,
-        )
-        Text(
-            modifier = Modifier.width(120.dp),
-            text = "$formattedLabelValue Euro",
-            textAlign = TextAlign.Right,
-        )
-        Text(
-            modifier = Modifier.width(percentWidth(.49f) - 120.dp),
-            text = "",
-            textAlign = TextAlign.Center,
+            .padding(vertical = 8.dp)
+            .fillMaxWidth(),
+        text = lbText,
+        textAlign = TextAlign.Center,
+    )
+}
+
+@Composable
+fun ForReportTax(labelName : String, labelValue : Double, isSummary: Boolean = false) {
+    val bd = BigDecimal(labelValue)
+    val formattedLabelValue = bd.setScale(2, RoundingMode.FLOOR)
+    Column() {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = if (isSummary) Color.LightGray else Color.Transparent),
+            //.padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            Text(
+                modifier = Modifier.width(percentWidth(.6f)),
+                text = labelName,
+                textAlign = TextAlign.Right,
+            )
+            Text(
+                modifier = Modifier.width(percentWidth(.02f)),
+                text = ": ",
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                modifier = Modifier.width(120.dp),
+                text = "$formattedLabelValue €",
+                textAlign = TextAlign.Right,
+            )
+            Text(
+                modifier = Modifier.width(percentWidth(.38f) - 120.dp),
+                text = "",
+                textAlign = TextAlign.Center,
+            )
+        }
+        Spacer(
+            modifier = Modifier
+                .height(2.dp)
+                .fillMaxWidth()
         )
     }
 }
@@ -310,6 +391,9 @@ fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy)
                 onValueChange = {
                     bruttoLohn = it
                 })*/
+            Spacer(modifier = Modifier
+                .height(percentHeight(.15f + .011f))
+                .fillMaxWidth())
             Spacer(modifier = Modifier
                 .height(spaceBetweenCards)
                 .fillMaxWidth())
