@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -134,7 +135,7 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
     val focusManager = LocalFocusManager.current
     var isReportExtended by remember { mutableStateOf(false) }
     Card(
-        elevation = 5.dp,
+        elevation = 10.dp,
         modifier = Modifier
             .animateContentSize(
                 animationSpec = spring(
@@ -198,9 +199,10 @@ fun ReportTax(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelVi
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
     ) {
+        LabelOfReportTaxByType("Steuer")
         ForReportTax("Lohnsteuer", reportTaxModel.taxes)
 
-        if (reportTaxModel.taxesByBrutto != 0.0)
+        if (taxViewModel.e_sonstb != 0.0)
             ForReportTax("für Bruttolohn", reportTaxModel.taxesByBrutto)
 
         if (reportTaxModel.oneTimePay != 0.0)
@@ -210,61 +212,76 @@ fun ReportTax(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelVi
             ForReportTax("für mehrjährige Tätigkeit", reportTaxModel.multiYearEmploy)
 
         ForReportTax("Solidaritätszuschlag", reportTaxModel.solidaritat)
-        ForReportTax("${taxViewModel.e_krv} Kirchensteuer", reportTaxModel.churchTax)
-        ForReportTax("Summe der Steuern", reportTaxModel.sumTax)
+        ForReportTax("Kirchensteuer", reportTaxModel.churchTax)
+        ForReportTax("Summe der Steuern", reportTaxModel.sumTax, true)
+
+        LabelOfReportTaxByType("Versicherung")
         ForReportTax("Krankenversicherung", reportTaxModel.medInsurance)
         ForReportTax("Arbeitslosenversicherung", reportTaxModel.unemployed)
         ForReportTax("Rentenversicherung", reportTaxModel.pension)
         ForReportTax("Pflegeversicherung", reportTaxModel.careInsurance)
-        ForReportTax("Summe Sozialversicherung", reportTaxModel.socialSum)
+        ForReportTax("Summe Sozialversicherung", reportTaxModel.socialSum, true)
 
-        Text(
-            modifier = Modifier
-                .padding(vertical = 8.dp)
-                .fillMaxWidth(),
-            text = "Arbeitgeberanteil",
-            textAlign = TextAlign.Center,
-        )
+        LabelOfReportTaxByType("Arbeitgeberanteil")
         ForReportTax("Krankenversicherung", reportTaxModel.medInsuranceCompany)
         ForReportTax("Arbeitslosenversicherung", reportTaxModel.unemployedCompany)
         ForReportTax("Rentenversicherung", reportTaxModel.pensionCompany)
         ForReportTax("Pflegeversicherung", reportTaxModel.careInsuranceCompany)
         ForReportTax("Summe Arbeitgeberanteil", reportTaxModel.socialSumCompany)
 
-        ForReportTax("Gesamtbelastung Arbeitgeber", reportTaxModel.totalLoadCompany)
+        ForReportTax("Gesamtbelastung Arbeitgeber", reportTaxModel.totalLoadCompany, true)
     }
 }
 
 @Composable
-fun ForReportTax(labelName : String, labelValue : Double) {
+fun LabelOfReportTaxByType(lbText: String) {
+    Text(
+        modifier = Modifier
+            .padding(vertical = 8.dp)
+            .fillMaxWidth(),
+        text = lbText,
+        textAlign = TextAlign.Center,
+    )
+}
+
+@Composable
+fun ForReportTax(labelName : String, labelValue : Double, isSummary: Boolean = false) {
     val bd = BigDecimal(labelValue)
     val formattedLabelValue = bd.setScale(2, RoundingMode.FLOOR)
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 8.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.Bottom,
-    ) {
-        Text(
-            modifier = Modifier.width(percentWidth(.49f)),
-            text = labelName,
-            textAlign = TextAlign.Right,
-        )
-        Text(
-            modifier = Modifier.width(percentWidth(.02f)),
-            text = ": ",
-            textAlign = TextAlign.Center,
-        )
-        Text(
-            modifier = Modifier.width(120.dp),
-            text = "$formattedLabelValue Euro",
-            textAlign = TextAlign.Right,
-        )
-        Text(
-            modifier = Modifier.width(percentWidth(.49f) - 120.dp),
-            text = "",
-            textAlign = TextAlign.Center,
+    Column() {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = if (isSummary) Color.LightGray else MaterialTheme.colors.background),
+            //.padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            Text(
+                modifier = Modifier.width(percentWidth(.49f)),
+                text = labelName,
+                textAlign = TextAlign.Right,
+            )
+            Text(
+                modifier = Modifier.width(percentWidth(.02f)),
+                text = ": ",
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                modifier = Modifier.width(120.dp),
+                text = "$formattedLabelValue Euro",
+                textAlign = TextAlign.Right,
+            )
+            Text(
+                modifier = Modifier.width(percentWidth(.49f) - 120.dp),
+                text = "",
+                textAlign = TextAlign.Center,
+            )
+        }
+        Spacer(
+            modifier = Modifier
+                .height(2.dp)
+                .fillMaxWidth()
         )
     }
 }
