@@ -28,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -36,6 +35,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -44,11 +44,13 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.brunetto.data.lastInput.LastInput
 import com.example.brunetto.data.lastInput.LastInputViewModel
 import com.example.brunetto.helpers.*
-import com.example.brunetto.ui.theme.BrunettoTheme
+import com.example.brunetto.ui.theme.CustomMaterialTheme
+import com.example.brunetto.ui.theme.myColors
+import com.example.brunetto.ui.UiElem
 import com.example.brunetto.viewModels.LegacyTaxModelView
 import com.example.brunetto.viewModels.ReportTaxModelView
 import com.example.brunetto.viewModels.TaxViewModel
-import kotlinx.coroutines.delay
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -56,6 +58,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var mLastInput: LastInputViewModel
     private lateinit var mLegacyTaxModelView: LegacyTaxModelView
     private lateinit var mTaxModelView: TaxViewModel
+    private var theme : String by mutableStateOf("Default")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,12 +82,22 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            BrunettoTheme {
+            CustomMaterialTheme() {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
-                ) {
+                ){
+                    val systemUiController = rememberSystemUiController()
+                    if(theme == "Dark"){
+                        systemUiController.setSystemBarsColor(
+                            color = MaterialTheme.myColors.main_450
+                        )
+                    }else{
+                        systemUiController.setSystemBarsColor(
+                            color = MaterialTheme.myColors.main_450
+                        )
+                    }
                     MainActivityScreen(mLegacyTaxModelView)
                 }
             }
@@ -129,7 +142,7 @@ fun MainActivityScreen(mLegacyTaxModelView: LegacyTaxModelView) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    BrunettoTheme {
+    CustomMaterialTheme {
         MainActivityScreen(LegacyTaxModelView())
     }
 }
@@ -141,7 +154,6 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
     Box(
         modifier = Modifier
             .wrapContentSize()
-            /*.background(MaterialTheme.myColors.CL_BackGround)*/
     ) {
         Card(
             modifier = Modifier
@@ -158,12 +170,14 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
                         focusManager.clearFocus()
                     })
                 }
+                .background(color = MaterialTheme.myColors.main_450)
             //.padding(bottom = getPaddingCards()),
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .background(color = MaterialTheme.myColors.main_450)
             ) {
                 Spacer(
                     modifier = Modifier
@@ -182,7 +196,7 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
                                 isReportExtended = !isReportExtended
                             },
                         contentDescription = "Clear",
-                        //tint = MaterialTheme.myColors.main_350,
+                        tint = MaterialTheme.myColors.fontC_100,
                     )
                 }
                 if (isReportExtended) {
@@ -194,7 +208,7 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
                                 isReportExtended = !isReportExtended
                             },
                         contentDescription = "Clear",
-                        //tint = MaterialTheme.myColors.main_350,
+                        tint = MaterialTheme.myColors.fontC_100,
                     )
                     ReportTax(taxViewModel, reportTaxModel)
                 }
@@ -262,7 +276,7 @@ fun HeaderForReportTax(labelName : String, labelValue : Double, isSummary: Boole
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(color = if (isSummary) Color.LightGray else Color.Transparent),
+                .background(color = Color.Transparent),
             //.padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom,
@@ -271,18 +285,16 @@ fun HeaderForReportTax(labelName : String, labelValue : Double, isSummary: Boole
                 modifier = Modifier.width(percentWidth(.51f)),
                 text = "$labelName: ",
                 textAlign = TextAlign.Right,
-                fontSize = 18.sp,
-                color = Color.Gray,
-                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.myColors.fontC_100,
+                style = MaterialTheme.typography.h2,
             )
 
             Text(
                 modifier = Modifier.width(140.dp),
                 text = "$formattedLabelValue Euro",
                 textAlign = TextAlign.Right,
-                fontSize = 18.sp,
-                color = Color.Gray,
-                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.myColors.fontC_100,
+                style = MaterialTheme.typography.h2,
             )
             Spacer(
                 modifier = Modifier
@@ -305,6 +317,9 @@ fun LabelOfReportTaxByType(lbText: String) {
             .fillMaxWidth(),
         text = lbText,
         textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.h4,
+        color = MaterialTheme.myColors.fontC_100,
+        textDecoration = TextDecoration.Underline,
     )
 }
 
@@ -325,21 +340,25 @@ fun ForReportTax(labelName : String, labelValue : Double, isSummary: Boolean = f
                 modifier = Modifier.width(percentWidth(.6f)),
                 text = labelName,
                 textAlign = TextAlign.Right,
+                style = MaterialTheme.typography.h5,
             )
             Text(
                 modifier = Modifier.width(percentWidth(.02f)),
                 text = ": ",
                 textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.h5,
             )
             Text(
                 modifier = Modifier.width(120.dp),
                 text = "$formattedLabelValue €",
                 textAlign = TextAlign.Right,
+                style = MaterialTheme.typography.h5,
             )
             Text(
                 modifier = Modifier.width(percentWidth(.38f) - 120.dp),
                 text = "",
                 textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.h5,
             )
         }
         Spacer(
@@ -366,12 +385,12 @@ fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy)
     Box(
         modifier = Modifier
             .fillMaxSize()
-        /*.background(MaterialTheme.myColors.CL_BackGround)*/
-        .pointerInput(Unit) {
-            detectTapGestures(onTap = {
-                focusManager.clearFocus()
-            })
-        },
+            /*.background(MaterialTheme.myColors.CL_BackGround)*/
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                })
+            },
     ) {
         Column(
             modifier = Modifier
@@ -563,6 +582,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                             //tint = MaterialTheme.myColors.main_350,
                         )
                 },
+                colors = UiElem.colorsOfTextField()
             )
             Spacer(modifier = Modifier
                 .height(10.dp)
@@ -1181,6 +1201,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                                         //tint = MaterialTheme.myColors.main_350,
                                     )
                             },
+                            colors = UiElem.colorsOfTextField()
                         )
                     }
                 }
@@ -1215,6 +1236,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                                 //tint = MaterialTheme.myColors.main_350,
                             )
                     },
+                    colors = UiElem.colorsOfTextField()
                 )
                 TextField(
                     modifier = Modifier
@@ -1246,6 +1268,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                                 //tint = MaterialTheme.myColors.main_350,
                             )
                     },
+                    colors = UiElem.colorsOfTextField()
                 )
                 Row(verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -1325,6 +1348,7 @@ fun Card_Optional_Top(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calcu
                             //tint = MaterialTheme.myColors.main_350,
                         )
                 },
+                colors = UiElem.colorsOfTextField()
             )
             TextField(
                 modifier = Modifier
@@ -1356,6 +1380,7 @@ fun Card_Optional_Top(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calcu
                             //tint = MaterialTheme.myColors.main_350,
                         )
                 },
+                colors = UiElem.colorsOfTextField()
             )
         }
     }
@@ -1402,6 +1427,7 @@ fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Cal
                             //tint = MaterialTheme.myColors.main_350,
                         )
                 },
+                colors = UiElem.colorsOfTextField()
             )
             TextField(
                 modifier = Modifier
@@ -1433,6 +1459,7 @@ fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Cal
                             //tint = MaterialTheme.myColors.main_350,
                         )
                 },
+                colors = UiElem.colorsOfTextField()
             )
         }
     }
@@ -1479,6 +1506,7 @@ fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Ca
                             //tint = MaterialTheme.myColors.main_350,
                         )
                 },
+                colors = UiElem.colorsOfTextField()
             )
             TextField(
                 modifier = Modifier
@@ -1510,6 +1538,7 @@ fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Ca
                             //tint = MaterialTheme.myColors.main_350,
                         )
                 },
+                colors = UiElem.colorsOfTextField()
             )
         }
     }
