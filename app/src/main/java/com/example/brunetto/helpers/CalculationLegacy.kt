@@ -220,6 +220,178 @@ class CalculationLegacy(val vmLegacTax: LegacyTaxModelView, val reportTaxModel: 
     var agsozabgabe = 0.0           // total of arbeitgeber soz abgaben
 
     // clear
+
+    fun resetLocalVar() {
+        ajahr = 0.0
+        alte = 0.0
+        anp = 0.0
+        anteil1 = 0.0               // was anteil1
+        bmg = 0.0
+        bbgkvpv = 0.0
+        bbgrv = 0.0
+        diff = 0.0
+        efa = 0.0
+        fvb = 0.0
+        fvbso = 0.0
+        fvbz = 0.0
+        fvbzso = 0.0
+        gfb = 0.0;
+        hbalte = 0;
+        hfvb = 0.0;
+        hfvbz = 0.0;
+        hfvbzso = 0.0
+        hoch = 0.0;
+        j = 0.0;
+        jbmg = 0.0           // was jmbg
+        jlfreib = 0.0;
+        jlhinzu = 0.0;
+        jw = 0.0;
+        k = 0.0;
+        kennvmt = 0.0;
+        kfb = 0.0;
+        kvsatzag = 0.0;
+        kvsatzan = 0.0;
+        kvz = 0.0;
+        kztab = 0.0;
+        lstjahr = 0.0;
+        lst1 = 0.0;
+        lst2 = 0.0;
+        lst3 = 0.0;
+        lstoso = 0.0;
+        lstso = 0.0;
+        mist = 0.0;
+        pvsatzag = 0.0;
+        pvsatzan = 0.0;
+        rw = 0.0
+        sap = 0.0;
+        solzsbmg = 0.0;
+        solzszve = 0.0;
+        solzfrei = 0.0;
+        solzj = 0.0;
+        solzmin = 0.0;
+        st = 0.0;
+        st1 = 0.0;
+        st2 = 0.0;
+        stovmt = 0.0;
+// definition tab1 usw. s. unten
+        vbezb = 0.0;
+        vbezbso = 0.0;
+        vergl = 0.0;
+        vhb = 0.0;
+        vkv = 0.0;
+        vsp = 0.0;
+        vspn = 0.0;
+        vsp1 = 0.0;
+        vsp2 = 0.0;
+        vsp3 = 0.0;
+        w1stkl5 = 0.0;
+        w2stkl5 = 0.0;
+        w3stkl5 = 0.0;
+        x = 0.0;
+        y = 0.0;
+        zre4 = 0.0;
+        zre4j = 0.0;
+        zre4vp = 0.0;
+        ztabfb = 0.0;
+        zvbez = 0.0;
+        zvbezj = 0.0;
+        zmvb = 0.0;
+        zve = 0.0;
+        zx = 0.0;
+        zzx = 0.0;
+
+        af = 0.0;
+        //var ajahr = 0;
+        alter1 = 0.0; //unn&oumltige Konstante, da Alter mit ajahr bestimmt ist
+        entsch = 0.0;
+        f = 1.0;        // var f
+        jfreib = 0.0;
+        jhinzu = 0.0;
+        jre4 = 0.0;
+        jre4ent = 0.0;
+        jvbez = 0.0;
+        krv = 0.0;
+        //var kvz = 0;
+        lzz = 1.0;
+        lzzfreib = 0.0;
+        lzzhinzu = 0.0;
+        pkv = 0.0;
+        pkpv = 500.0;
+        anpkv = 300.0;  // not present in orig
+        pvs = 0.0;
+        pvz = 0.0;
+        r = 0.0;
+        re4 = 0.0;
+        sonstb = 0.0;
+        sonstent = 0.0;
+        sterbe = 0.0;
+        vbez = 0.0;
+        vbezm = 0.0;
+        vbezs = 0.0;
+        vbs = 0.0;
+        vjahr = 2006;
+        vkapa = 0.0;
+        vmt = 0.0;
+        zkf = 0.0;
+        //var zmvb = 0;
+        jsonstb = 0.0;
+// --- eigene Parameter
+        gebj = 0; // Geburtsjahr
+        kist = 0.0 // Kirchensteuersatz
+        jre4soz = 0.0;
+        vspkv = 0.0;
+        zre4j_rv = 0.0; // bei Vorsorgepauschale zu ber&uumlcksichtigender
+// RV-pflichtiger Anteil bei Bruttolohn neben Versorgungsbez&uumlgen
+
+// --- Ausgangsparameter,
+
+        bk = 0.0;
+        bks = 0.0;
+        bkv = 0.0;
+        lstlzz = 0.0;
+        solzlzz = 0.0;
+        solzs = 0.0;
+        solzv = 0.0;
+        sts = 0.0;
+        stv = 0.0;
+        vkvlzz = 0.0;
+        vkvsonst = 0.0;
+
+// --- Ausgangsparameter DBA
+
+        vfrb = 0.0;
+        vfrbs1 = 0.0;
+        vfrbs2 = 0.0;
+        wvfrb = 0.0;
+        wvfrbo = 0.0;
+        wvfrbm = 0.0;
+
+
+        // not writen in js
+        bundesland = 0
+        rvsatzan = 0.0
+        tbsvorv = 0.0
+        pvzusatz = 0.0
+
+        bemesr = 0.0
+        bemesrganz = 0.0
+        bemesk = 0.0
+        bemeskganz = 0.0
+
+        aloswert = 0.0
+        aloswertag = 0.0
+        sozabgabe = 0.0
+
+        // also display, ag => tag for arbeitgeber teil
+        rentewert = 0.0
+        rentewertag = 0.0
+        pflegewert = 0.0
+        pflegewertag = 0.0
+        kvwert = 0.0
+        kvwertag = 0.0
+        agsozabgabe = 0.0           // total of arbeitgeber soz abgaben
+    }
+
     fun werte() {
         /*ajahr = 0;
         alte = 0;
@@ -953,7 +1125,7 @@ class CalculationLegacy(val vmLegacTax: LegacyTaxModelView, val reportTaxModel: 
     }
 
     fun setData() {     // Calc
-
+        resetLocalVar()
         // #####
 
         // #####
