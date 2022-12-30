@@ -1,23 +1,21 @@
 package com.example.brunetto
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -27,8 +25,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -36,19 +34,28 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.ViewModelProvider
 import com.example.brunetto.data.lastInput.LastInput
 import com.example.brunetto.data.lastInput.LastInputViewModel
 import com.example.brunetto.helpers.*
-import com.example.brunetto.ui.theme.BrunettoTheme
+import com.example.brunetto.ui.theme.CustomMaterialTheme
+import com.example.brunetto.ui.theme.myColors
+import com.example.brunetto.ui.UiElem
+import com.example.brunetto.ui.theme.Checkbox
+import com.example.brunetto.ui.theme.SwitcherChoice
 import com.example.brunetto.viewModels.LegacyTaxModelView
 import com.example.brunetto.viewModels.ReportTaxModelView
 import com.example.brunetto.viewModels.TaxViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -56,6 +63,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var mLastInput: LastInputViewModel
     private lateinit var mLegacyTaxModelView: LegacyTaxModelView
     private lateinit var mTaxModelView: TaxViewModel
+    private var theme : String by mutableStateOf("Default")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,7 +71,6 @@ class MainActivity : ComponentActivity() {
         this.mLegacyTaxModelView = LegacyTaxModelView()
         this.mTaxModelView = TaxViewModel()
         this.mLegacyTaxModelView.mOutputTxt = mTaxModelView
-
 
         // store default data to the db
         this.mLastInput.isEmpty.observe(this) { isTableEmpty ->
@@ -79,15 +86,15 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            BrunettoTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    MainActivityScreen(mLegacyTaxModelView)
-                }
+            CustomMaterialTheme() {
+                MainActivityScreen(mLegacyTaxModelView)
             }
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)){view, insets ->
+            val bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            view.updatePadding(bottom = bottom)
+            insets
         }
     }
 
@@ -111,25 +118,24 @@ fun MainActivityScreen(mLegacyTaxModelView: LegacyTaxModelView) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-        /* .background(MaterialTheme.myColors.CL_BackGround)
-         .pointerInput(Unit) {
-             detectTapGestures(onTap = {
-                 focusManager.clearFocus()
-             })
-         },*/
+            .background(Color.White)
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                })
+            }
     ) {
-        //Column() {
-
-        Body(mLegacyTaxModelView, mainCalcTax)
-        Header(mLegacyTaxModelView, reportTaxModel)
-        //}
+        Column() {
+            Header(mLegacyTaxModelView, reportTaxModel)
+            Body(mLegacyTaxModelView, mainCalcTax)
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    BrunettoTheme {
+    CustomMaterialTheme {
         MainActivityScreen(LegacyTaxModelView())
     }
 }
@@ -141,7 +147,6 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
     Box(
         modifier = Modifier
             .wrapContentSize()
-            /*.background(MaterialTheme.myColors.CL_BackGround)*/
     ) {
         Card(
             modifier = Modifier
@@ -158,13 +163,21 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
                         focusManager.clearFocus()
                     })
                 }
+                .background(color = MaterialTheme.myColors.main_450)
             //.padding(bottom = getPaddingCards()),
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .background(color = MaterialTheme.myColors.main_450)
             ) {
+                Spacer( // spacer for translucent action bar
+                    modifier = Modifier
+                        .height(25.dp)
+                        .fillMaxWidth()
+                )
+
                 Spacer(
                     modifier = Modifier
                         .height(percentHeight(adaptHeight(.035f, .045f, 0.06f)) - 19.dp)
@@ -177,15 +190,16 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
                     Icon(
                         Icons.Default.KeyboardArrowDown,
                         modifier = Modifier
-                            .size(35.dp)
+                            .size(40.dp)
                             .clickable(true) {
                                 isReportExtended = !isReportExtended
                             },
                         contentDescription = "Clear",
-                        //tint = MaterialTheme.myColors.main_350,
+                        tint = MaterialTheme.myColors.fontC_100,
                     )
                 }
                 if (isReportExtended) {
+                    ReportTax(taxViewModel, reportTaxModel)
                     Icon(
                         Icons.Default.KeyboardArrowUp,
                         modifier = Modifier
@@ -194,9 +208,8 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
                                 isReportExtended = !isReportExtended
                             },
                         contentDescription = "Clear",
-                        //tint = MaterialTheme.myColors.main_350,
+                        tint = MaterialTheme.myColors.fontC_100,
                     )
-                    ReportTax(taxViewModel, reportTaxModel)
                 }
             }
         }
@@ -262,7 +275,7 @@ fun HeaderForReportTax(labelName : String, labelValue : Double, isSummary: Boole
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(color = if (isSummary) Color.LightGray else Color.Transparent),
+                .background(color = Color.Transparent),
             //.padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom,
@@ -271,22 +284,20 @@ fun HeaderForReportTax(labelName : String, labelValue : Double, isSummary: Boole
                 modifier = Modifier.width(percentWidth(.51f)),
                 text = "$labelName: ",
                 textAlign = TextAlign.Right,
-                fontSize = 18.sp,
-                color = Color.Gray,
-                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.myColors.fontC_100,
+                style = MaterialTheme.typography.h2,
             )
 
             Text(
-                modifier = Modifier.width(140.dp),
+                modifier = Modifier.width(150.dp),
                 text = "$formattedLabelValue Euro",
                 textAlign = TextAlign.Right,
-                fontSize = 18.sp,
-                color = Color.Gray,
-                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.myColors.fontC_100,
+                style = MaterialTheme.typography.h2,
             )
             Spacer(
                 modifier = Modifier
-                    .width(percentWidth(.49f) - 120.dp)
+                    .width(percentWidth(.49f) - 150.dp)
             )
         }
         Spacer(
@@ -305,6 +316,9 @@ fun LabelOfReportTaxByType(lbText: String) {
             .fillMaxWidth(),
         text = lbText,
         textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.h4,
+        color = MaterialTheme.myColors.fontC_100,
+        textDecoration = TextDecoration.Underline,
     )
 }
 
@@ -325,21 +339,25 @@ fun ForReportTax(labelName : String, labelValue : Double, isSummary: Boolean = f
                 modifier = Modifier.width(percentWidth(.6f)),
                 text = labelName,
                 textAlign = TextAlign.Right,
+                style = MaterialTheme.typography.h5,
             )
             Text(
                 modifier = Modifier.width(percentWidth(.02f)),
                 text = ": ",
                 textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.h5,
             )
             Text(
                 modifier = Modifier.width(120.dp),
                 text = "$formattedLabelValue €",
                 textAlign = TextAlign.Right,
+                style = MaterialTheme.typography.h5,
             )
             Text(
                 modifier = Modifier.width(percentWidth(.38f) - 120.dp),
                 text = "",
                 textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.h5,
             )
         }
         Spacer(
@@ -366,34 +384,31 @@ fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy)
     Box(
         modifier = Modifier
             .fillMaxSize()
-        /*.background(MaterialTheme.myColors.CL_BackGround)*/
-        .pointerInput(Unit) {
-            detectTapGestures(onTap = {
-                focusManager.clearFocus()
-            })
-        },
+            .background(MaterialTheme.myColors.CL_BackGround)
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                })
+            },
+        contentAlignment = Alignment.Center,
     ) {
         Column(
+            verticalArrangement = Arrangement.Top,
             modifier = Modifier
-                .animateContentSize(
+               /* .animateContentSize(
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioLowBouncy,
                         stiffness = Spring.StiffnessLow
                     )
-                )
+                )*/
                 .fillMaxHeight(1f)
-                .verticalScroll(state),
+                .verticalScroll(state)
+               /* .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        focusManager.clearFocus()
+                    })
+                },*/
         ) {
-
-            /*OutlinedTextField(
-                value = bruttoLohn,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                onValueChange = {
-                    bruttoLohn = it
-                })*/
-            Spacer(modifier = Modifier
-                .height(percentHeight(.15f + .011f))
-                .fillMaxWidth())
             Spacer(modifier = Modifier
                 .height(spaceBetweenCards)
                 .fillMaxWidth())
@@ -455,6 +470,9 @@ fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy)
                */
                 }) {
             }*/
+            Spacer(modifier = Modifier
+                .height(adaptHeight(10.dp, 20.dp, 30.dp))
+                .fillMaxWidth())
         }
     }
     mainCalcTaxLegacy.setData()
@@ -496,11 +514,12 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                             taxViewModel.e_lzz = 2.0
                             taxViewModel.isProYear = false
                             mainCalcTaxLegacy.setData()
-                        }
+                        },
+                    style = MaterialTheme.typography.SwitcherChoice,
                 )
                 Switch(
                     modifier = Modifier
-                        .padding(horizontal = 20.dp),
+                        .padding(start = 15.dp, end = 25.dp),
                     checked = taxViewModel.isProYear,
                     enabled = true,
                     onCheckedChange = {
@@ -513,10 +532,10 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                         mainCalcTaxLegacy.setData()
                     },
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.LightGray,
-                        uncheckedThumbColor = Color.LightGray,
-                        checkedTrackColor = Color.Gray,
-                        uncheckedTrackColor = Color.Gray,
+                        checkedThumbColor = MaterialTheme.myColors.main_450,
+                        uncheckedThumbColor = MaterialTheme.myColors.main_450,
+                        checkedTrackColor = MaterialTheme.myColors.main_400,
+                        uncheckedTrackColor = MaterialTheme.myColors.main_400,
                         checkedTrackAlpha = 1.0f,
                         uncheckedTrackAlpha = 1.0f
                     )
@@ -530,7 +549,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                             taxViewModel.e_lzz = 1.0
                             taxViewModel.isProYear = true
                             mainCalcTaxLegacy.setData()
-                        }
+                        },
+                    style = MaterialTheme.typography.SwitcherChoice,
                 )
             }
             TextField(
@@ -563,6 +583,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                             //tint = MaterialTheme.myColors.main_350,
                         )
                 },
+                colors = UiElem.colorsOfTextField()
             )
             Spacer(modifier = Modifier
                 .height(10.dp)
@@ -574,7 +595,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                 Surface(
                     elevation = 5.dp,
                     shape = CircleShape,
-                    color = SetColorSteuerClassByIsSelected(taxViewModel, 1),
+                    color = setColorSteuerClassByIsSelected(taxViewModel, 1),
                     modifier = Modifier
                         .clickable(true) {
                             selectedOption = 1
@@ -595,7 +616,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                 Surface(
                     elevation = 5.dp,
                     shape = CircleShape,
-                    color = SetColorSteuerClassByIsSelected(taxViewModel, 2),
+                    color = setColorSteuerClassByIsSelected(taxViewModel, 2),
                     modifier = Modifier
                         .clickable(true) {
                             if (selectedOption != 2) {
@@ -635,7 +656,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                 Surface(
                     elevation = 5.dp,
                     shape = CircleShape,
-                    color = SetColorSteuerClassByIsSelected(taxViewModel, 3),
+                    color = setColorSteuerClassByIsSelected(taxViewModel, 3),
                     modifier = Modifier
                         .clickable(true) {
                             selectedOption = 3
@@ -656,7 +677,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                 Surface(
                     elevation = 5.dp,
                     shape = CircleShape,
-                    color = SetColorSteuerClassByIsSelected(taxViewModel, 4),
+                    color = setColorSteuerClassByIsSelected(taxViewModel, 4),
                     modifier = Modifier
                         .clickable(true) {
                             selectedOption = 4
@@ -677,7 +698,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                 Surface(
                     elevation = 5.dp,
                     shape = CircleShape,
-                    color = SetColorSteuerClassByIsSelected(taxViewModel, 5),
+                    color = setColorSteuerClassByIsSelected(taxViewModel, 5),
                     modifier = Modifier
                         .clickable(true) {
                             selectedOption = 5
@@ -698,7 +719,7 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                 Surface(
                     elevation = 5.dp,
                     shape = CircleShape,
-                    color = SetColorSteuerClassByIsSelected(taxViewModel, 6),
+                    color = setColorSteuerClassByIsSelected(taxViewModel, 6),
                     modifier = Modifier
                         .clickable(true) {
                             selectedOption = 6
@@ -796,7 +817,8 @@ fun DropDownMenu_Bundesland(
         {
             //Text(text = textLabel)
             ExposedDropdownMenuBox(
-                modifier = Modifier,
+                modifier = Modifier
+                    .background(color = MaterialTheme.myColors.main_300),
                 //.fillMaxWidth()
                 // .padding(horizontal = percentWidth(.06f)),
                 expanded = expanded,
@@ -816,7 +838,7 @@ fun DropDownMenu_Bundesland(
                             expanded = expanded
                         )
                     },
-                    colors = ExposedDropdownMenuDefaults.textFieldColors()
+                    colors = UiElem.colorsOfDropDown(),
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,
@@ -848,10 +870,10 @@ fun DropDownMenu_Bundesland(
                         taxViewModel.e_r = SetKirchSteur(checkedState, selectedOptionLand)
                         mainCalcTaxLegacy.setData()
                     },
-                    /*colors = CheckboxDefaults.colors(
-                        checkedColor = MaterialTheme.myColors.main_400,
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = MaterialTheme.myColors.main_450,
                         uncheckedColor = MaterialTheme.myColors.main_350
-                    )*/
+                    )
                 )
                 //Text(text = "Kirchensteur:")
                 Text(
@@ -867,7 +889,12 @@ fun DropDownMenu_Bundesland(
                         { checkedState = !checkedState
                             taxViewModel.e_r = SetKirchSteur(checkedState, selectedOptionLand)
                             mainCalcTaxLegacy.setData()
-                        }
+                        },
+                    style = MaterialTheme.typography.Checkbox,
+                    color = if (taxViewModel.e_r == 0.0)
+                                    MaterialTheme.myColors.main_350
+                            else
+                                    MaterialTheme.myColors.main_450
                 )
             }
         }
@@ -892,7 +919,8 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
         Column() {
             //Text(text = textLabel)
             ExposedDropdownMenuBox(
-                modifier = Modifier,
+                modifier = Modifier
+                    .background(color = MaterialTheme.myColors.main_300),
                 //.fillMaxWidth()
                 // .padding(horizontal = percentWidth(.06f)),
                 expanded = expanded,
@@ -912,7 +940,7 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                             expanded = expanded
                         )
                     },
-                    colors = ExposedDropdownMenuDefaults.textFieldColors()
+                    colors = UiElem.colorsOfDropDown(),
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,
@@ -967,7 +995,11 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                         }
                         mainCalcTaxLegacy.setData()
                     },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = MaterialTheme.myColors.main_450,
+                        uncheckedColor = MaterialTheme.myColors.main_350
                     )
+                )
                 Text(
                     text = "Kinderlos und älter als 23",
                     modifier = Modifier
@@ -986,7 +1018,13 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                                     Toast.LENGTH_LONG).show()
                             }
                             mainCalcTaxLegacy.setData()
-                        })
+                        },
+                    style = MaterialTheme.typography.Checkbox,
+                    color = if (!taxViewModel.kinderlos)
+                        MaterialTheme.myColors.main_350
+                    else
+                        MaterialTheme.myColors.main_450
+                    )
             }
             Row(verticalAlignment = Alignment.CenterVertically
             ) {
@@ -996,13 +1034,23 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                         taxViewModel.e_krv = it
                         mainCalcTaxLegacy.setData()
                     },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = MaterialTheme.myColors.main_450,
+                        uncheckedColor = MaterialTheme.myColors.main_350
                     )
+                )
                 Text(
                     text = "Renteversicherungspflichtig",
                     modifier = Modifier
                         .clickable(interactionSource = MutableInteractionSource(), indication = null)
                         { taxViewModel.e_krv = !taxViewModel.e_krv
-                            mainCalcTaxLegacy.setData()})
+                            mainCalcTaxLegacy.setData()},
+                    style = MaterialTheme.typography.Checkbox,
+                    color = if (!taxViewModel.e_krv)
+                        MaterialTheme.myColors.main_350
+                    else
+                        MaterialTheme.myColors.main_450
+                )
             }
             Row(verticalAlignment = Alignment.CenterVertically
             ) {
@@ -1012,24 +1060,34 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                         taxViewModel.e_av = it
                         mainCalcTaxLegacy.setData()
                     },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = MaterialTheme.myColors.main_450,
+                        uncheckedColor = MaterialTheme.myColors.main_350
                     )
+                )
                 Text(
                     text = "Arbeitslosenversicherungspflichtig",
                     modifier = Modifier
                         .clickable(interactionSource = MutableInteractionSource(), indication = null)
                         { taxViewModel.e_av = !taxViewModel.e_av
-                            mainCalcTaxLegacy.setData()}
+                            mainCalcTaxLegacy.setData()},
+                    style = MaterialTheme.typography.Checkbox,
+                    color = if (!taxViewModel.e_av)
+                        MaterialTheme.myColors.main_350
+                    else
+                        MaterialTheme.myColors.main_450
                     )
             }
         }
     }
 }
 
-
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
     val focusManager = LocalFocusManager.current
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
     var expanded by remember { mutableStateOf(false) }
     val optionsDropMenu = listOf("0.0", "14.0", "14.6")
     Card(
@@ -1050,7 +1108,8 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                 .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text(text = "Krankenversicherung")
+                Text(text = "Krankenversicherung",
+                    color = MaterialTheme.myColors.main_450)
             }
             Row(modifier = Modifier
                 .fillMaxWidth(),
@@ -1064,11 +1123,12 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                             indication = null
                         ) { taxViewModel.isPrivatInsur = false
                             mainCalcTaxLegacy.setData()
-                            Log.d("taxes", "IsPrivate insurance:  " + taxViewModel.isPrivatInsur)}
+                        },
+                    style = MaterialTheme.typography.SwitcherChoice
                     )
                 Switch(
                     modifier = Modifier
-                        .padding(horizontal = 20.dp),
+                        .padding(start = 15.dp, end = 25.dp),
                     checked = taxViewModel.isPrivatInsur,
                     enabled = true,
                     onCheckedChange = {
@@ -1081,13 +1141,12 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                             taxViewModel.e_kvz = 0.0
                         }
                         mainCalcTaxLegacy.setData()
-                        Log.d("taxes", "IsPrivate insurance:  " + taxViewModel.isPrivatInsur)
                     },
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.LightGray,
-                        uncheckedThumbColor = Color.LightGray,
-                        checkedTrackColor = Color.Gray,
-                        uncheckedTrackColor = Color.Gray,
+                        checkedThumbColor = MaterialTheme.myColors.main_350,
+                        uncheckedThumbColor = MaterialTheme.myColors.main_350,
+                        checkedTrackColor = MaterialTheme.myColors.main_450,
+                        uncheckedTrackColor = MaterialTheme.myColors.main_450,
                         checkedTrackAlpha = 1.0f,
                         uncheckedTrackAlpha = 1.0f
                     )
@@ -1098,7 +1157,8 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                             interactionSource = MutableInteractionSource(),
                             indication = null
                         ) { taxViewModel.isPrivatInsur = true
-                            mainCalcTaxLegacy.setData()}
+                            mainCalcTaxLegacy.setData()},
+                    style = MaterialTheme.typography.SwitcherChoice
                 )
             }
             if (!taxViewModel.isPrivatInsur) {
@@ -1126,7 +1186,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                                     expanded = expanded
                                 )
                             },
-                            colors = ExposedDropdownMenuDefaults.textFieldColors()
+                            colors = UiElem.colorsOfDropDown(),
                         )
                         ExposedDropdownMenu(
                             expanded = expanded,
@@ -1153,7 +1213,17 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                         //Text(text = "Kirchensteur:")
                         TextField(
                             modifier = Modifier
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .bringIntoViewRequester(bringIntoViewRequester)
+                                .onFocusChanged {
+                                    if (it.isFocused) {
+                                        coroutineScope.launch {
+                                            delay(200)
+                                            bringIntoViewRequester.bringIntoView()
+                                        }
+                                    }
+                                }
+                            ,
                             value = taxViewModel.mOutputTxt.additionalAmount,
                             onValueChange = {
                                 taxViewModel.mOutputTxt.additionalAmount = filterUserInput(it, taxViewModel.mOutputTxt.additionalAmount)
@@ -1181,14 +1251,24 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                                         //tint = MaterialTheme.myColors.main_350,
                                     )
                             },
+                            colors = UiElem.colorsOfTextField()
                         )
                     }
                 }
             } else {
                 TextField(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    value = taxViewModel.mOutputTxt.anpkvPayedPremium,
+                        .fillMaxWidth()
+                        .bringIntoViewRequester(bringIntoViewRequester)
+                        .onFocusChanged {
+                            if (it.isFocused) {
+                                coroutineScope.launch {
+                                    delay(200)
+                                    bringIntoViewRequester.bringIntoView()
+                                }
+                            }
+                        }
+                    ,                    value = taxViewModel.mOutputTxt.anpkvPayedPremium,
                     onValueChange = {
                         taxViewModel.mOutputTxt.anpkvPayedPremium = filterUserInput(it, taxViewModel.mOutputTxt.anpkvPayedPremium)
                         taxViewModel.e_anpkv = getDoubleValFromInput(taxViewModel.mOutputTxt.anpkvPayedPremium)
@@ -1215,11 +1295,21 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                                 //tint = MaterialTheme.myColors.main_350,
                             )
                     },
+                    colors = UiElem.colorsOfTextField()
                 )
                 TextField(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    value = taxViewModel.mOutputTxt.pkpvBasicPremium,
+                        .fillMaxWidth()
+                        .bringIntoViewRequester(bringIntoViewRequester)
+                        .onFocusChanged {
+                            if (it.isFocused) {
+                                coroutineScope.launch {
+                                    delay(200)
+                                    bringIntoViewRequester.bringIntoView()
+                                }
+                            }
+                        }
+                    ,                    value = taxViewModel.mOutputTxt.pkpvBasicPremium,
                     onValueChange = {
                         taxViewModel.mOutputTxt.pkpvBasicPremium = filterUserInput(it, taxViewModel.mOutputTxt.pkpvBasicPremium)
                         taxViewModel.e_pkpv = getDoubleValFromInput(taxViewModel.mOutputTxt.pkpvBasicPremium)
@@ -1246,6 +1336,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                                 //tint = MaterialTheme.myColors.main_350,
                             )
                     },
+                    colors = UiElem.colorsOfTextField()
                 )
                 Row(verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -1284,9 +1375,12 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Card_Optional_Top(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
     val focusManager = LocalFocusManager.current
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -1297,8 +1391,17 @@ fun Card_Optional_Top(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calcu
         Column() {
             TextField(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                value = taxViewModel.mOutputTxt.sonstb,
+                    .fillMaxWidth()
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            coroutineScope.launch {
+                                delay(200)
+                                bringIntoViewRequester.bringIntoView()
+                            }
+                        }
+                    }
+                ,                value = taxViewModel.mOutputTxt.sonstb,
                 onValueChange = {
                     taxViewModel.mOutputTxt.sonstb = filterUserInput(it, taxViewModel.mOutputTxt.sonstb)
                     taxViewModel.e_sonstb = getDoubleValFromInput(taxViewModel.mOutputTxt.sonstb)
@@ -1325,11 +1428,21 @@ fun Card_Optional_Top(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calcu
                             //tint = MaterialTheme.myColors.main_350,
                         )
                 },
+                colors = UiElem.colorsOfTextField()
             )
             TextField(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                value = taxViewModel.mOutputTxt.jsonstb,
+                    .fillMaxWidth()
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            coroutineScope.launch {
+                                delay(200)
+                                bringIntoViewRequester.bringIntoView()
+                            }
+                        }
+                    }
+                ,                value = taxViewModel.mOutputTxt.jsonstb,
                 onValueChange = {
                     taxViewModel.mOutputTxt.jsonstb = filterUserInput(it, taxViewModel.mOutputTxt.jsonstb)
                     taxViewModel.e_jsonstb = getDoubleValFromInput(taxViewModel.mOutputTxt.jsonstb)
@@ -1356,14 +1469,18 @@ fun Card_Optional_Top(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calcu
                             //tint = MaterialTheme.myColors.main_350,
                         )
                 },
+                colors = UiElem.colorsOfTextField()
             )
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
     val focusManager = LocalFocusManager.current
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -1374,8 +1491,17 @@ fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Cal
         Column() {
             TextField(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                value = taxViewModel.mOutputTxt.vmt,
+                    .fillMaxWidth()
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            coroutineScope.launch {
+                                delay(200)
+                                bringIntoViewRequester.bringIntoView()
+                            }
+                        }
+                    }
+                ,                value = taxViewModel.mOutputTxt.vmt,
                 onValueChange = {
                     taxViewModel.mOutputTxt.vmt = filterUserInput(it, taxViewModel.mOutputTxt.vmt)
                     taxViewModel.e_vmt = getDoubleValFromInput(taxViewModel.mOutputTxt.vmt)
@@ -1402,11 +1528,21 @@ fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Cal
                             //tint = MaterialTheme.myColors.main_350,
                         )
                 },
+                colors = UiElem.colorsOfTextField()
             )
             TextField(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                value = taxViewModel.mOutputTxt.entsch,
+                    .fillMaxWidth()
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            coroutineScope.launch {
+                                delay(200)
+                                bringIntoViewRequester.bringIntoView()
+                            }
+                        }
+                    }
+                ,                value = taxViewModel.mOutputTxt.entsch,
                 onValueChange = {
                     taxViewModel.mOutputTxt.entsch = filterUserInput(it, taxViewModel.mOutputTxt.entsch)
                     taxViewModel.e_entsch = getDoubleValFromInput(taxViewModel.mOutputTxt.entsch)
@@ -1433,14 +1569,19 @@ fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Cal
                             //tint = MaterialTheme.myColors.main_350,
                         )
                 },
+                colors = UiElem.colorsOfTextField()
             )
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
     val focusManager = LocalFocusManager.current
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -1451,7 +1592,17 @@ fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Ca
         Column() {
             TextField(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            coroutineScope.launch {
+                                delay(200)
+                                bringIntoViewRequester.bringIntoView()
+                            }
+                        }
+                    }
+                ,
                 value = taxViewModel.mOutputTxt.wfundf,
                 onValueChange = {
                     taxViewModel.mOutputTxt.wfundf = filterUserInput(it, taxViewModel.mOutputTxt.wfundf)
@@ -1479,10 +1630,21 @@ fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Ca
                             //tint = MaterialTheme.myColors.main_350,
                         )
                 },
+                colors = UiElem.colorsOfTextField()
             )
             TextField(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            coroutineScope.launch {
+                                delay(200)
+                                bringIntoViewRequester.bringIntoView()
+                            }
+                        }
+                    }
+                ,
                 value = taxViewModel.mOutputTxt.hinzur,
                 onValueChange = { it ->
                     taxViewModel.mOutputTxt.hinzur = filterUserInput(it, taxViewModel.mOutputTxt.hinzur)
@@ -1510,6 +1672,7 @@ fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Ca
                             //tint = MaterialTheme.myColors.main_350,
                         )
                 },
+                colors = UiElem.colorsOfTextField()
             )
         }
     }
@@ -1537,11 +1700,12 @@ private fun SetKirchSteur(checkedState: Boolean, selectedOptionLand: String) : D
  * @param selectedSteuerClass The selected steuer class by user
  * @return The color for the selected steuer class or color for not selected steuer class
  * */
-private fun SetColorSteuerClassByIsSelected(taxViewModel : LegacyTaxModelView, selectedSteuerClass: Int): Color {
-    if (taxViewModel.e_stkl == selectedSteuerClass.toDouble())
-        return Color.Gray
+@Composable
+private fun setColorSteuerClassByIsSelected(taxViewModel : LegacyTaxModelView, selectedSteuerClass: Int): Color {
+    return if (taxViewModel.e_stkl == selectedSteuerClass.toDouble())
+        MaterialTheme.myColors.main_450
     else
-        return Color.LightGray
+        MaterialTheme.myColors.main_300
 }
 
 /**
