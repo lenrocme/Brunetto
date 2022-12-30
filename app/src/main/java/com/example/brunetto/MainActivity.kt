@@ -1,23 +1,22 @@
 package com.example.brunetto
 
 import android.os.Bundle
-import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -27,9 +26,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.focusOrder
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
@@ -40,6 +43,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.ViewModelProvider
 import com.example.brunetto.data.lastInput.LastInput
 import com.example.brunetto.data.lastInput.LastInputViewModel
@@ -50,6 +56,9 @@ import com.example.brunetto.ui.UiElem
 import com.example.brunetto.viewModels.LegacyTaxModelView
 import com.example.brunetto.viewModels.ReportTaxModelView
 import com.example.brunetto.viewModels.TaxViewModel
+import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -66,7 +75,6 @@ class MainActivity : ComponentActivity() {
         this.mTaxModelView = TaxViewModel()
         this.mLegacyTaxModelView.mOutputTxt = mTaxModelView
 
-
         // store default data to the db
         this.mLastInput.isEmpty.observe(this) { isTableEmpty ->
             if (isTableEmpty)
@@ -82,24 +90,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CustomMaterialTheme() {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ){
-                    /*val systemUiController = rememberSystemUiController()
-                    if(theme == "Dark"){
-                        systemUiController.setSystemBarsColor(
-                            color = MaterialTheme.myColors.main_450
-                        )
-                    }else{
-                        systemUiController.setSystemBarsColor(
-                            color = MaterialTheme.myColors.main_450
-                        )
-                    }*/
-                    MainActivityScreen(mLegacyTaxModelView)
-                }
+                MainActivityScreen(mLegacyTaxModelView)
             }
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)){view, insets ->
+            val bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            view.updatePadding(bottom = bottom)
+            insets
         }
     }
 
@@ -123,18 +121,17 @@ fun MainActivityScreen(mLegacyTaxModelView: LegacyTaxModelView) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-        /* .background(MaterialTheme.myColors.CL_BackGround)
-         .pointerInput(Unit) {
-             detectTapGestures(onTap = {
-                 focusManager.clearFocus()
-             })
-         },*/
+            .background(Color.White)
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                })
+            }
     ) {
-        //Column() {
-
-        Body(mLegacyTaxModelView, mainCalcTax)
-        Header(mLegacyTaxModelView, reportTaxModel)
-        //}
+        Column() {
+            Header(mLegacyTaxModelView, reportTaxModel)
+            Body(mLegacyTaxModelView, mainCalcTax)
+        }
     }
 }
 
@@ -390,34 +387,31 @@ fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy)
     Box(
         modifier = Modifier
             .fillMaxSize()
-            /*.background(MaterialTheme.myColors.CL_BackGround)*/
+            .background(MaterialTheme.myColors.CL_BackGround)
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {
                     focusManager.clearFocus()
                 })
             },
+        contentAlignment = Alignment.Center,
     ) {
         Column(
+            verticalArrangement = Arrangement.Top,
             modifier = Modifier
-                .animateContentSize(
+               /* .animateContentSize(
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioLowBouncy,
                         stiffness = Spring.StiffnessLow
                     )
-                )
+                )*/
                 .fillMaxHeight(1f)
-                .verticalScroll(state),
+                .verticalScroll(state)
+               /* .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        focusManager.clearFocus()
+                    })
+                },*/
         ) {
-
-            /*OutlinedTextField(
-                value = bruttoLohn,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                onValueChange = {
-                    bruttoLohn = it
-                })*/
-            Spacer(modifier = Modifier
-                .height(percentHeight(.15f + .01f) + 25.dp)
-                .fillMaxWidth())
             Spacer(modifier = Modifier
                 .height(spaceBetweenCards)
                 .fillMaxWidth())
@@ -479,6 +473,9 @@ fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy)
                */
                 }) {
             }*/
+            Spacer(modifier = Modifier
+                .height(adaptHeight(10.dp, 20.dp, 30.dp))
+                .fillMaxWidth())
         }
     }
     mainCalcTaxLegacy.setData()
@@ -1050,11 +1047,12 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
     }
 }
 
-
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
     val focusManager = LocalFocusManager.current
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
     var expanded by remember { mutableStateOf(false) }
     val optionsDropMenu = listOf("0.0", "14.0", "14.6")
     Card(
@@ -1089,7 +1087,7 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                             indication = null
                         ) { taxViewModel.isPrivatInsur = false
                             mainCalcTaxLegacy.setData()
-                            Log.d("taxes", "IsPrivate insurance:  " + taxViewModel.isPrivatInsur)}
+                        }
                     )
                 Switch(
                     modifier = Modifier
@@ -1106,7 +1104,6 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                             taxViewModel.e_kvz = 0.0
                         }
                         mainCalcTaxLegacy.setData()
-                        Log.d("taxes", "IsPrivate insurance:  " + taxViewModel.isPrivatInsur)
                     },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Color.LightGray,
@@ -1178,7 +1175,17 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                         //Text(text = "Kirchensteur:")
                         TextField(
                             modifier = Modifier
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .bringIntoViewRequester(bringIntoViewRequester)
+                                .onFocusChanged {
+                                    if (it.isFocused) {
+                                        coroutineScope.launch {
+                                            delay(200)
+                                            bringIntoViewRequester.bringIntoView()
+                                        }
+                                    }
+                                }
+                            ,
                             value = taxViewModel.mOutputTxt.additionalAmount,
                             onValueChange = {
                                 taxViewModel.mOutputTxt.additionalAmount = filterUserInput(it, taxViewModel.mOutputTxt.additionalAmount)
@@ -1213,8 +1220,17 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
             } else {
                 TextField(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    value = taxViewModel.mOutputTxt.anpkvPayedPremium,
+                        .fillMaxWidth()
+                        .bringIntoViewRequester(bringIntoViewRequester)
+                        .onFocusChanged {
+                            if (it.isFocused) {
+                                coroutineScope.launch {
+                                    delay(200)
+                                    bringIntoViewRequester.bringIntoView()
+                                }
+                            }
+                        }
+                    ,                    value = taxViewModel.mOutputTxt.anpkvPayedPremium,
                     onValueChange = {
                         taxViewModel.mOutputTxt.anpkvPayedPremium = filterUserInput(it, taxViewModel.mOutputTxt.anpkvPayedPremium)
                         taxViewModel.e_anpkv = getDoubleValFromInput(taxViewModel.mOutputTxt.anpkvPayedPremium)
@@ -1245,8 +1261,17 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                 )
                 TextField(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    value = taxViewModel.mOutputTxt.pkpvBasicPremium,
+                        .fillMaxWidth()
+                        .bringIntoViewRequester(bringIntoViewRequester)
+                        .onFocusChanged {
+                            if (it.isFocused) {
+                                coroutineScope.launch {
+                                    delay(200)
+                                    bringIntoViewRequester.bringIntoView()
+                                }
+                            }
+                        }
+                    ,                    value = taxViewModel.mOutputTxt.pkpvBasicPremium,
                     onValueChange = {
                         taxViewModel.mOutputTxt.pkpvBasicPremium = filterUserInput(it, taxViewModel.mOutputTxt.pkpvBasicPremium)
                         taxViewModel.e_pkpv = getDoubleValFromInput(taxViewModel.mOutputTxt.pkpvBasicPremium)
@@ -1312,9 +1337,12 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Card_Optional_Top(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
     val focusManager = LocalFocusManager.current
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -1325,8 +1353,17 @@ fun Card_Optional_Top(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calcu
         Column() {
             TextField(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                value = taxViewModel.mOutputTxt.sonstb,
+                    .fillMaxWidth()
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            coroutineScope.launch {
+                                delay(200)
+                                bringIntoViewRequester.bringIntoView()
+                            }
+                        }
+                    }
+                ,                value = taxViewModel.mOutputTxt.sonstb,
                 onValueChange = {
                     taxViewModel.mOutputTxt.sonstb = filterUserInput(it, taxViewModel.mOutputTxt.sonstb)
                     taxViewModel.e_sonstb = getDoubleValFromInput(taxViewModel.mOutputTxt.sonstb)
@@ -1357,8 +1394,17 @@ fun Card_Optional_Top(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calcu
             )
             TextField(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                value = taxViewModel.mOutputTxt.jsonstb,
+                    .fillMaxWidth()
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            coroutineScope.launch {
+                                delay(200)
+                                bringIntoViewRequester.bringIntoView()
+                            }
+                        }
+                    }
+                ,                value = taxViewModel.mOutputTxt.jsonstb,
                 onValueChange = {
                     taxViewModel.mOutputTxt.jsonstb = filterUserInput(it, taxViewModel.mOutputTxt.jsonstb)
                     taxViewModel.e_jsonstb = getDoubleValFromInput(taxViewModel.mOutputTxt.jsonstb)
@@ -1391,9 +1437,12 @@ fun Card_Optional_Top(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calcu
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
     val focusManager = LocalFocusManager.current
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -1404,8 +1453,17 @@ fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Cal
         Column() {
             TextField(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                value = taxViewModel.mOutputTxt.vmt,
+                    .fillMaxWidth()
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            coroutineScope.launch {
+                                delay(200)
+                                bringIntoViewRequester.bringIntoView()
+                            }
+                        }
+                    }
+                ,                value = taxViewModel.mOutputTxt.vmt,
                 onValueChange = {
                     taxViewModel.mOutputTxt.vmt = filterUserInput(it, taxViewModel.mOutputTxt.vmt)
                     taxViewModel.e_vmt = getDoubleValFromInput(taxViewModel.mOutputTxt.vmt)
@@ -1436,8 +1494,17 @@ fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Cal
             )
             TextField(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                value = taxViewModel.mOutputTxt.entsch,
+                    .fillMaxWidth()
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            coroutineScope.launch {
+                                delay(200)
+                                bringIntoViewRequester.bringIntoView()
+                            }
+                        }
+                    }
+                ,                value = taxViewModel.mOutputTxt.entsch,
                 onValueChange = {
                     taxViewModel.mOutputTxt.entsch = filterUserInput(it, taxViewModel.mOutputTxt.entsch)
                     taxViewModel.e_entsch = getDoubleValFromInput(taxViewModel.mOutputTxt.entsch)
@@ -1470,9 +1537,13 @@ fun Card_Optional_Midle(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Cal
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
     val focusManager = LocalFocusManager.current
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -1483,7 +1554,17 @@ fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Ca
         Column() {
             TextField(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            coroutineScope.launch {
+                                delay(200)
+                                bringIntoViewRequester.bringIntoView()
+                            }
+                        }
+                    }
+                ,
                 value = taxViewModel.mOutputTxt.wfundf,
                 onValueChange = {
                     taxViewModel.mOutputTxt.wfundf = filterUserInput(it, taxViewModel.mOutputTxt.wfundf)
@@ -1515,7 +1596,17 @@ fun Card_Optional_Bottom(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Ca
             )
             TextField(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            coroutineScope.launch {
+                                delay(200)
+                                bringIntoViewRequester.bringIntoView()
+                            }
+                        }
+                    }
+                ,
                 value = taxViewModel.mOutputTxt.hinzur,
                 onValueChange = { it ->
                     taxViewModel.mOutputTxt.hinzur = filterUserInput(it, taxViewModel.mOutputTxt.hinzur)
