@@ -11,6 +11,7 @@ data class CustomColors(
     val main_300: Color,
     val main_350: Color,
     val main_400: Color,
+    val main_420: Color,
     val main_450: Color,
     val main_500: Color,
     val main_600: Color,
