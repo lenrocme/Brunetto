@@ -1,6 +1,8 @@
 package com.example.brunetto.ui.theme
 
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Typography
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -46,3 +48,38 @@ val Typography = Typography(
     )
     */
 )
+
+/**
+ * Customized typography
+ * */
+val Typography.SwitcherChoice: TextStyle
+    @Composable
+    get() {
+        return  TextStyle(
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 16.sp,
+            color = MaterialTheme.myColors.main_450,
+        )
+    }
+
+val Typography.UserInput: TextStyle
+    @Composable
+    get() {
+        return  TextStyle(
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+            color = MaterialTheme.myColors.main_450,
+        )
+    }
+
+val Typography.Checkbox: TextStyle
+    @Composable
+    get() {
+        return  TextStyle(
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.Normal,
+            fontSize = 16.sp,
+        )
+    }
