@@ -50,7 +50,6 @@ import com.example.brunetto.ui.UiElem
 import com.example.brunetto.viewModels.LegacyTaxModelView
 import com.example.brunetto.viewModels.ReportTaxModelView
 import com.example.brunetto.viewModels.TaxViewModel
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -88,7 +87,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ){
-                    val systemUiController = rememberSystemUiController()
+                    /*val systemUiController = rememberSystemUiController()
                     if(theme == "Dark"){
                         systemUiController.setSystemBarsColor(
                             color = MaterialTheme.myColors.main_450
@@ -97,7 +96,7 @@ class MainActivity : ComponentActivity() {
                         systemUiController.setSystemBarsColor(
                             color = MaterialTheme.myColors.main_450
                         )
-                    }
+                    }*/
                     MainActivityScreen(mLegacyTaxModelView)
                 }
             }
@@ -290,7 +289,7 @@ fun HeaderForReportTax(labelName : String, labelValue : Double, isSummary: Boole
             )
 
             Text(
-                modifier = Modifier.width(140.dp),
+                modifier = Modifier.width(150.dp),
                 text = "$formattedLabelValue Euro",
                 textAlign = TextAlign.Right,
                 color = MaterialTheme.myColors.fontC_100,
