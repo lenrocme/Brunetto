@@ -178,6 +178,12 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
                     .fillMaxWidth()
                     .background(color = MaterialTheme.myColors.main_450)
             ) {
+                Spacer( // spacer for translucent action bar
+                    modifier = Modifier
+                        .height(25.dp)
+                        .fillMaxWidth()
+                )
+
                 Spacer(
                     modifier = Modifier
                         .height(percentHeight(adaptHeight(.035f, .045f, 0.06f)) - 19.dp)
@@ -297,7 +303,7 @@ fun HeaderForReportTax(labelName : String, labelValue : Double, isSummary: Boole
             )
             Spacer(
                 modifier = Modifier
-                    .width(percentWidth(.49f) - 120.dp)
+                    .width(percentWidth(.49f) - 150.dp)
             )
         }
         Spacer(
@@ -410,7 +416,7 @@ fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy)
                     bruttoLohn = it
                 })*/
             Spacer(modifier = Modifier
-                .height(percentHeight(.15f + .011f))
+                .height(percentHeight(.15f + .01f) + 25.dp)
                 .fillMaxWidth())
             Spacer(modifier = Modifier
                 .height(spaceBetweenCards)
