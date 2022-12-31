@@ -1,6 +1,7 @@
 package com.example.brunetto
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -54,6 +55,7 @@ import com.example.brunetto.ui.theme.SwitcherChoice
 import com.example.brunetto.viewModels.LegacyTaxModelView
 import com.example.brunetto.viewModels.ReportTaxModelView
 import com.example.brunetto.viewModels.TaxViewModel
+import com.example.brunetto.viewModels.UiTaxViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -63,6 +65,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var mLastInput: LastInputViewModel
     private lateinit var mLegacyTaxModelView: LegacyTaxModelView
     private lateinit var mTaxModelView: TaxViewModel
+    private lateinit var mUiTaxViewModel: UiTaxViewModel
     private var theme : String by mutableStateOf("Default")
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,6 +74,7 @@ class MainActivity : ComponentActivity() {
         this.mLegacyTaxModelView = LegacyTaxModelView()
         this.mTaxModelView = TaxViewModel()
         this.mLegacyTaxModelView.mOutputTxt = mTaxModelView
+        this.mUiTaxViewModel = UiTaxViewModel()
 
         // store default data to the db
         this.mLastInput.isEmpty.observe(this) { isTableEmpty ->
@@ -87,7 +91,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CustomMaterialTheme() {
-                MainActivityScreen(mLegacyTaxModelView)
+                MainActivityScreen(mLegacyTaxModelView, mUiTaxViewModel)
             }
         }
 
@@ -110,7 +114,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainActivityScreen(mLegacyTaxModelView: LegacyTaxModelView) {
+fun MainActivityScreen(mLegacyTaxModelView: LegacyTaxModelView, mUiTaxViewModel: UiTaxViewModel) {
     val focusManager = LocalFocusManager.current
     val reportTaxModel = ReportTaxModelView()
     val mainCalcTax = CalculationLegacy(mLegacyTaxModelView, reportTaxModel)
@@ -122,11 +126,13 @@ fun MainActivityScreen(mLegacyTaxModelView: LegacyTaxModelView) {
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {
                     focusManager.clearFocus()
+                    mUiTaxViewModel.isTaxReportExtended = false
+                    print(mUiTaxViewModel.isTaxReportExtended)
                 })
             }
     ) {
         Column() {
-            Header(mLegacyTaxModelView, reportTaxModel)
+            Header(mLegacyTaxModelView, reportTaxModel, mUiTaxViewModel)
             Body(mLegacyTaxModelView, mainCalcTax)
         }
     }
@@ -135,19 +141,25 @@ fun MainActivityScreen(mLegacyTaxModelView: LegacyTaxModelView) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
+    val mUiTaxViewModel = UiTaxViewModel()
     CustomMaterialTheme {
-        MainActivityScreen(LegacyTaxModelView())
+        MainActivityScreen(LegacyTaxModelView(), mUiTaxViewModel)
     }
 }
 
 @Composable
-fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView) {
+fun Header(
+    taxViewModel: LegacyTaxModelView,
+    reportTaxModel: ReportTaxModelView,
+    mUiTaxViewModel: UiTaxViewModel
+) {
     val focusManager = LocalFocusManager.current
     var isReportExtended by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .wrapContentSize()
             .background(color = MaterialTheme.myColors.main_450)
+
     ) {
         Card(
             modifier = Modifier
@@ -163,6 +175,9 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
                     detectTapGestures(onTap = {
                         focusManager.clearFocus()
                     })
+                }
+                .clickable(interactionSource = MutableInteractionSource(), indication = null) {
+                    mUiTaxViewModel.isTaxReportExtended = !mUiTaxViewModel.isTaxReportExtended
                 }
             //.padding(bottom = getPaddingCards()),
         ) {
@@ -186,26 +201,26 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
 
                 HeaderForReportTax("Netto jährlich", reportTaxModel.netSalary)
                 HeaderForReportTax("Netto monatlich", reportTaxModel.netSalaryMonthly)
-                if (!isReportExtended) {
+                if (!mUiTaxViewModel.isTaxReportExtended) {
                     Icon(
                         Icons.Default.KeyboardArrowDown,
                         modifier = Modifier
                             .size(40.dp)
-                            .clickable(true) {
-                                isReportExtended = !isReportExtended
+                            .clickable(interactionSource = MutableInteractionSource(), indication = null) {
+                                mUiTaxViewModel.isTaxReportExtended = !mUiTaxViewModel.isTaxReportExtended
                             },
                         contentDescription = "Clear",
                         tint = MaterialTheme.myColors.iconButton,
                     )
                 }
-                if (isReportExtended) {
+                if (mUiTaxViewModel.isTaxReportExtended) {
                     ReportTax(taxViewModel, reportTaxModel)
                     Icon(
                         Icons.Default.KeyboardArrowUp,
                         modifier = Modifier
                             .size(40.dp)
-                            .clickable(true) {
-                                isReportExtended = !isReportExtended
+                            .clickable(interactionSource = MutableInteractionSource(), indication = null) {
+                                mUiTaxViewModel.isTaxReportExtended = !mUiTaxViewModel.isTaxReportExtended
                             },
                         contentDescription = "Clear",
                         tint = MaterialTheme.myColors.iconButton,
