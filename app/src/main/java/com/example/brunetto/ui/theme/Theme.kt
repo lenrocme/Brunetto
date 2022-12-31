@@ -22,6 +22,8 @@ val LightColorPalette = CustomColors(
     checkedCheckbox = Light_neumorphism_400,
     unCheckedCheckbox = Light_neumorphism_400,
     txtIconBtn = Light_neumorphism_450,
+    switchThumb = Light_neumorphism_450,
+    switchTrack = Light_neumorphism_400,
     /**
      * Font colors
      * */
@@ -65,6 +67,8 @@ val DarkColorPalette = CustomColors(
     checkedCheckbox = Teal300,
     unCheckedCheckbox = Light_neumorphism_450,
     txtIconBtn = Dark_neumorphism_350,
+    switchThumb = Teal300,
+    switchTrack = Dark_neumorphism_350,
     /**
      * Font colors
      * */

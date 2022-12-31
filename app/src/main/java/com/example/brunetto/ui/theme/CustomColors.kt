@@ -23,6 +23,8 @@ data class CustomColors(
     val checkedCheckbox: Color,
     val unCheckedCheckbox: Color,
     val txtIconBtn: Color,
+    val switchThumb: Color,
+    val switchTrack: Color,
 
     /**
      * Font colors

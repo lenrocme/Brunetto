@@ -520,6 +520,10 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                             mainCalcTaxLegacy.setData()
                         },
                     style = MaterialTheme.typography.SwitcherChoice,
+                    textDecoration = if (!taxViewModel.isProYear)
+                                        TextDecoration.Underline
+                                    else
+                                        TextDecoration.None
                 )
                 Switch(
                     modifier = Modifier
@@ -536,10 +540,10 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                         mainCalcTaxLegacy.setData()
                     },
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.myColors.main_450,
-                        uncheckedThumbColor = MaterialTheme.myColors.main_450,
-                        checkedTrackColor = MaterialTheme.myColors.main_400,
-                        uncheckedTrackColor = MaterialTheme.myColors.main_400,
+                        checkedThumbColor = MaterialTheme.myColors.switchThumb,
+                        uncheckedThumbColor = MaterialTheme.myColors.switchThumb,
+                        checkedTrackColor = MaterialTheme.myColors.switchTrack,
+                        uncheckedTrackColor = MaterialTheme.myColors.switchTrack,
                         checkedTrackAlpha = 1.0f,
                         uncheckedTrackAlpha = 1.0f
                     )
@@ -555,6 +559,10 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                             mainCalcTaxLegacy.setData()
                         },
                     style = MaterialTheme.typography.SwitcherChoice,
+                    textDecoration = if (taxViewModel.isProYear)
+                                        TextDecoration.Underline
+                                    else
+                                        TextDecoration.None
                 )
             }
             TextField(
@@ -1134,7 +1142,11 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                         ) { taxViewModel.isPrivatInsur = false
                             mainCalcTaxLegacy.setData()
                         },
-                    style = MaterialTheme.typography.SwitcherChoice
+                    style = MaterialTheme.typography.SwitcherChoice,
+                    textDecoration = if (!taxViewModel.isPrivatInsur)
+                                        TextDecoration.Underline
+                                    else
+                                        TextDecoration.None
                     )
                 Switch(
                     modifier = Modifier
@@ -1153,10 +1165,10 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                         mainCalcTaxLegacy.setData()
                     },
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.myColors.main_350,
-                        uncheckedThumbColor = MaterialTheme.myColors.main_350,
-                        checkedTrackColor = MaterialTheme.myColors.main_450,
-                        uncheckedTrackColor = MaterialTheme.myColors.main_450,
+                        checkedThumbColor = MaterialTheme.myColors.switchThumb,
+                        uncheckedThumbColor = MaterialTheme.myColors.switchThumb,
+                        checkedTrackColor = MaterialTheme.myColors.switchTrack,
+                        uncheckedTrackColor = MaterialTheme.myColors.switchTrack,
                         checkedTrackAlpha = 1.0f,
                         uncheckedTrackAlpha = 1.0f
                     )
@@ -1168,7 +1180,11 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                             indication = null
                         ) { taxViewModel.isPrivatInsur = true
                             mainCalcTaxLegacy.setData()},
-                    style = MaterialTheme.typography.SwitcherChoice
+                    style = MaterialTheme.typography.SwitcherChoice,
+                    textDecoration = if (taxViewModel.isPrivatInsur)
+                                        TextDecoration.Underline
+                                    else
+                                        TextDecoration.None
                 )
             }
             if (!taxViewModel.isPrivatInsur) {
