@@ -519,11 +519,11 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                             taxViewModel.isProYear = false
                             mainCalcTaxLegacy.setData()
                         },
-                    style = MaterialTheme.typography.SwitcherChoice,
                     textDecoration = if (!taxViewModel.isProYear)
                                         TextDecoration.Underline
                                     else
-                                        TextDecoration.None
+                                        TextDecoration.None,
+                    style = MaterialTheme.typography.SwitcherChoice,
                 )
                 Switch(
                     modifier = Modifier
@@ -558,11 +558,11 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                             taxViewModel.isProYear = true
                             mainCalcTaxLegacy.setData()
                         },
-                    style = MaterialTheme.typography.SwitcherChoice,
                     textDecoration = if (taxViewModel.isProYear)
                                         TextDecoration.Underline
                                     else
-                                        TextDecoration.None
+                                        TextDecoration.None,
+                    style = MaterialTheme.typography.SwitcherChoice,
                 )
             }
             TextField(
@@ -624,7 +624,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                         text = "I",
                         fontSize = 23.sp,
                         fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center)
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.myColors.fontTaxButton)
                 }
                 Surface(
                     elevation = 5.dp,
@@ -664,7 +665,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                         text = "II",
                         fontSize = 23.sp,
                         fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center)
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.myColors.fontTaxButton)
                 }
                 Surface(
                     elevation = 5.dp,
@@ -685,7 +687,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                         text = "III",
                         fontSize = 23.sp,
                         fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center)
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.myColors.fontTaxButton)
                 }
                 Surface(
                     elevation = 5.dp,
@@ -706,7 +709,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                         text = "IV",
                         fontSize = 23.sp,
                         fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center)
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.myColors.fontTaxButton)
                 }
                 Surface(
                     elevation = 5.dp,
@@ -727,7 +731,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                         text = "V",
                         fontSize = 23.sp,
                         fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center)
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.myColors.fontTaxButton)
                 }
                 Surface(
                     elevation = 5.dp,
@@ -748,7 +753,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                         text = "VI",
                         fontSize = 23.sp,
                         fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center)
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.myColors.fontTaxButton)
                 }
             }
             Spacer(modifier = Modifier
@@ -1142,11 +1148,11 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                         ) { taxViewModel.isPrivatInsur = false
                             mainCalcTaxLegacy.setData()
                         },
-                    style = MaterialTheme.typography.SwitcherChoice,
                     textDecoration = if (!taxViewModel.isPrivatInsur)
                                         TextDecoration.Underline
                                     else
-                                        TextDecoration.None
+                                        TextDecoration.None,
+                    style = MaterialTheme.typography.SwitcherChoice,
                     )
                 Switch(
                     modifier = Modifier
@@ -1180,11 +1186,11 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                             indication = null
                         ) { taxViewModel.isPrivatInsur = true
                             mainCalcTaxLegacy.setData()},
-                    style = MaterialTheme.typography.SwitcherChoice,
                     textDecoration = if (taxViewModel.isPrivatInsur)
                                         TextDecoration.Underline
                                     else
-                                        TextDecoration.None
+                                        TextDecoration.None,
+                    style = MaterialTheme.typography.SwitcherChoice,
                 )
             }
             if (!taxViewModel.isPrivatInsur) {
@@ -1749,9 +1755,9 @@ private fun SetKirchSteur(checkedState: Boolean, selectedOptionLand: String) : D
 @Composable
 private fun setColorSteuerClassByIsSelected(taxViewModel : LegacyTaxModelView, selectedSteuerClass: Int): Color {
     return if (taxViewModel.e_stkl == selectedSteuerClass.toDouble())
-        MaterialTheme.myColors.main_450
+        MaterialTheme.myColors.bgTaxClassSelect
     else
-        MaterialTheme.myColors.main_300
+        MaterialTheme.myColors.bgTaxClass
 }
 
 /**

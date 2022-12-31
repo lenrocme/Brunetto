@@ -24,9 +24,12 @@ val LightColorPalette = CustomColors(
     txtIconBtn = Light_neumorphism_450,
     switchThumb = Light_neumorphism_450,
     switchTrack = Light_neumorphism_400,
+    bgTaxClass = Light_neumorphism_300,
+    bgTaxClassSelect = Light_neumorphism_450,
     /**
      * Font colors
      * */
+    fontTaxButton = Dark_neumorphism_350,
     fontC_100 = fontC_100l,
     fontC_200 = fontC_200d,
     fontC_300 = fontC_300d,
@@ -69,9 +72,12 @@ val DarkColorPalette = CustomColors(
     txtIconBtn = Dark_neumorphism_350,
     switchThumb = Teal300,
     switchTrack = Dark_neumorphism_350,
+    bgTaxClass = Dark_neumorphism_350,
+    bgTaxClassSelect = Teal300,
     /**
      * Font colors
      * */
+    fontTaxButton = Light_neumorphism_200,
     fontC_100 = fontC_100d,
     fontC_200 = fontC_200l,
     fontC_300 = fontC_300l,

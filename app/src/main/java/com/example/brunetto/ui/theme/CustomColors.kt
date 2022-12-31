@@ -25,10 +25,13 @@ data class CustomColors(
     val txtIconBtn: Color,
     val switchThumb: Color,
     val switchTrack: Color,
+    val bgTaxClass: Color,
+    val bgTaxClassSelect: Color,
 
     /**
      * Font colors
      * */
+    val fontTaxButton: Color,
     val fontC_100: Color,
     val fontC_200: Color,
     val fontC_300: Color,
