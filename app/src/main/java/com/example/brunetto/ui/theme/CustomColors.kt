@@ -19,6 +19,10 @@ data class CustomColors(
     val CL_BackGround: Color,
     val bg_SumTax: Color,
     val focusLine: Color,
+    val iconButton: Color,
+    val checkedCheckbox: Color,
+    val unCheckedCheckbox: Color,
+    val txtIconBtn: Color,
 
     /**
      * Font colors
@@ -26,6 +30,11 @@ data class CustomColors(
     val fontC_100: Color,
     val fontC_200: Color,
     val fontC_300: Color,
+    val fontHeader: Color,
+    val fontLabelHeadTax: Color,
+    val fontLabelCard: Color,
+    val fontCheckedCheckbox: Color,
+    val fontUnCheckedCheckbox: Color,
 
     /**
      * Bottom nav bar

@@ -18,12 +18,21 @@ val LightColorPalette = CustomColors(
 
     bg_SumTax = Light_neumorphism_400,
     focusLine = Light_neumorphism_400,
+    iconButton = Light_neumorphism_400,
+    checkedCheckbox = Light_neumorphism_400,
+    unCheckedCheckbox = Light_neumorphism_400,
+    txtIconBtn = Light_neumorphism_450,
     /**
      * Font colors
      * */
-    fontC_100 = fontC_100d,
+    fontC_100 = fontC_100l,
     fontC_200 = fontC_200d,
     fontC_300 = fontC_300d,
+    fontHeader = fontC_100d,
+    fontLabelHeadTax = Light_neumorphism_400,
+    fontLabelCard = Light_neumorphism_450,
+    fontCheckedCheckbox = Light_neumorphism_450,
+    fontUnCheckedCheckbox = Light_neumorphism_350,
     /**
      * Main background
      * */
@@ -50,13 +59,23 @@ val DarkColorPalette = CustomColors(
     main_600 = Dark_neumorphism_600,
 
     bg_SumTax = Light_neumorphism_450,
-    focusLine = Light_neumorphism_420,
+    //focusLine = Light_neumorphism_420,
+    focusLine = Teal300,
+    iconButton = Light_neumorphism_400,
+    checkedCheckbox = Teal300,
+    unCheckedCheckbox = Light_neumorphism_450,
+    txtIconBtn = Dark_neumorphism_350,
     /**
      * Font colors
      * */
-    fontC_100 = fontC_100l,
+    fontC_100 = fontC_100d,
     fontC_200 = fontC_200l,
     fontC_300 = fontC_300l,
+    fontHeader = fontC_300l,
+    fontLabelHeadTax = Light_neumorphism_400,
+    fontLabelCard = Light_neumorphism_400,
+    fontCheckedCheckbox = Light_neumorphism_200,
+    fontUnCheckedCheckbox = Light_neumorphism_420,
     /**
      * Main background
      * */

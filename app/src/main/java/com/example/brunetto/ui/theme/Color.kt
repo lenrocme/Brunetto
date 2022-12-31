@@ -9,6 +9,7 @@ val Purple200 = Color(0xFFBB86FC)
 val Purple500 = Color(0xFF6200EE)
 val Purple700 = Color(0xFF3700B3)
 val Teal200 = Color(0xFF03DAC5)
+val Teal300 = Color(0xFF00B7FF)
 
 /**
  * main Light
@@ -43,7 +44,7 @@ var Dark_COLOR_BackGround = Color(0xFF0E111A)
 /**
  * Font colors light
  * */
-val fontC_100l = Color(0xFF5C83C4)
+val fontC_100l = Color(0xFF43649B)
 val fontC_200l = Color(0xFFFFFFFF)
 val fontC_300l = Color(0xFFFFFFFF)
 

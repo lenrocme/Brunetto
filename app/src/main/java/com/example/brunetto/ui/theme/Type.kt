@@ -59,7 +59,7 @@ val Typography.SwitcherChoice: TextStyle
             fontFamily = FontFamily.Default,
             fontWeight = FontWeight.SemiBold,
             fontSize = 16.sp,
-            color = MaterialTheme.myColors.main_450,
+            color = MaterialTheme.myColors.fontC_100,
         )
     }
 
@@ -70,7 +70,7 @@ val Typography.UserInput: TextStyle
             fontFamily = FontFamily.Default,
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
-            color = MaterialTheme.myColors.main_450,
+            color = MaterialTheme.myColors.fontC_100,
         )
     }
 

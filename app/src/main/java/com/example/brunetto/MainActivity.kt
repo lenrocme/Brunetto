@@ -195,7 +195,7 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
                                 isReportExtended = !isReportExtended
                             },
                         contentDescription = "Clear",
-                        tint = MaterialTheme.myColors.fontC_100,
+                        tint = MaterialTheme.myColors.iconButton,
                     )
                 }
                 if (isReportExtended) {
@@ -208,7 +208,7 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
                                 isReportExtended = !isReportExtended
                             },
                         contentDescription = "Clear",
-                        tint = MaterialTheme.myColors.fontC_100,
+                        tint = MaterialTheme.myColors.iconButton,
                     )
                 }
             }
@@ -284,7 +284,7 @@ fun HeaderForReportTax(labelName : String, labelValue : Double, isSummary: Boole
                 modifier = Modifier.width(percentWidth(.51f)),
                 text = "$labelName: ",
                 textAlign = TextAlign.Right,
-                color = MaterialTheme.myColors.fontC_100,
+                color = MaterialTheme.myColors.fontHeader,
                 style = MaterialTheme.typography.h2,
             )
 
@@ -292,7 +292,7 @@ fun HeaderForReportTax(labelName : String, labelValue : Double, isSummary: Boole
                 modifier = Modifier.width(150.dp),
                 text = "$formattedLabelValue Euro",
                 textAlign = TextAlign.Right,
-                color = MaterialTheme.myColors.fontC_100,
+                color = MaterialTheme.myColors.fontHeader,
                 style = MaterialTheme.typography.h2,
             )
             Spacer(
@@ -317,7 +317,7 @@ fun LabelOfReportTaxByType(lbText: String) {
         text = lbText,
         textAlign = TextAlign.Center,
         style = MaterialTheme.typography.h4,
-        color = MaterialTheme.myColors.fontC_100,
+        color = MaterialTheme.myColors.fontLabelHeadTax,
         textDecoration = TextDecoration.Underline,
     )
 }
@@ -877,8 +877,8 @@ fun DropDownMenu_Bundesland(
                         mainCalcTaxLegacy.setData()
                     },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = MaterialTheme.myColors.main_450,
-                        uncheckedColor = MaterialTheme.myColors.main_350
+                        checkedColor = MaterialTheme.myColors.checkedCheckbox,
+                        uncheckedColor = MaterialTheme.myColors.unCheckedCheckbox
                     )
                 )
                 //Text(text = "Kirchensteur:")
@@ -898,9 +898,9 @@ fun DropDownMenu_Bundesland(
                         },
                     style = MaterialTheme.typography.Checkbox,
                     color = if (taxViewModel.e_r == 0.0)
-                                    MaterialTheme.myColors.main_350
+                                    MaterialTheme.myColors.fontUnCheckedCheckbox
                             else
-                                    MaterialTheme.myColors.main_450
+                                    MaterialTheme.myColors.fontCheckedCheckbox
                 )
             }
         }
@@ -1003,8 +1003,8 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                         mainCalcTaxLegacy.setData()
                     },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = MaterialTheme.myColors.main_450,
-                        uncheckedColor = MaterialTheme.myColors.main_350
+                        checkedColor = MaterialTheme.myColors.checkedCheckbox,
+                        uncheckedColor = MaterialTheme.myColors.unCheckedCheckbox
                     )
                 )
                 Text(
@@ -1028,9 +1028,9 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                         },
                     style = MaterialTheme.typography.Checkbox,
                     color = if (!taxViewModel.kinderlos)
-                        MaterialTheme.myColors.main_350
+                        MaterialTheme.myColors.fontUnCheckedCheckbox
                     else
-                        MaterialTheme.myColors.main_450
+                        MaterialTheme.myColors.fontCheckedCheckbox
                     )
             }
             Row(verticalAlignment = Alignment.CenterVertically
@@ -1042,8 +1042,8 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                         mainCalcTaxLegacy.setData()
                     },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = MaterialTheme.myColors.main_450,
-                        uncheckedColor = MaterialTheme.myColors.main_350
+                        checkedColor = MaterialTheme.myColors.checkedCheckbox,
+                        uncheckedColor = MaterialTheme.myColors.unCheckedCheckbox
                     )
                 )
                 Text(
@@ -1054,9 +1054,9 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                             mainCalcTaxLegacy.setData()},
                     style = MaterialTheme.typography.Checkbox,
                     color = if (!taxViewModel.e_krv)
-                        MaterialTheme.myColors.main_350
+                        MaterialTheme.myColors.fontUnCheckedCheckbox
                     else
-                        MaterialTheme.myColors.main_450
+                        MaterialTheme.myColors.fontCheckedCheckbox
                 )
             }
             Row(verticalAlignment = Alignment.CenterVertically
@@ -1068,8 +1068,8 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                         mainCalcTaxLegacy.setData()
                     },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = MaterialTheme.myColors.main_450,
-                        uncheckedColor = MaterialTheme.myColors.main_350
+                        checkedColor = MaterialTheme.myColors.checkedCheckbox,
+                        uncheckedColor = MaterialTheme.myColors.unCheckedCheckbox
                     )
                 )
                 Text(
@@ -1080,9 +1080,9 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                             mainCalcTaxLegacy.setData()},
                     style = MaterialTheme.typography.Checkbox,
                     color = if (!taxViewModel.e_av)
-                        MaterialTheme.myColors.main_350
+                        MaterialTheme.myColors.fontUnCheckedCheckbox
                     else
-                        MaterialTheme.myColors.main_450
+                        MaterialTheme.myColors.fontCheckedCheckbox
                     )
             }
         }
@@ -1113,11 +1113,13 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
         Column(modifier = Modifier
             .background(color = MaterialTheme.myColors.bg_card),) {
             Row(modifier = Modifier
+                .padding(top = 5.dp)
                 .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(text = "Krankenversicherung",
-                    color = MaterialTheme.myColors.main_450)
+                    color = MaterialTheme.myColors.fontLabelCard,
+                    fontSize = 14.sp)
             }
             Row(modifier = Modifier
                 .fillMaxWidth(),
@@ -1354,13 +1356,23 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                             taxViewModel.mitag = it
                             mainCalcTaxLegacy.setData()
                         },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = MaterialTheme.myColors.checkedCheckbox,
+                            uncheckedColor = MaterialTheme.myColors.unCheckedCheckbox
+                        )
                     )
                     Text(
                         text = "mit Arbeitgeberzuscuss",
                         modifier = Modifier
                             .clickable(interactionSource = MutableInteractionSource(), indication = null)
                             { taxViewModel.mitag = !taxViewModel.mitag
-                                mainCalcTaxLegacy.setData()})
+                                mainCalcTaxLegacy.setData()},
+                        style = MaterialTheme.typography.Checkbox,
+                        color = if (!taxViewModel.mitag)
+                                    MaterialTheme.myColors.fontUnCheckedCheckbox
+                                else
+                                    MaterialTheme.myColors.fontCheckedCheckbox
+                        )
                 }
                 Row(verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -1370,13 +1382,23 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                             taxViewModel.nachweis = it
                             mainCalcTaxLegacy.setData()
                         },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = MaterialTheme.myColors.checkedCheckbox,
+                            uncheckedColor = MaterialTheme.myColors.unCheckedCheckbox
+                        )
                     )
                     Text(
                         text = "ohne Nachweis",
                         modifier = Modifier
                             .clickable(interactionSource = MutableInteractionSource(), indication = null)
                             { taxViewModel.nachweis = !taxViewModel.nachweis
-                                mainCalcTaxLegacy.setData()})
+                                mainCalcTaxLegacy.setData()},
+                        style = MaterialTheme.typography.Checkbox,
+                        color = if (!taxViewModel.nachweis)
+                                    MaterialTheme.myColors.fontUnCheckedCheckbox
+                                else
+                                    MaterialTheme.myColors.fontCheckedCheckbox
+                    )
                 }
             }
         }
