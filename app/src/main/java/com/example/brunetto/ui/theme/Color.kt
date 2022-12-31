@@ -9,10 +9,12 @@ val Purple200 = Color(0xFFBB86FC)
 val Purple500 = Color(0xFF6200EE)
 val Purple700 = Color(0xFF3700B3)
 val Teal200 = Color(0xFF03DAC5)
+val Teal300 = Color(0xFF00B7FF)
 
 /**
  * main Light
  * */
+val Light_neumorphism_0 = Color(0xFFFFFFFF)
 val Light_neumorphism_100 = Color(0xFFECF0F3)
 val Light_neumorphism_200 = Color(0xFFDDE5F0)
 val Light_neumorphism_300 = Color(0xFFD1D9E6)
@@ -27,6 +29,7 @@ var COLOR_BackGround = Color(0xFFECF0F3)
 /**
  * main Dark 0xFF4A9FEB 0xFF4A9FEB
  * */
+val Dark_neumorphism_0 = Color(0xFF000613)
 val Dark_neumorphism_100 = Color(0xFFECF0F3)
 val Dark_neumorphism_200 = Color(0xFF111A2E)
 val Dark_neumorphism_300 = Color(0xFF212C3C)
@@ -41,7 +44,7 @@ var Dark_COLOR_BackGround = Color(0xFF0E111A)
 /**
  * Font colors light
  * */
-val fontC_100l = Color(0xFF5C83C4)
+val fontC_100l = Color(0xFF43649B)
 val fontC_200l = Color(0xFFFFFFFF)
 val fontC_300l = Color(0xFFFFFFFF)
 

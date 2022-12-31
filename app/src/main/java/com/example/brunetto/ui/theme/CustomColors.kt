@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 
 data class CustomColors(
     val material: Colors,
-
+    val bg_card: Color,
     val main_100: Color,
     val main_200: Color,
     val main_300: Color,
@@ -15,14 +15,31 @@ data class CustomColors(
     val main_450: Color,
     val main_500: Color,
     val main_600: Color,
+
     val CL_BackGround: Color,
+    val bg_SumTax: Color,
+    val focusLine: Color,
+    val iconButton: Color,
+    val checkedCheckbox: Color,
+    val unCheckedCheckbox: Color,
+    val txtIconBtn: Color,
+    val switchThumb: Color,
+    val switchTrack: Color,
+    val bgTaxClass: Color,
+    val bgTaxClassSelect: Color,
 
     /**
      * Font colors
      * */
+    val fontTaxButton: Color,
     val fontC_100: Color,
     val fontC_200: Color,
     val fontC_300: Color,
+    val fontHeader: Color,
+    val fontLabelHeadTax: Color,
+    val fontLabelCard: Color,
+    val fontCheckedCheckbox: Color,
+    val fontUnCheckedCheckbox: Color,
 
     /**
      * Bottom nav bar

@@ -1,6 +1,7 @@
 package com.example.brunetto
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -54,6 +55,7 @@ import com.example.brunetto.ui.theme.SwitcherChoice
 import com.example.brunetto.viewModels.LegacyTaxModelView
 import com.example.brunetto.viewModels.ReportTaxModelView
 import com.example.brunetto.viewModels.TaxViewModel
+import com.example.brunetto.viewModels.UiTaxViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -63,6 +65,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var mLastInput: LastInputViewModel
     private lateinit var mLegacyTaxModelView: LegacyTaxModelView
     private lateinit var mTaxModelView: TaxViewModel
+    private lateinit var mUiTaxViewModel: UiTaxViewModel
     private var theme : String by mutableStateOf("Default")
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,6 +74,7 @@ class MainActivity : ComponentActivity() {
         this.mLegacyTaxModelView = LegacyTaxModelView()
         this.mTaxModelView = TaxViewModel()
         this.mLegacyTaxModelView.mOutputTxt = mTaxModelView
+        this.mUiTaxViewModel = UiTaxViewModel()
 
         // store default data to the db
         this.mLastInput.isEmpty.observe(this) { isTableEmpty ->
@@ -87,7 +91,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CustomMaterialTheme() {
-                MainActivityScreen(mLegacyTaxModelView)
+                MainActivityScreen(mLegacyTaxModelView, mUiTaxViewModel)
             }
         }
 
@@ -110,7 +114,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainActivityScreen(mLegacyTaxModelView: LegacyTaxModelView) {
+fun MainActivityScreen(mLegacyTaxModelView: LegacyTaxModelView, mUiTaxViewModel: UiTaxViewModel) {
     val focusManager = LocalFocusManager.current
     val reportTaxModel = ReportTaxModelView()
     val mainCalcTax = CalculationLegacy(mLegacyTaxModelView, reportTaxModel)
@@ -122,11 +126,13 @@ fun MainActivityScreen(mLegacyTaxModelView: LegacyTaxModelView) {
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {
                     focusManager.clearFocus()
+                    mUiTaxViewModel.isTaxReportExtended = false
+                    print(mUiTaxViewModel.isTaxReportExtended)
                 })
             }
     ) {
         Column() {
-            Header(mLegacyTaxModelView, reportTaxModel)
+            Header(mLegacyTaxModelView, reportTaxModel, mUiTaxViewModel)
             Body(mLegacyTaxModelView, mainCalcTax)
         }
     }
@@ -135,18 +141,25 @@ fun MainActivityScreen(mLegacyTaxModelView: LegacyTaxModelView) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
+    val mUiTaxViewModel = UiTaxViewModel()
     CustomMaterialTheme {
-        MainActivityScreen(LegacyTaxModelView())
+        MainActivityScreen(LegacyTaxModelView(), mUiTaxViewModel)
     }
 }
 
 @Composable
-fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView) {
+fun Header(
+    taxViewModel: LegacyTaxModelView,
+    reportTaxModel: ReportTaxModelView,
+    mUiTaxViewModel: UiTaxViewModel
+) {
     val focusManager = LocalFocusManager.current
     var isReportExtended by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .wrapContentSize()
+            .background(color = MaterialTheme.myColors.main_450)
+
     ) {
         Card(
             modifier = Modifier
@@ -163,7 +176,9 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
                         focusManager.clearFocus()
                     })
                 }
-                .background(color = MaterialTheme.myColors.main_450)
+                .clickable(interactionSource = MutableInteractionSource(), indication = null) {
+                    mUiTaxViewModel.isTaxReportExtended = !mUiTaxViewModel.isTaxReportExtended
+                }
             //.padding(bottom = getPaddingCards()),
         ) {
             Column(
@@ -174,7 +189,7 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
             ) {
                 Spacer( // spacer for translucent action bar
                     modifier = Modifier
-                        .height(25.dp)
+                        .height(35.dp)
                         .fillMaxWidth()
                 )
 
@@ -186,29 +201,29 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
 
                 HeaderForReportTax("Netto jährlich", reportTaxModel.netSalary)
                 HeaderForReportTax("Netto monatlich", reportTaxModel.netSalaryMonthly)
-                if (!isReportExtended) {
+                if (!mUiTaxViewModel.isTaxReportExtended) {
                     Icon(
                         Icons.Default.KeyboardArrowDown,
                         modifier = Modifier
                             .size(40.dp)
-                            .clickable(true) {
-                                isReportExtended = !isReportExtended
+                            .clickable(interactionSource = MutableInteractionSource(), indication = null) {
+                                mUiTaxViewModel.isTaxReportExtended = !mUiTaxViewModel.isTaxReportExtended
                             },
                         contentDescription = "Clear",
-                        tint = MaterialTheme.myColors.fontC_100,
+                        tint = MaterialTheme.myColors.iconButton,
                     )
                 }
-                if (isReportExtended) {
+                if (mUiTaxViewModel.isTaxReportExtended) {
                     ReportTax(taxViewModel, reportTaxModel)
                     Icon(
                         Icons.Default.KeyboardArrowUp,
                         modifier = Modifier
                             .size(40.dp)
-                            .clickable(true) {
-                                isReportExtended = !isReportExtended
+                            .clickable(interactionSource = MutableInteractionSource(), indication = null) {
+                                mUiTaxViewModel.isTaxReportExtended = !mUiTaxViewModel.isTaxReportExtended
                             },
                         contentDescription = "Clear",
-                        tint = MaterialTheme.myColors.fontC_100,
+                        tint = MaterialTheme.myColors.iconButton,
                     )
                 }
             }
@@ -284,7 +299,7 @@ fun HeaderForReportTax(labelName : String, labelValue : Double, isSummary: Boole
                 modifier = Modifier.width(percentWidth(.51f)),
                 text = "$labelName: ",
                 textAlign = TextAlign.Right,
-                color = MaterialTheme.myColors.fontC_100,
+                color = MaterialTheme.myColors.fontHeader,
                 style = MaterialTheme.typography.h2,
             )
 
@@ -292,7 +307,7 @@ fun HeaderForReportTax(labelName : String, labelValue : Double, isSummary: Boole
                 modifier = Modifier.width(150.dp),
                 text = "$formattedLabelValue Euro",
                 textAlign = TextAlign.Right,
-                color = MaterialTheme.myColors.fontC_100,
+                color = MaterialTheme.myColors.fontHeader,
                 style = MaterialTheme.typography.h2,
             )
             Spacer(
@@ -317,7 +332,7 @@ fun LabelOfReportTaxByType(lbText: String) {
         text = lbText,
         textAlign = TextAlign.Center,
         style = MaterialTheme.typography.h4,
-        color = MaterialTheme.myColors.fontC_100,
+        color = MaterialTheme.myColors.fontLabelHeadTax,
         textDecoration = TextDecoration.Underline,
     )
 }
@@ -330,7 +345,8 @@ fun ForReportTax(labelName : String, labelValue : Double, isSummary: Boolean = f
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(color = if (isSummary) Color.LightGray else Color.Transparent),
+                .background(color = if (isSummary) MaterialTheme.myColors.bg_SumTax
+                else Color.Transparent),
             //.padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom,
@@ -499,7 +515,10 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
             .padding(horizontal = percentWidth(.06f))
             .padding(vertical = getPaddingCards()),
     ) {
-        Column() {
+        Column(
+            modifier = Modifier
+                .background(color = MaterialTheme.myColors.bg_card),
+        ) {
             Row(modifier = Modifier
                 .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
@@ -515,6 +534,10 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                             taxViewModel.isProYear = false
                             mainCalcTaxLegacy.setData()
                         },
+                    textDecoration = if (!taxViewModel.isProYear)
+                                        TextDecoration.Underline
+                                    else
+                                        TextDecoration.None,
                     style = MaterialTheme.typography.SwitcherChoice,
                 )
                 Switch(
@@ -532,10 +555,10 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                         mainCalcTaxLegacy.setData()
                     },
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.myColors.main_450,
-                        uncheckedThumbColor = MaterialTheme.myColors.main_450,
-                        checkedTrackColor = MaterialTheme.myColors.main_400,
-                        uncheckedTrackColor = MaterialTheme.myColors.main_400,
+                        checkedThumbColor = MaterialTheme.myColors.switchThumb,
+                        uncheckedThumbColor = MaterialTheme.myColors.switchThumb,
+                        checkedTrackColor = MaterialTheme.myColors.switchTrack,
+                        uncheckedTrackColor = MaterialTheme.myColors.switchTrack,
                         checkedTrackAlpha = 1.0f,
                         uncheckedTrackAlpha = 1.0f
                     )
@@ -550,6 +573,10 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                             taxViewModel.isProYear = true
                             mainCalcTaxLegacy.setData()
                         },
+                    textDecoration = if (taxViewModel.isProYear)
+                                        TextDecoration.Underline
+                                    else
+                                        TextDecoration.None,
                     style = MaterialTheme.typography.SwitcherChoice,
                 )
             }
@@ -590,7 +617,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                 .fillMaxWidth())
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
             ){
                 Surface(
                     elevation = 5.dp,
@@ -611,7 +639,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                         text = "I",
                         fontSize = 23.sp,
                         fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center)
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.myColors.fontTaxButton)
                 }
                 Surface(
                     elevation = 5.dp,
@@ -651,7 +680,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                         text = "II",
                         fontSize = 23.sp,
                         fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center)
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.myColors.fontTaxButton)
                 }
                 Surface(
                     elevation = 5.dp,
@@ -672,7 +702,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                         text = "III",
                         fontSize = 23.sp,
                         fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center)
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.myColors.fontTaxButton)
                 }
                 Surface(
                     elevation = 5.dp,
@@ -693,7 +724,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                         text = "IV",
                         fontSize = 23.sp,
                         fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center)
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.myColors.fontTaxButton)
                 }
                 Surface(
                     elevation = 5.dp,
@@ -714,7 +746,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                         text = "V",
                         fontSize = 23.sp,
                         fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center)
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.myColors.fontTaxButton)
                 }
                 Surface(
                     elevation = 5.dp,
@@ -735,7 +768,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                         text = "VI",
                         fontSize = 23.sp,
                         fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center)
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.myColors.fontTaxButton)
                 }
             }
             Spacer(modifier = Modifier
@@ -782,9 +816,9 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                                         mainCalcTaxLegacy.setData()
                                     },
                                 contentDescription = "Clear",
-                                //tint = MaterialTheme.myColors.main_350,
                             )
                     },
+                    colors = UiElem.colorsOfTextField()
                 )
             }
         }
@@ -813,7 +847,8 @@ fun DropDownMenu_Bundesland(
             .padding(vertical = getPaddingCards()),
         elevation = 5.dp
     ) {
-        Column()
+        Column(modifier = Modifier
+            .background(color = MaterialTheme.myColors.bg_card),)
         {
             //Text(text = textLabel)
             ExposedDropdownMenuBox(
@@ -871,8 +906,8 @@ fun DropDownMenu_Bundesland(
                         mainCalcTaxLegacy.setData()
                     },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = MaterialTheme.myColors.main_450,
-                        uncheckedColor = MaterialTheme.myColors.main_350
+                        checkedColor = MaterialTheme.myColors.checkedCheckbox,
+                        uncheckedColor = MaterialTheme.myColors.unCheckedCheckbox
                     )
                 )
                 //Text(text = "Kirchensteur:")
@@ -892,9 +927,9 @@ fun DropDownMenu_Bundesland(
                         },
                     style = MaterialTheme.typography.Checkbox,
                     color = if (taxViewModel.e_r == 0.0)
-                                    MaterialTheme.myColors.main_350
+                                    MaterialTheme.myColors.fontUnCheckedCheckbox
                             else
-                                    MaterialTheme.myColors.main_450
+                                    MaterialTheme.myColors.fontCheckedCheckbox
                 )
             }
         }
@@ -916,7 +951,8 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
             .padding(vertical = getPaddingCards()),
         elevation = 5.dp
     ) {
-        Column() {
+        Column(modifier = Modifier
+            .background(color = MaterialTheme.myColors.bg_card),) {
             //Text(text = textLabel)
             ExposedDropdownMenuBox(
                 modifier = Modifier
@@ -996,8 +1032,8 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                         mainCalcTaxLegacy.setData()
                     },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = MaterialTheme.myColors.main_450,
-                        uncheckedColor = MaterialTheme.myColors.main_350
+                        checkedColor = MaterialTheme.myColors.checkedCheckbox,
+                        uncheckedColor = MaterialTheme.myColors.unCheckedCheckbox
                     )
                 )
                 Text(
@@ -1021,9 +1057,9 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                         },
                     style = MaterialTheme.typography.Checkbox,
                     color = if (!taxViewModel.kinderlos)
-                        MaterialTheme.myColors.main_350
+                        MaterialTheme.myColors.fontUnCheckedCheckbox
                     else
-                        MaterialTheme.myColors.main_450
+                        MaterialTheme.myColors.fontCheckedCheckbox
                     )
             }
             Row(verticalAlignment = Alignment.CenterVertically
@@ -1035,8 +1071,8 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                         mainCalcTaxLegacy.setData()
                     },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = MaterialTheme.myColors.main_450,
-                        uncheckedColor = MaterialTheme.myColors.main_350
+                        checkedColor = MaterialTheme.myColors.checkedCheckbox,
+                        uncheckedColor = MaterialTheme.myColors.unCheckedCheckbox
                     )
                 )
                 Text(
@@ -1047,9 +1083,9 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                             mainCalcTaxLegacy.setData()},
                     style = MaterialTheme.typography.Checkbox,
                     color = if (!taxViewModel.e_krv)
-                        MaterialTheme.myColors.main_350
+                        MaterialTheme.myColors.fontUnCheckedCheckbox
                     else
-                        MaterialTheme.myColors.main_450
+                        MaterialTheme.myColors.fontCheckedCheckbox
                 )
             }
             Row(verticalAlignment = Alignment.CenterVertically
@@ -1061,8 +1097,8 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                         mainCalcTaxLegacy.setData()
                     },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = MaterialTheme.myColors.main_450,
-                        uncheckedColor = MaterialTheme.myColors.main_350
+                        checkedColor = MaterialTheme.myColors.checkedCheckbox,
+                        uncheckedColor = MaterialTheme.myColors.unCheckedCheckbox
                     )
                 )
                 Text(
@@ -1073,9 +1109,9 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
                             mainCalcTaxLegacy.setData()},
                     style = MaterialTheme.typography.Checkbox,
                     color = if (!taxViewModel.e_av)
-                        MaterialTheme.myColors.main_350
+                        MaterialTheme.myColors.fontUnCheckedCheckbox
                     else
-                        MaterialTheme.myColors.main_450
+                        MaterialTheme.myColors.fontCheckedCheckbox
                     )
             }
         }
@@ -1103,13 +1139,16 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
             .padding(vertical = getPaddingCards()),
         elevation = 5.dp
     ) {
-        Column() {
+        Column(modifier = Modifier
+            .background(color = MaterialTheme.myColors.bg_card),) {
             Row(modifier = Modifier
+                .padding(top = 5.dp)
                 .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(text = "Krankenversicherung",
-                    color = MaterialTheme.myColors.main_450)
+                    color = MaterialTheme.myColors.fontLabelCard,
+                    fontSize = 14.sp)
             }
             Row(modifier = Modifier
                 .fillMaxWidth(),
@@ -1124,7 +1163,11 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                         ) { taxViewModel.isPrivatInsur = false
                             mainCalcTaxLegacy.setData()
                         },
-                    style = MaterialTheme.typography.SwitcherChoice
+                    textDecoration = if (!taxViewModel.isPrivatInsur)
+                                        TextDecoration.Underline
+                                    else
+                                        TextDecoration.None,
+                    style = MaterialTheme.typography.SwitcherChoice,
                     )
                 Switch(
                     modifier = Modifier
@@ -1143,10 +1186,10 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                         mainCalcTaxLegacy.setData()
                     },
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.myColors.main_350,
-                        uncheckedThumbColor = MaterialTheme.myColors.main_350,
-                        checkedTrackColor = MaterialTheme.myColors.main_450,
-                        uncheckedTrackColor = MaterialTheme.myColors.main_450,
+                        checkedThumbColor = MaterialTheme.myColors.switchThumb,
+                        uncheckedThumbColor = MaterialTheme.myColors.switchThumb,
+                        checkedTrackColor = MaterialTheme.myColors.switchTrack,
+                        uncheckedTrackColor = MaterialTheme.myColors.switchTrack,
                         checkedTrackAlpha = 1.0f,
                         uncheckedTrackAlpha = 1.0f
                     )
@@ -1158,7 +1201,11 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                             indication = null
                         ) { taxViewModel.isPrivatInsur = true
                             mainCalcTaxLegacy.setData()},
-                    style = MaterialTheme.typography.SwitcherChoice
+                    textDecoration = if (taxViewModel.isPrivatInsur)
+                                        TextDecoration.Underline
+                                    else
+                                        TextDecoration.None,
+                    style = MaterialTheme.typography.SwitcherChoice,
                 )
             }
             if (!taxViewModel.isPrivatInsur) {
@@ -1346,13 +1393,23 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                             taxViewModel.mitag = it
                             mainCalcTaxLegacy.setData()
                         },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = MaterialTheme.myColors.checkedCheckbox,
+                            uncheckedColor = MaterialTheme.myColors.unCheckedCheckbox
+                        )
                     )
                     Text(
                         text = "mit Arbeitgeberzuscuss",
                         modifier = Modifier
                             .clickable(interactionSource = MutableInteractionSource(), indication = null)
                             { taxViewModel.mitag = !taxViewModel.mitag
-                                mainCalcTaxLegacy.setData()})
+                                mainCalcTaxLegacy.setData()},
+                        style = MaterialTheme.typography.Checkbox,
+                        color = if (!taxViewModel.mitag)
+                                    MaterialTheme.myColors.fontUnCheckedCheckbox
+                                else
+                                    MaterialTheme.myColors.fontCheckedCheckbox
+                        )
                 }
                 Row(verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -1362,13 +1419,23 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
                             taxViewModel.nachweis = it
                             mainCalcTaxLegacy.setData()
                         },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = MaterialTheme.myColors.checkedCheckbox,
+                            uncheckedColor = MaterialTheme.myColors.unCheckedCheckbox
+                        )
                     )
                     Text(
                         text = "ohne Nachweis",
                         modifier = Modifier
                             .clickable(interactionSource = MutableInteractionSource(), indication = null)
                             { taxViewModel.nachweis = !taxViewModel.nachweis
-                                mainCalcTaxLegacy.setData()})
+                                mainCalcTaxLegacy.setData()},
+                        style = MaterialTheme.typography.Checkbox,
+                        color = if (!taxViewModel.nachweis)
+                                    MaterialTheme.myColors.fontUnCheckedCheckbox
+                                else
+                                    MaterialTheme.myColors.fontCheckedCheckbox
+                    )
                 }
             }
         }
@@ -1703,9 +1770,9 @@ private fun SetKirchSteur(checkedState: Boolean, selectedOptionLand: String) : D
 @Composable
 private fun setColorSteuerClassByIsSelected(taxViewModel : LegacyTaxModelView, selectedSteuerClass: Int): Color {
     return if (taxViewModel.e_stkl == selectedSteuerClass.toDouble())
-        MaterialTheme.myColors.main_450
+        MaterialTheme.myColors.bgTaxClassSelect
     else
-        MaterialTheme.myColors.main_300
+        MaterialTheme.myColors.bgTaxClass
 }
 
 /**

@@ -5,6 +5,7 @@ import androidx.compose.material.lightColors
 
 val LightColorPalette = CustomColors(
     material = lightColors(),
+    bg_card = Light_neumorphism_0,
     main_100 = Light_neumorphism_100,
     main_200 = Light_neumorphism_200,
     main_300 = Light_neumorphism_300,
@@ -14,12 +15,29 @@ val LightColorPalette = CustomColors(
     main_450 = Light_neumorphism_450,
     main_500 = Light_neumorphism_500,
     main_600 = Light_neumorphism_600,
+
+    bg_SumTax = Light_neumorphism_400,
+    focusLine = Light_neumorphism_400,
+    iconButton = Light_neumorphism_400,
+    checkedCheckbox = Light_neumorphism_400,
+    unCheckedCheckbox = Light_neumorphism_400,
+    txtIconBtn = Light_neumorphism_450,
+    switchThumb = Light_neumorphism_450,
+    switchTrack = Light_neumorphism_400,
+    bgTaxClass = Light_neumorphism_300,
+    bgTaxClassSelect = Light_neumorphism_450,
     /**
      * Font colors
      * */
-    fontC_100 = fontC_100d,
+    fontTaxButton = Dark_neumorphism_350,
+    fontC_100 = fontC_100l,
     fontC_200 = fontC_200d,
     fontC_300 = fontC_300d,
+    fontHeader = fontC_100d,
+    fontLabelHeadTax = Light_neumorphism_400,
+    fontLabelCard = Light_neumorphism_450,
+    fontCheckedCheckbox = Light_neumorphism_450,
+    fontUnCheckedCheckbox = Light_neumorphism_350,
     /**
      * Main background
      * */
@@ -34,6 +52,7 @@ val LightColorPalette = CustomColors(
 
 val DarkColorPalette = CustomColors(
     material = darkColors(),
+    bg_card = Dark_neumorphism_0,
     main_100 = Dark_neumorphism_100,
     main_200 = Dark_neumorphism_200,
     main_300 = Dark_neumorphism_300,
@@ -43,12 +62,30 @@ val DarkColorPalette = CustomColors(
     main_450 = Dark_neumorphism_450,
     main_500 = Dark_neumorphism_500,
     main_600 = Dark_neumorphism_600,
+
+    bg_SumTax = Light_neumorphism_450,
+    //focusLine = Light_neumorphism_420,
+    focusLine = Teal300,
+    iconButton = Light_neumorphism_400,
+    checkedCheckbox = Teal300,
+    unCheckedCheckbox = Light_neumorphism_450,
+    txtIconBtn = Dark_neumorphism_350,
+    switchThumb = Teal300,
+    switchTrack = Dark_neumorphism_350,
+    bgTaxClass = Dark_neumorphism_350,
+    bgTaxClassSelect = Teal300,
     /**
      * Font colors
      * */
-    fontC_100 = fontC_100l,
+    fontTaxButton = Light_neumorphism_200,
+    fontC_100 = fontC_100d,
     fontC_200 = fontC_200l,
     fontC_300 = fontC_300l,
+    fontHeader = fontC_300l,
+    fontLabelHeadTax = Light_neumorphism_400,
+    fontLabelCard = Light_neumorphism_400,
+    fontCheckedCheckbox = Light_neumorphism_200,
+    fontUnCheckedCheckbox = Light_neumorphism_420,
     /**
      * Main background
      * */
