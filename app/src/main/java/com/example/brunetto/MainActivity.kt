@@ -174,7 +174,7 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
             ) {
                 Spacer( // spacer for translucent action bar
                     modifier = Modifier
-                        .height(25.dp)
+                        .height(35.dp)
                         .fillMaxWidth()
                 )
 
@@ -801,9 +801,9 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                                         mainCalcTaxLegacy.setData()
                                     },
                                 contentDescription = "Clear",
-                                //tint = MaterialTheme.myColors.main_350,
                             )
                     },
+                    colors = UiElem.colorsOfTextField()
                 )
             }
         }
