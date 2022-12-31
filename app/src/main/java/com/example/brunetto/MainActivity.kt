@@ -147,6 +147,7 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
     Box(
         modifier = Modifier
             .wrapContentSize()
+            .background(color = MaterialTheme.myColors.main_450)
     ) {
         Card(
             modifier = Modifier
@@ -163,7 +164,6 @@ fun Header(taxViewModel: LegacyTaxModelView, reportTaxModel: ReportTaxModelView)
                         focusManager.clearFocus()
                     })
                 }
-                .background(color = MaterialTheme.myColors.main_450)
             //.padding(bottom = getPaddingCards()),
         ) {
             Column(

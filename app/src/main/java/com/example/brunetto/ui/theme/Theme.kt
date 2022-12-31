@@ -17,6 +17,7 @@ val LightColorPalette = CustomColors(
     main_600 = Light_neumorphism_600,
 
     bg_SumTax = Light_neumorphism_400,
+    focusLine = Light_neumorphism_400,
     /**
      * Font colors
      * */
@@ -49,6 +50,7 @@ val DarkColorPalette = CustomColors(
     main_600 = Dark_neumorphism_600,
 
     bg_SumTax = Light_neumorphism_450,
+    focusLine = Light_neumorphism_420,
     /**
      * Font colors
      * */

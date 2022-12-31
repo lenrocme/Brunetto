@@ -18,6 +18,7 @@ data class CustomColors(
 
     val CL_BackGround: Color,
     val bg_SumTax: Color,
+    val focusLine: Color,
 
     /**
      * Font colors

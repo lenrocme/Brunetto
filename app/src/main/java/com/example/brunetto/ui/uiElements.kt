@@ -12,7 +12,7 @@ object UiElem{
         //disabledTextColor = disabledTextColor,
         backgroundColor = MaterialTheme.myColors.bg_card,
         cursorColor = MaterialTheme.myColors.main_450,
-        focusedIndicatorColor = MaterialTheme.myColors.main_450,
+        focusedIndicatorColor = MaterialTheme.myColors.focusLine,
         focusedLabelColor = MaterialTheme.myColors.main_450,
         unfocusedLabelColor = MaterialTheme.myColors.main_420,
         unfocusedIndicatorColor = MaterialTheme.myColors.main_350,
