@@ -13,6 +13,7 @@ val Teal200 = Color(0xFF03DAC5)
 /**
  * main Light
  * */
+val Light_neumorphism_0 = Color(0xFFFFFFFF)
 val Light_neumorphism_100 = Color(0xFFECF0F3)
 val Light_neumorphism_200 = Color(0xFFDDE5F0)
 val Light_neumorphism_300 = Color(0xFFD1D9E6)
@@ -27,6 +28,7 @@ var COLOR_BackGround = Color(0xFFECF0F3)
 /**
  * main Dark 0xFF4A9FEB 0xFF4A9FEB
  * */
+val Dark_neumorphism_0 = Color(0xFF000613)
 val Dark_neumorphism_100 = Color(0xFFECF0F3)
 val Dark_neumorphism_200 = Color(0xFF111A2E)
 val Dark_neumorphism_300 = Color(0xFF212C3C)

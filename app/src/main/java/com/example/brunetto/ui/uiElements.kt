@@ -3,7 +3,6 @@ package com.example.brunetto.ui
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import com.example.brunetto.ui.theme.myColors
 
 object UiElem{
@@ -11,7 +10,7 @@ object UiElem{
     fun colorsOfTextField() = TextFieldDefaults.textFieldColors(
         textColor = MaterialTheme.myColors.main_450,
         //disabledTextColor = disabledTextColor,
-        backgroundColor = Color.White,
+        backgroundColor = MaterialTheme.myColors.bg_card,
         cursorColor = MaterialTheme.myColors.main_450,
         focusedIndicatorColor = MaterialTheme.myColors.main_450,
         focusedLabelColor = MaterialTheme.myColors.main_450,

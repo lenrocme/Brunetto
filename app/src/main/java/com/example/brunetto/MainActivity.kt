@@ -330,7 +330,8 @@ fun ForReportTax(labelName : String, labelValue : Double, isSummary: Boolean = f
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(color = if (isSummary) Color.LightGray else Color.Transparent),
+                .background(color = if (isSummary) MaterialTheme.myColors.bg_SumTax
+                else Color.Transparent),
             //.padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom,
@@ -499,7 +500,10 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
             .padding(horizontal = percentWidth(.06f))
             .padding(vertical = getPaddingCards()),
     ) {
-        Column() {
+        Column(
+            modifier = Modifier
+                .background(color = MaterialTheme.myColors.bg_card),
+        ) {
             Row(modifier = Modifier
                 .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
@@ -590,7 +594,8 @@ fun SteuerClass(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculation
                 .fillMaxWidth())
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
             ){
                 Surface(
                     elevation = 5.dp,
@@ -813,7 +818,8 @@ fun DropDownMenu_Bundesland(
             .padding(vertical = getPaddingCards()),
         elevation = 5.dp
     ) {
-        Column()
+        Column(modifier = Modifier
+            .background(color = MaterialTheme.myColors.bg_card),)
         {
             //Text(text = textLabel)
             ExposedDropdownMenuBox(
@@ -916,7 +922,8 @@ fun CheckBoxes(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationL
             .padding(vertical = getPaddingCards()),
         elevation = 5.dp
     ) {
-        Column() {
+        Column(modifier = Modifier
+            .background(color = MaterialTheme.myColors.bg_card),) {
             //Text(text = textLabel)
             ExposedDropdownMenuBox(
                 modifier = Modifier
@@ -1103,7 +1110,8 @@ fun Card_KrankVers(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: Calculat
             .padding(vertical = getPaddingCards()),
         elevation = 5.dp
     ) {
-        Column() {
+        Column(modifier = Modifier
+            .background(color = MaterialTheme.myColors.bg_card),) {
             Row(modifier = Modifier
                 .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center

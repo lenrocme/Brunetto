@@ -5,6 +5,7 @@ import androidx.compose.material.lightColors
 
 val LightColorPalette = CustomColors(
     material = lightColors(),
+    bg_card = Light_neumorphism_0,
     main_100 = Light_neumorphism_100,
     main_200 = Light_neumorphism_200,
     main_300 = Light_neumorphism_300,
@@ -14,6 +15,8 @@ val LightColorPalette = CustomColors(
     main_450 = Light_neumorphism_450,
     main_500 = Light_neumorphism_500,
     main_600 = Light_neumorphism_600,
+
+    bg_SumTax = Light_neumorphism_400,
     /**
      * Font colors
      * */
@@ -34,6 +37,7 @@ val LightColorPalette = CustomColors(
 
 val DarkColorPalette = CustomColors(
     material = darkColors(),
+    bg_card = Dark_neumorphism_0,
     main_100 = Dark_neumorphism_100,
     main_200 = Dark_neumorphism_200,
     main_300 = Dark_neumorphism_300,
@@ -43,6 +47,8 @@ val DarkColorPalette = CustomColors(
     main_450 = Dark_neumorphism_450,
     main_500 = Dark_neumorphism_500,
     main_600 = Dark_neumorphism_600,
+
+    bg_SumTax = Light_neumorphism_450,
     /**
      * Font colors
      * */

@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 
 data class CustomColors(
     val material: Colors,
-
+    val bg_card: Color,
     val main_100: Color,
     val main_200: Color,
     val main_300: Color,
@@ -15,7 +15,9 @@ data class CustomColors(
     val main_450: Color,
     val main_500: Color,
     val main_600: Color,
+
     val CL_BackGround: Color,
+    val bg_SumTax: Color,
 
     /**
      * Font colors
