@@ -68,6 +68,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var mUiTaxViewModel: UiTaxViewModel
     private var theme : String by mutableStateOf("Default")
 
+    private var isFirstRecordInit: Boolean by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.mLastInput = ViewModelProvider(this)[LastInputViewModel::class.java]
@@ -78,15 +80,10 @@ class MainActivity : ComponentActivity() {
 
         // store default data to the db
         this.mLastInput.isEmpty.observe(this) { isTableEmpty ->
-            if (isTableEmpty)
+            if (isTableEmpty) {
                 this.initDefaultDataLastInput(mLastInput)
-        }
-
-        this.mLastInput.lastInput.observe(this){ lastInput ->
-            // for calc taxes and report
-            mLegacyTaxModelView.setDataFromTheDbLastInput(lastInput)
-            // for textfield
-            mTaxModelView.setDataFromTheDbLastInput(lastInput)
+                this.isFirstRecordInit = true
+            }
         }
 
         setContent {
@@ -99,6 +96,18 @@ class MainActivity : ComponentActivity() {
             val bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
             view.updatePadding(bottom = bottom)
             insets
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (this.isFirstRecordInit) {
+            this.mLastInput.lastInput.observe(this) { lastInput ->
+                // for calc taxes and report
+                mLegacyTaxModelView.setDataFromTheDbLastInput(lastInput)
+                // for textfield
+                mTaxModelView.setDataFromTheDbLastInput(lastInput)
+            }
         }
     }
 
