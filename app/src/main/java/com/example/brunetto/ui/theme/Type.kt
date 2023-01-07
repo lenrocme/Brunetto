@@ -83,3 +83,25 @@ val Typography.Checkbox: TextStyle
             fontSize = 16.sp,
         )
     }
+
+val Typography.CheckedYear: TextStyle
+    @Composable
+    get() {
+        return  TextStyle(
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.Medium,
+            fontSize = 20.sp,
+            color = MaterialTheme.myColors.checkedCheckbox
+        )
+    }
+
+val Typography.UnCheckedYear: TextStyle
+    @Composable
+    get() {
+        return  TextStyle(
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.Normal,
+            fontSize = 17.sp,
+            color = MaterialTheme.myColors.unCheckedCheckbox
+        )
+    }
