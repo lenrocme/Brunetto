@@ -1,7 +1,6 @@
 package com.example.brunetto
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -30,6 +29,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
@@ -47,11 +47,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.brunetto.data.lastInput.LastInput
 import com.example.brunetto.data.lastInput.LastInputViewModel
 import com.example.brunetto.helpers.*
-import com.example.brunetto.ui.theme.CustomMaterialTheme
-import com.example.brunetto.ui.theme.myColors
 import com.example.brunetto.ui.UiElem
-import com.example.brunetto.ui.theme.Checkbox
-import com.example.brunetto.ui.theme.SwitcherChoice
+import com.example.brunetto.ui.theme.*
 import com.example.brunetto.viewModels.LegacyTaxModelView
 import com.example.brunetto.viewModels.ReportTaxModelView
 import com.example.brunetto.viewModels.TaxViewModel
@@ -62,6 +59,7 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 class MainActivity : ComponentActivity() {
+    private lateinit var mainVm: MainViewModel
     private lateinit var mLastInput: LastInputViewModel
     private lateinit var mLegacyTaxModelView: LegacyTaxModelView
     private lateinit var mTaxModelView: TaxViewModel
@@ -72,6 +70,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        this.mainVm = MainViewModel()
         this.mLastInput = ViewModelProvider(this)[LastInputViewModel::class.java]
         this.mLegacyTaxModelView = LegacyTaxModelView()
         this.mTaxModelView = TaxViewModel()
@@ -88,7 +87,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CustomMaterialTheme() {
-                MainActivityScreen(mLegacyTaxModelView, mUiTaxViewModel)
+                MainActivityScreen(this.mainVm, this.mLegacyTaxModelView, this.mUiTaxViewModel)
             }
         }
 
@@ -123,7 +122,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainActivityScreen(mLegacyTaxModelView: LegacyTaxModelView, mUiTaxViewModel: UiTaxViewModel) {
+fun MainActivityScreen(
+    mainVm: MainViewModel,
+    mLegacyTaxModelView: LegacyTaxModelView,
+    mUiTaxViewModel: UiTaxViewModel
+) {
     val focusManager = LocalFocusManager.current
     val reportTaxModel = ReportTaxModelView()
     val mainCalcTax = CalculationLegacy(mLegacyTaxModelView, reportTaxModel)
@@ -142,19 +145,19 @@ fun MainActivityScreen(mLegacyTaxModelView: LegacyTaxModelView, mUiTaxViewModel:
     ) {
         Column() {
             Header(mLegacyTaxModelView, reportTaxModel, mUiTaxViewModel)
-            Body(mLegacyTaxModelView, mainCalcTax)
+            Body(mainVm, mLegacyTaxModelView, mainCalcTax)
         }
     }
 }
-
+/*
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     val mUiTaxViewModel = UiTaxViewModel()
     CustomMaterialTheme {
-        MainActivityScreen(LegacyTaxModelView(), mUiTaxViewModel)
+        MainActivityScreen(mainVm, LegacyTaxModelView(), mUiTaxViewModel)
     }
-}
+}*/
 
 @Composable
 fun Header(
@@ -215,8 +218,12 @@ fun Header(
                         Icons.Default.KeyboardArrowDown,
                         modifier = Modifier
                             .size(40.dp)
-                            .clickable(interactionSource = MutableInteractionSource(), indication = null) {
-                                mUiTaxViewModel.isTaxReportExtended = !mUiTaxViewModel.isTaxReportExtended
+                            .clickable(
+                                interactionSource = MutableInteractionSource(),
+                                indication = null
+                            ) {
+                                mUiTaxViewModel.isTaxReportExtended =
+                                    !mUiTaxViewModel.isTaxReportExtended
                             },
                         contentDescription = "Clear",
                         tint = MaterialTheme.myColors.iconButton,
@@ -228,8 +235,12 @@ fun Header(
                         Icons.Default.KeyboardArrowUp,
                         modifier = Modifier
                             .size(40.dp)
-                            .clickable(interactionSource = MutableInteractionSource(), indication = null) {
-                                mUiTaxViewModel.isTaxReportExtended = !mUiTaxViewModel.isTaxReportExtended
+                            .clickable(
+                                interactionSource = MutableInteractionSource(),
+                                indication = null
+                            ) {
+                                mUiTaxViewModel.isTaxReportExtended =
+                                    !mUiTaxViewModel.isTaxReportExtended
                             },
                         contentDescription = "Clear",
                         tint = MaterialTheme.myColors.iconButton,
@@ -354,8 +365,10 @@ fun ForReportTax(labelName : String, labelValue : Double, isSummary: Boolean = f
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(color = if (isSummary) MaterialTheme.myColors.bg_SumTax
-                else Color.Transparent),
+                .background(
+                    color = if (isSummary) MaterialTheme.myColors.bg_SumTax
+                    else Color.Transparent
+                ),
             //.padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom,
@@ -394,7 +407,11 @@ fun ForReportTax(labelName : String, labelValue : Double, isSummary: Boolean = f
 }
 
 @Composable
-fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy) {
+fun Body(
+    mainVm: MainViewModel,
+    taxViewModel: LegacyTaxModelView,
+    mainCalcTaxLegacy: CalculationLegacy
+) {
     val spaceBetweenCards = percentHeight(.011f)
     val state = rememberScrollState()
     val calcTaxViewModel = TaxViewModel()
@@ -420,7 +437,7 @@ fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy)
         Column(
             verticalArrangement = Arrangement.Top,
             modifier = Modifier
-               /* .animateContentSize(
+                /* .animateContentSize(
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioLowBouncy,
                         stiffness = Spring.StiffnessLow
@@ -434,73 +451,104 @@ fun Body(taxViewModel: LegacyTaxModelView, mainCalcTaxLegacy: CalculationLegacy)
                     })
                 },*/
         ) {
+            YearPicker(mainVm)
             Spacer(modifier = Modifier
                 .height(spaceBetweenCards)
                 .fillMaxWidth())
-            /**
-             * The Card for the "Steur class" and when the option 4 is selected => active "Ehegattenfaktor"
-             * */
-            SteuerClass(taxViewModel, mainCalcTaxLegacy)
-            /**
-             * The Card with "Bundesland" drop down menu & and checkbox for "kirchsteur"
-             * */
-            DropDownMenu_Bundesland("Bundesland", taxViewModel, mainCalcTaxLegacy)
-            /**
-             * The Card for the checkboxes like "kinderlos" and > 23 & "renteversicherung" & "arbeitslosversicherung"
-             * */
-            CheckBoxes(taxViewModel, mainCalcTaxLegacy)
-            /**
-             * The Card for "krankversicherungen" , gesetzliche & private
-             * */
-            Card_KrankVers(taxViewModel, mainCalcTaxLegacy)
-            /**
-             * The Card for optional bezüge, top one
-             * */
-            Card_Optional_Top(taxViewModel, mainCalcTaxLegacy)
-            /**
-             * The Card for optional bezüge, midle one
-             * */
-            Card_Optional_Midle(taxViewModel, mainCalcTaxLegacy)
-            /**
-             * The Card for optional bezüge, bottom one
-             * */
-            Card_Optional_Bottom(taxViewModel, mainCalcTaxLegacy)
-
-            /*Button(
-                onClick = {
-                    mainCalcTaxLegacy.setData()
-                 /*   Log.d("taxes", "Zeitraum: " + taxViewModel.e_lzz)
-                    Log.d("taxes", "inputed lohn: " + taxViewModel.e_re4)
-                    Log.d("taxes", "steurclass: " + taxViewModel.e_stkl)
-                    Log.d("taxes", "when steuer 4, value: " + taxViewModel.e_f)
-                    Log.d("taxes", "zahl der kinder: " + taxViewModel.e_zkf)
-                    Log.d("taxes", "Bundesland: " + taxViewModel.e_bundesland)
-                    Log.d("taxes", "Kirchsteuer: " + taxViewModel.e_r)
-                    Log.d("taxes", "KinderLos: " + taxViewModel.kinderlos)
-                    Log.d("taxes", "renteversicherungspflichtig: " + taxViewModel.e_krv)
-                    Log.d("taxes", "arbeitslosenversicherungspflichtig: " + taxViewModel.e_av)
-                    Log.d("taxes", "krankenversicherung beitragssatz: " + taxViewModel.e_barmer)
-                    Log.d("taxes", "Zusatzbeitrag: " + taxViewModel.e_kvz)
-                    Log.d("taxes", "Beitra / Monat: " + taxViewModel.e_anpkv)
-                    Log.d("taxes", "Grundsicherung / Monat: " + taxViewModel.e_pkpv)
-                    Log.d("taxes", "mit Arbeitgeberzushuss: " + taxViewModel.mitag)
-                    Log.d("taxes", "ohne Nachweis: " + taxViewModel.nachweis)
-
-                    Log.d("taxes", "Einmal Bezüge: " + taxViewModel.e_sonstb)
-                    Log.d("taxes", "schon abgerenchete Einmalbezüge: " + taxViewModel.e_jsonstb)
-                    Log.d("taxes", "Bezüge aus mehrjährige Tätigkeit: " + taxViewModel.e_vmt)
-                    Log.d("taxes", "davon Entschädigungszahlung: " + taxViewModel.e_entsch)
-                    Log.d("taxes", "Freibetrag aus LStKarte: " + taxViewModel.e_wfundf)
-                    Log.d("taxes", "Hinzurechnungsbetrag: " + taxViewModel.e_hinzur)
-               */
-                }) {
-            }*/
+            if (mainVm.pickedYear == "2022") {
+                Column() {
+                    /**
+                     * The Card for the "Steur class" and when the option 4 is selected => active "Ehegattenfaktor"
+                     * */
+                    SteuerClass(taxViewModel, mainCalcTaxLegacy)
+                    /**
+                     * The Card with "Bundesland" drop down menu & and checkbox for "kirchsteur"
+                     * */
+                    DropDownMenu_Bundesland("Bundesland", taxViewModel, mainCalcTaxLegacy)
+                    /**
+                     * The Card for the checkboxes like "kinderlos" and > 23 & "renteversicherung" & "arbeitslosversicherung"
+                     * */
+                    CheckBoxes(taxViewModel, mainCalcTaxLegacy)
+                    /**
+                     * The Card for "krankversicherungen" , gesetzliche & private
+                     * */
+                    Card_KrankVers(taxViewModel, mainCalcTaxLegacy)
+                    /**
+                     * The Card for optional bezüge, top one
+                     * */
+                    Card_Optional_Top(taxViewModel, mainCalcTaxLegacy)
+                    /**
+                     * The Card for optional bezüge, midle one
+                     * */
+                    Card_Optional_Midle(taxViewModel, mainCalcTaxLegacy)
+                    /**
+                     * The Card for optional bezüge, bottom one
+                     * */
+                    Card_Optional_Bottom(taxViewModel, mainCalcTaxLegacy)
+                }
+            }
+            else {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Text(text = "in progress...")
+                }
+            }
             Spacer(modifier = Modifier
                 .height(adaptHeight(10.dp, 20.dp, 30.dp))
                 .fillMaxWidth())
         }
     }
     mainCalcTaxLegacy.setData()
+}
+
+@Composable
+fun YearPicker(mainVm: MainViewModel) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(text = "2022",
+            modifier = Modifier
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null
+                ) {
+                    mainVm.pickedYear = "2022"
+                    //mainCalcTaxLegacy.setData()
+                },
+            style = if (mainVm.pickedYear == "2022")
+                MaterialTheme.typography.CheckedYear
+            else
+                MaterialTheme.typography.UnCheckedYear,
+        )
+        Spacer(modifier = Modifier.width(20.dp))
+        Text(text = "/",
+            modifier = Modifier
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null
+                ) {
+                    mainVm.pickedYear = "2023"
+                    //mainCalcTaxLegacy.setData()
+                },
+            style = MaterialTheme.typography.CheckedYear
+        )
+        Spacer(modifier = Modifier.width(20.dp))
+        Text(text = "2023",
+            modifier = Modifier
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null
+                ) {
+                    mainVm.pickedYear = "2023"
+                    //mainCalcTaxLegacy.setData()
+                },
+            style = if (mainVm.pickedYear == "2023")
+                MaterialTheme.typography.CheckedYear
+            else
+                MaterialTheme.typography.UnCheckedYear,
+        )
+    }
 }
 
 @Composable
