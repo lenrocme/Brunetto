@@ -451,9 +451,8 @@ fun Body(
                     })
                 },*/
         ) {
-            YearPicker(mainVm)
             Spacer(modifier = Modifier
-                .height(spaceBetweenCards)
+                .height(percentWidth(.06f) - 5.dp)
                 .fillMaxWidth())
             if (mainVm.pickedYear == "2022") {
                 Column() {
@@ -492,9 +491,9 @@ fun Body(
                     Text(text = "in progress...")
                 }
             }
-            Spacer(modifier = Modifier
-                .height(adaptHeight(10.dp, 20.dp, 30.dp))
-                .fillMaxWidth())
+            Spacer(modifier = Modifier.height(10.dp))
+            YearPicker(mainVm)
+            Spacer(modifier = Modifier.height(adaptHeight(10.dp, 20.dp, 30.dp)))
         }
     }
     mainCalcTaxLegacy.setData()
