@@ -1,4 +1,4 @@
-package com.example.brunetto
+package com.malferma.brunetto
 
 import android.os.Bundle
 import android.widget.Toast
@@ -29,14 +29,12 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,15 +42,15 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.ViewModelProvider
-import com.example.brunetto.data.lastInput.LastInput
-import com.example.brunetto.data.lastInput.LastInputViewModel
-import com.example.brunetto.helpers.*
-import com.example.brunetto.ui.UiElem
-import com.example.brunetto.ui.theme.*
-import com.example.brunetto.viewModels.LegacyTaxModelView
-import com.example.brunetto.viewModels.ReportTaxModelView
-import com.example.brunetto.viewModels.TaxViewModel
-import com.example.brunetto.viewModels.UiTaxViewModel
+import com.malferma.brunetto.data.lastInput.LastInput
+import com.malferma.brunetto.data.lastInput.LastInputViewModel
+import com.malferma.brunetto.helpers.*
+import com.malferma.brunetto.ui.UiElem
+import com.malferma.brunetto.ui.theme.*
+import com.malferma.brunetto.viewModels.LegacyTaxModelView
+import com.malferma.brunetto.viewModels.ReportTaxModelView
+import com.malferma.brunetto.viewModels.TaxViewModel
+import com.malferma.brunetto.viewModels.UiTaxViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -66,8 +64,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var mUiTaxViewModel: UiTaxViewModel
     private var theme : String by mutableStateOf("Default")
 
-    private var isFirstRecordInit: Boolean by mutableStateOf(false)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.mainVm = MainViewModel()
@@ -77,11 +73,16 @@ class MainActivity : ComponentActivity() {
         this.mLegacyTaxModelView.mOutputTxt = mTaxModelView
         this.mUiTaxViewModel = UiTaxViewModel()
 
-        // store default data to the db
-        this.mLastInput.isEmpty.observe(this) { isTableEmpty ->
-            if (isTableEmpty) {
+        // load the last stored data
+        this.mLastInput.lastInput.observe(this) { lastInput ->
+            if (lastInput != null) {
+                // for calc taxes and report
+                mLegacyTaxModelView.setDataFromTheDbLastInput(lastInput)
+                // for textfield
+                mTaxModelView.setDataFromTheDbLastInput(lastInput)
+            }
+            else { // store default data to the db if table is empty (first load)
                 this.initDefaultDataLastInput(mLastInput)
-                this.isFirstRecordInit = true
             }
         }
 
@@ -95,18 +96,6 @@ class MainActivity : ComponentActivity() {
             val bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
             view.updatePadding(bottom = bottom)
             insets
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        if (this.isFirstRecordInit) {
-            this.mLastInput.lastInput.observe(this) { lastInput ->
-                // for calc taxes and report
-                mLegacyTaxModelView.setDataFromTheDbLastInput(lastInput)
-                // for textfield
-                mTaxModelView.setDataFromTheDbLastInput(lastInput)
-            }
         }
     }
 
