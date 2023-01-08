@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.brunetto'
+    namespace 'com.malferma.brunetto'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.brunetto"
+        applicationId "com.malferma.brunetto"
         minSdk 26
         targetSdk 33
         versionCode 1
